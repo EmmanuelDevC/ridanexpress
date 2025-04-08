@@ -32,7 +32,7 @@ const NotFoundPage = () => {
 
         <div className="relative z-10 space-y-6">
           <div className="space-y-4">
-            <h1 className="text-8xl font-black text-indigo-600 animate-pulse">404</h1>
+            <h1 className="text-8xl font-black text-orange-500 animate-pulse">404</h1>
             <h2 className="text-3xl font-bold text-gray-800">Lost in the Shopping Aisles?</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Looks like this product went out of stock! Don't worry, we've got plenty more amazing items waiting for you.
@@ -54,7 +54,7 @@ const NotFoundPage = () => {
             
             <Link 
               to="/" 
-              className="px-8 py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl 
+              className="px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl 
                         font-semibold shadow-lg hover:shadow-xl transition-all duration-300
                         flex items-center justify-center gap-2"
             >

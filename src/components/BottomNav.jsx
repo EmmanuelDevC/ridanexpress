@@ -82,7 +82,7 @@ const BottomNav = () => {
     };
 
     return (
-        <div className={`fixed bottom-0 left-0 right-0 z-40 bg-gray-900 shadow-2xl rounded-2xl transition-transform duration-300 ${visible ? 'translate-y-0' : 'translate-y-full'}`}>
+        <div className={`fixed bottom-0 left-0 right-0 z-40 bg-gray-900 shadow-2xl rounded-t-2xl transition-transform duration-300 ${visible ? 'translate-y-0' : 'translate-y-full'}`}>
             <div className="flex justify-around items-center py-3 px-2">
                 {navItems.map((item, index) => (
                     <button

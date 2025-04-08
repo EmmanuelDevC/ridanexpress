@@ -352,7 +352,7 @@ const Headers = () => {
                                             </div>
                                             <div>
                                                 <div className="font-medium text-gray-900">{userInfo.name}</div>
-                                                <div className="text-xs text-gray-500">View your account</div>
+                                                <div className="text-xs text-gray-500">View your dashboard</div>
                                             </div>
                                         </div>
 

@@ -77,22 +77,74 @@ const FeatureProducts = ({ products }) => {
                 </Link>
             </div>
 
-            {isLoading
-                ? // Skeleton placeholders for loading state
-                Array.from(new Array(12)).map((_, index) => (
-                    <div
-                        key={index}
-                        className="rounded-[15px] overflow-hidden shadow-lg bg-white group transition-all duration-500 hover:shadow-xl"
-                    >
-                        <Skeleton variant="rectangular" width={310} height={220} />
-                        <div className="py-3 px-2 text-gray-700">
-                            <Skeleton variant="text" width="80%" />
-                            <Skeleton variant="text" width="60%" />
-                            <Skeleton variant="text" width="50%" />
+            {isLoading ? (
+                <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 lg:gap-4'>
+                    {[1, 2, 3, 4, 5, 6].map((_, index) => (
+                        <div
+                            key={index}
+                            className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden"
+                        >
+                            {/* Image Skeleton with Shimmer Effect */}
+                            <div className="relative aspect-square bg-gray-100 overflow-hidden">
+                                <Skeleton
+                                    variant="rectangular"
+                                    className='w-full h-full rounded-none'
+                                    animation="wave"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+                            </div>
+
+                            {/* Content Skeleton */}
+                            <div className="p-3 space-y-2">
+                                <div className="flex justify-between items-start">
+                                    <Skeleton
+                                        variant="text"
+                                        width={120}
+                                        height={24}
+                                        className="rounded-lg"
+                                    />
+                                    <Skeleton
+                                        variant="circular"
+                                        width={32}
+                                        height={32}
+                                        className="mr-1"
+                                    />
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <Skeleton
+                                        variant="text"
+                                        width={80}
+                                        height={20}
+                                        className="rounded-lg"
+                                    />
+                                    <Skeleton
+                                        variant="text"
+                                        width={40}
+                                        height={20}
+                                        className="rounded-lg"
+                                    />
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <Skeleton
+                                        variant="text"
+                                        width={60}
+                                        height={24}
+                                        className="rounded-lg"
+                                    />
+                                    <Skeleton
+                                        variant="text"
+                                        width={50}
+                                        height={20}
+                                        className="rounded-lg"
+                                    />
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                ))
-                : // Render products when loaded
+                    ))}
+                </div>
+            ) : // Render products when loaded
 
                 <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 md:gap-2 lg:gap-2'>
                     {products.map((p, i) => (

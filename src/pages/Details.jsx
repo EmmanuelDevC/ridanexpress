@@ -418,7 +418,7 @@ const Details = () => {
                                     </div>
                                     <div className="swiper-button-next right-1 !w-8 !h-8 after:!text-[16px]">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24">
-                                            <path stroke="currentColor" color="black" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                            <path stroke="currentColor" strokeWidth="2" d="M9 5l7 7-7 7" />
                                         </svg>
                                     </div>
                                 </Swiper>
@@ -468,7 +468,7 @@ const Details = () => {
 
                         <div className="flex flex-col gap-4 lg:gap-6 h-fit bg-white p-6 md:p-8 rounded-xl border border-gray-100 shadow-sm">
                             <div className="flex flex-col gap-5">
-                                <h1 className="text-3xl lg:text-3xl font-base text-gray-900 tracking-tight">
+                                <h1 className="text-3xl lg:text-3xl font-base lg:font-medium text-gray-900 tracking-tight">
                                     {product.name}
                                 </h1>
 
@@ -493,7 +493,7 @@ const Details = () => {
                                                 <span className="text-xl md:text-2xl lg:text-3xl font-base text-[#191919]">
                                                     ₦ {(product.price - Math.floor((product.price * product.discount) / 100)).toLocaleString()}
                                                 </span>
-                                                <span className=" block lg:hidden px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
+                                                <span className=" block lg:hidden px-2 py-1 border border-gray-900 text-xs font-semibold rounded-full bg-green-100 text-green-700">
                                                     {product.discount}% OFF
                                                 </span>
                                             </div>
@@ -536,37 +536,42 @@ const Details = () => {
                                     )}
                                 </div>
 
-                                <div className="flex items-center gap-4 mt-2">
-                                    <div className="flex w-56 h-12 overflow-hidden items-center bg-white border border-gray-200 rounded-xl transition-all">
+                                <div className="flex  gap-4 mt-4">
+                                    {/* Quantity Selector */}
+                                    <div className="flex items-center border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-all duration-300">
                                         <button
-                                            className="w-20 h-full bg-gray-50 hover:bg-gray-100 active:bg-gray-200 transition-colors flex items-center justify-center"
                                             onClick={dec}
+                                            className="w-12 h-12 flex items-center justify-center text-gray-500 hover:bg-gray-50 active:bg-gray-100 transition-colors rounded-l-lg"
                                         >
-                                            <span className="text-xl font-semibold text-gray-700">−</span>
+                                            <span className="text-2xl font-light">−</span>
                                         </button>
-                                        <span className="flex-1 text-center font-semibold text-orange-600 text-lg">
+
+                                        <span className="w-20 text-center text-xl font-medium text-gray-900 border-x border-gray-200">
                                             {quantity}
                                         </span>
+
                                         <button
-                                            className="w-20 h-full bg-gray-50 hover:bg-gray-100 active:bg-gray-200 transition-colors flex items-center justify-center"
                                             onClick={inc}
+                                            className="w-12 h-12 flex items-center justify-center text-gray-500 hover:bg-gray-50 active:bg-gray-100 transition-colors rounded-r-lg"
                                         >
-                                            <span className="text-xl font-semibold text-gray-700">+</span>
+                                            <span className="text-2xl font-light">+</span>
                                         </button>
                                     </div>
 
-                                    <div className="flex gap-2">
+                                    {/* Action Buttons */}
+                                    <div className="flex gap-3">
                                         <button
-                                            className="p-3 border-2 border-red-100 rounded-full hover:border-red-200 hover:bg-green-50 transition-colors"
                                             onClick={add_card}
+                                            className="p-3 bg-white border-2 border-gray-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all duration-200 group"
                                         >
-                                            <ShoppingCartCheckoutIcon className="w-6 h-6 text-black " />
+                                            <ShoppingCartCheckoutIcon className="w-6 h-6 text-gray-700 group-hover:text-green-600 transition-colors" />
                                         </button>
+
                                         <button
-                                            className="p-3 border-2 border-red-100 rounded-full hover:border-red-200 hover:bg-red-50 transition-colors"
                                             onClick={add_wishlist}
+                                            className="p-3 bg-white border-2 border-gray-200 rounded-lg hover:border-red-500 hover:bg-red-50 transition-all duration-200 group"
                                         >
-                                            <FavoriteBorderIcon className="w-6 h-6 text-red-400" />
+                                            <FavoriteBorderIcon className="w-6 h-6 text-gray-700 group-hover:text-red-600 transition-colors" />
                                         </button>
                                     </div>
                                 </div>

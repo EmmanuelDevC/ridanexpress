@@ -12,7 +12,7 @@ const VerifyEmail = () => {
         const verifyEmailToken = async () => {
             try {
                 const response = await axios.get(
-                    `https://ridanexpress-backend.onrender.com/api/verify-email?token=${token}`
+                    `https://ridan-express-client.vercel.app/api/verify-email?token=${token}`
                 );
 
                 if (response.data.message) {
