@@ -10,10 +10,10 @@ let app_url, api_url
 
 if (mode === production) {
     app_url = "https://ridan-express-client.vercel.app"
-    api_url = "https://ridan-express-backend.onrender.com"
+    api_url = "https://ridan-express-backend-yucx.onrender.com"
 } else {
     app_url = 'https://ridan-express-client.vercel.app'
-    api_url = 'https://ridan-express-backend.onrender.com'
+    api_url = 'https://ridan-express-backend-yucx.onrender.com'
 }
 
 export {
