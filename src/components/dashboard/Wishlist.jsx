@@ -1,54 +1,94 @@
 import React, { useEffect } from 'react'
-import Ratings from '../Ratings'
-import { AiFillHeart, AiOutlineShoppingCart } from 'react-icons/ai'
-import { FaEye } from 'react-icons/fa'
+import { AiFillHeart, AiOutlineDelete } from 'react-icons/ai'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { useSelector, useDispatch } from 'react-redux'
-import { get_wishlist_products, remove_wishlist, messageClear } from '../../store/reducers/cardReducer'
 import toast from 'react-hot-toast'
-const Wishlist = () => {
+import Ratings from '../Ratings'
+import { get_wishlist_products, remove_wishlist, messageClear } from '../../store/reducers/cardReducer'
 
+const Wishlist = () => {
     const dispatch = useDispatch()
     const { userInfo } = useSelector(state => state.auth)
     const { wishlist, successMessage } = useSelector(state => state.card)
+
     useEffect(() => {
         dispatch(get_wishlist_products(userInfo.id))
     }, [])
+
     useEffect(() => {
         if (successMessage) {
             toast.success(successMessage)
             dispatch(messageClear())
         }
     }, [successMessage])
+
     return (
-        <div className='w-full grid grid-cols-4 md-lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-6'>
-            {
-                wishlist.map((p, i) => <div key={i} className='border group transition-all duration-500 hover:shadow-md hover:-mt-3 bg-white'>
-                    <div className='relative overflow-hidden'>
+        <div className='w-full max-w-7xl mx-auto py-0 lg:py-2 mt-5 pb-6 px-1'>
+            <h1 className="text-2xl font-bold text-gray-800 mb-4 px-2">My Wishlist</h1>
 
-                        {
-                            p.discount !== 0 && <div className='flex justify-center items-center absolute text-white w-[38px] h-[38px] rounded-full bg-red-500 font-semibold text-xs left-2 top-2'>{p.discount}%</div>
-                        }
+            {wishlist.length === 0 && (
+                <div className="text-center py-12">
+                    <p className="text-orange-600 text-lg">No products in your wishlist </p>
+                </div>
+            )}
 
-                        <img className='sm:h-full w-full h-[240px]' src={p.image} alt="product image" />
-                        <ul className='flex transition-all duration-700 -bottom-10 justify-center items-center gap-2 absolute w-full group-hover:bottom-3'>
-                            <li onClick={() => dispatch(remove_wishlist(p._id))} className='w-[38px] h-[38px] cursor-pointer bg-white flex justify-center items-center rounded-full hover:bg-[#7fad39] hover:text-white hover:rotate-[720deg] transition-all'><AiFillHeart /></li>
-                            <Link to={`/product/details/${p.slug}`} className='w-[38px] h-[38px] cursor-pointer bg-white flex justify-center items-center rounded-full hover:bg-[#7fad39] hover:text-white hover:rotate-[720deg] transition-all' ><FaEye /></Link>
-                            <li className='w-[38px] h-[38px] cursor-pointer bg-white flex justify-center items-center rounded-full hover:bg-[#7fad39] hover:text-white hover:rotate-[720deg] transition-all'><AiOutlineShoppingCart /></li>
-                        </ul>
-                    </div>
-                    <div className='py-3 text-slate-600 px-2'>
-                        <h2>{p.name}</h2>
-                        <div className='flex justify-start items-center gap-3'>
-                            <span className='text-lg  font-bold'>${p.price}</span>
-                            <div className='flex'>
+            <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1 lg:gap-2'>
+                {wishlist.map((p, i) => (
+                    <div key={i} className='bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 group overflow-hidden flex flex-col'>
+                        <div className='relative flex-1'>
+                            {p.discount !== 0 && (
+                                <div className='absolute left-1 top-1 bg-orange-500 text-white px-3 py-1 rounded-lg text-xs font-semibold z-10'>
+                                    {p.discount}% OFF
+                                </div>
+                            )}
+                            
+                            {/* Delete Button */}
+                            <div className='absolute right-1 top-1 flex gap-1'>
+                                <button
+                                    onClick={() => dispatch(remove_wishlist(p._id))}
+                                    className='w-9 h-9 flex items-center justify-center bg-white rounded-full shadow-md hover:bg-red-500 hover:text-white text-gray-800 transition-all'
+                                    aria-label="Delete item"
+                                >
+                                    <AiOutlineDelete className='w-5 h-5' />
+                                </button>
+                            </div>
+
+                            <Link to={`/product/details/${p.slug}`} className='aspect-square overflow-hidden block'>
+                                <img
+                                    className='w-full h-auto object-cover'
+                                    src={p.image}
+                                    alt={p.name}
+                                    loading='lazy'
+                                />
+                            </Link>
+                        </div>
+
+                        <div className="relative py-3 px-2 text-gray-700">
+                            <Link to={`/product/details/${p.slug}`} className='hover:text-orange-600'>
+                                <h2 className="text-sm md:text-base font-semibold line-clamp-1">
+                                    {p.name}
+                                </h2>
+                            </Link>
+
+                            <div className="flex items-center my-1 gap-1">
                                 <Ratings ratings={p.rating} />
+                                <span className="text-xs text-gray-500">({p.rating})</span>
+                            </div>
+
+                            <div className="flex flex-row flex-wrap items-center gap-2 md:gap-1">
+                                <span className="text-[15px] font-base text-black">
+                                    ₦ {(p.price - (p.price * p.discount) / 100).toLocaleString()}
+                                </span>
+                                {p.discount > 0 && (
+                                    <del className="text-gray-500 text-[13px] font-base">
+                                        ₦ {p.price.toLocaleString()}
+                                    </del>
+                                )}
                             </div>
                         </div>
                     </div>
-                </div>)
-            }
-
+                ))}
+            </div>
         </div>
     )
 }

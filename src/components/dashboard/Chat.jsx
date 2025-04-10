@@ -1,180 +1,284 @@
-import React, { useEffect, useState, useRef } from 'react'
-import { AiOutlineMessage, AiOutlinePlus } from 'react-icons/ai'
-import { GrEmoji } from 'react-icons/gr'
-import { IoSend } from 'react-icons/io5'
-import { FaList } from 'react-icons/fa'
-import { Link, useParams } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-import io from 'socket.io-client'
-import { add_friend, send_message, updateMessage, messageClear } from '../../store/reducers/chatReducer'
-import toast from 'react-hot-toast'
-import {api_url} from '../../utils/config'
-const socket = io(api_url)
+import React, { useEffect, useState, useRef } from 'react';
+import { AiOutlineMessage, AiOutlinePlus } from 'react-icons/ai';
+import { GrEmoji } from 'react-icons/gr';
+import { IoSend } from 'react-icons/io5';
+import { FaList, FaTimes } from 'react-icons/fa';
+import { Link, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import AddCommentIcon from '@mui/icons-material/AddComment';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import io from 'socket.io-client';
+import { add_friend, send_message, updateMessage, messageClear } from '../../store/reducers/chatReducer';
+import toast from 'react-hot-toast';
+import { api_url } from '../../utils/config';
+
+const socket = io(api_url);
 
 const Chat = () => {
-
-    const scrollRef = useRef()
-
-    const dispatch = useDispatch()
-    const { sellerId } = useParams()
-    const [text, setText] = useState('')
-    const [receverMessage, setReceverMessage] = useState('')
-    const [activeSeller, setActiveSeller] = useState([])
-    const { userInfo } = useSelector(state => state.auth)
-    const { fd_messages, currentFd, my_friends, successMessage } = useSelector(state => state.chat)
+    const scrollRef = useRef();
+    const dispatch = useDispatch();
+    const { sellerId } = useParams();
+    const [text, setText] = useState('');
+    const [receverMessage, setReceverMessage] = useState('');
+    const [activeSeller, setActiveSeller] = useState([]);
+    const { userInfo } = useSelector(state => state.auth);
+    const { fd_messages, currentFd, my_friends, successMessage } = useSelector(state => state.chat);
+    const [showSidebar, setShowSidebar] = useState(true);
 
     useEffect(() => {
-        socket.emit('add_user', userInfo.id, userInfo)
-    }, [])
+        socket.emit('add_user', userInfo.id, userInfo);
+    }, []);
 
     useEffect(() => {
         dispatch(add_friend({
             sellerId: sellerId || "",
             userId: userInfo.id
-        }))
-    }, [sellerId])
+        }));
+    }, [sellerId]);
 
     const send = () => {
-        if (text) {
+        if (text.trim()) {
             dispatch(send_message({
                 userId: userInfo.id,
                 text,
                 sellerId,
                 name: userInfo.name
-            }))
-            setText('')
+            }));
+            setText('');
         }
-    }
+    };
 
     useEffect(() => {
         socket.on('seller_message', msg => {
-            setReceverMessage(msg)
-        })
+            setReceverMessage(msg);
+        });
         socket.on('activeSeller', (sellers) => {
-            setActiveSeller(sellers)
-        })
-    }, [])
+            setActiveSeller(sellers);
+        });
 
+        return () => {
+            socket.off('seller_message');
+            socket.off('activeSeller');
+        };
+    }, []);
 
     useEffect(() => {
         if (successMessage) {
-            socket.emit('send_customer_message', fd_messages[fd_messages.length - 1])
-            dispatch(messageClear())
+            socket.emit('send_customer_message', fd_messages[fd_messages.length - 1]);
+            dispatch(messageClear());
         }
-    }, [successMessage])
+    }, [successMessage]);
 
     useEffect(() => {
-        console.log(receverMessage)
         if (receverMessage) {
             if (sellerId === receverMessage.senderId && userInfo.id === receverMessage.receverId) {
-                dispatch(updateMessage(receverMessage))
+                dispatch(updateMessage(receverMessage));
             } else {
-                toast.success(receverMessage.senderName + " " + "send a message")
-                dispatch(messageClear())
+                toast.success(receverMessage.senderName + " sent a message");
+                dispatch(messageClear());
             }
         }
-    }, [receverMessage])
+    }, [receverMessage]);
 
     useEffect(() => {
-        scrollRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }, [fd_messages])
-
-
-    const [show, setShow] = useState(false)
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [fd_messages]);
 
     return (
-        <div className='bg-white p-3 rounded-md'>
-            <div className='w-full flex relative'>
-                <div className={`w-[230px] md-lg:absolute bg-white transition-all md-lg:h-full ${show ? 'left-0' : '-left-[350px]'} `}>
-                    <div className='flex justify-center gap-3 items-center text-slate-600 text-xl h-[50px]'>
-                        <span><AiOutlineMessage /></span>
-                        <span>Message</span>
+        <div className="bg-white md:mt-20 lg:mt-1 rounded-lg shadow-lg h-[calc(100vh-120px)] md:h-[90vh] overflow-hidden">
+            <div className="flex h-full relative">
+                {/* Seller List Sidebar */}
+                <div className={`w-[100%] md:w-80 lg:w-80 bg-white border-r transition-all duration-300 fixed md:relative z-20 md:z-0 h-full ${showSidebar ? 'left-0' : '-left-full md:left-0'}`}>
+                    <div className="p-4 border-b flex items-center justify-between bg-gray-50">
+                        <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                            <AiOutlineMessage className="text-orange-600" />
+                            Chats
+                        </h2>
+                        <button
+                            onClick={() => setShowSidebar(false)}
+                            className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
+                        >
+                            <FaTimes className="text-gray-600" />
+                        </button>
                     </div>
-                    <div className='w-full flex flex-col text-slate-600 py-4 h-[400px] pr-3'>
-                        {
-                            my_friends.map((f, i) => <Link to={`/dashboard/chat/${f.fdId}`} key={i} className={`flex gap-2 justify-start items-center pl-2 py-[5px]`} >
-                                <div className='w-[30px] h-[30px] rounded-full relative'>
-                                    {
-                                        activeSeller.some(c => c.sellerId === f.fdId) && <div className='w-[10px] h-[10px] rounded-full bg-green-500 absolute right-0 bottom-0'></div>
-                                    }
-                                    <img src="/images/user.png" alt="" />
-                                </div>
-                                <span>{f.name}</span>
-                            </Link>)
-                        }
+                    <div className="overflow-y-auto h-[calc(100%-60px)]">
+                        {my_friends.length > 0 ? (
+                            my_friends.map((f, i) => (
+                                <Link
+                                    to={`/dashboard/chat/${f.fdId}`}
+                                    key={i}
+                                    className={`flex items-center p-3 hover:bg-blue-50 transition-colors ${currentFd?.fdId === f.fdId ? 'bg-blue-50 border-r-2 border-blue-500' : ''}`}
+                                    onClick={() => setShowSidebar(false)}
+                                >
+                                    <div className="relative mr-3">
+                                        <img
+                                            src={f.image || "/images/user.png"}
+                                            className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+                                            alt={f.name}
+                                        />
+                                        {activeSeller.some(c => c.sellerId === f.fdId) && (
+                                            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="font-semibold text-gray-800 truncate">{f.name}</h3>
+                                        <p className="text-sm text-gray-500 truncate">
+                                            {activeSeller.some(c => c.sellerId === f.fdId) ? "Online" : "Offline"}
+                                        </p>
+                                    </div>
+                                </Link>
+                            ))
+                        ) : (
+                            <div className="p-4 text-center h-[50%] flex font-bold justify-center items-center text-indigo-500">
+                                You have no seller on your <br />chat yet.
+                            </div>
+                        )}
                     </div>
                 </div>
-                <div className='w-[calc(100%-230px)] md-lg:w-full'>
-                    {
-                        currentFd ? <div className='w-full h-full'>
-                            <div className='flex justify-between items-center text-slate-600 text-xl h-[50px]'>
-                                <div className='flex gap-2'>
-                                    <div className='w-[30px] h-[30px] rounded-full relative'>
-                                        {
-                                            activeSeller.some(c => c.sellerId === currentFd.fdId) && <div className='w-[10px] h-[10px] rounded-full bg-green-500 absolute right-0 bottom-0'></div>
-                                        }
-                                        <img src="/images/user.png" alt="" />
+
+                {/* Chat Main Area */}
+                <div className="flex-1 flex flex-col relative md:ml-0">
+                    {currentFd ? (
+                        <>
+                            <div className="p-4 border-b flex items-center justify-between bg-gray-50">
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={() => setShowSidebar(true)}
+                                        className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
+                                    >
+                                        <KeyboardArrowLeftIcon className="text-orange-600 text-xl" />
+                                    </button>
+                                    <div className="relative">
+                                        <img
+                                            src={currentFd.image || "/images/user.png"}
+                                            className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+                                            alt={currentFd.name}
+                                        />
+                                        {activeSeller.some(c => c.sellerId === currentFd.fdId) && (
+                                            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                                        )}
                                     </div>
-                                    <span>{currentFd.name}</span>
-                                </div>
-                                <div onClick={()=>setShow(!show)} className='w-[35px] hidden md-lg:flex cursor-pointer h-[35px] rounded-sm justify-center items-center bg-sky-600 text-white'>
-                                    <FaList />
+                                    <div>
+                                        <h2 className="font-semibold text-gray-800">{currentFd.name}</h2>
+                                        <p className="text-sm text-gray-500">
+                                            {activeSeller.some(c => c.sellerId === currentFd.fdId) ? "Online" : "Offline"}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                            <div className='h-[400px] w-full bg-slate-100 p-3 rounded-md'>
-                                <div className='w-full h-full overflow-y-auto flex flex-col gap-3'>
-                                    {
-                                        fd_messages.map((m, i) => {
-                                            if (currentFd?.fdId !== m.receverId) {
-                                                return (
-                                                    <div key={i} ref={scrollRef} className='w-full flex gap-2 justify-start items-center text-[14px]'>
-                                                        <img className='w-[30px] h-[30px] ' src="/images/user.png" alt="" />
-                                                        <div className='p-2 bg-purple-500 text-white rounded-md'>
-                                                            <span>{m.message}</span>
+
+                            <div className="flex-1 overflow-y-auto p- bg-gray-100/50">
+                                <div className="flex flex-col gap-4 p-2">
+                                    {fd_messages.length > 0 ? (
+                                        fd_messages.map((m, i) => (
+                                            <div
+                                                key={i}
+                                                ref={i === fd_messages.length - 1 ? scrollRef : null}
+                                                className={`flex ${currentFd?.fdId !== m.receverId ? 'justify-start' : 'justify-end'}`}
+                                            >
+                                                {/* Message Container */}
+                                                <div className={`max-w-[85%] flex gap-3 ${currentFd?.fdId !== m.receverId ? 'flex-row' : 'flex-row-reverse'}`}>
+                                                    {/* Avatar */}
+
+                                                    {/* Message Bubble */}
+                                                    <div className={`p-3 rounded-xl border ${currentFd?.fdId !== m.receverId
+                                                        ? 'bg-white border-gray-200 rounded-tl-none'
+                                                        : 'bg-blue-50 border-blue-100 rounded-tr-none'
+                                                        } shadow-sm`}>
+                                                        <div className="flex flex-col gap-1">
+                                                            <p className="text-gray-800 text-sm font-medium">{m.message}</p>
+                                                            <div className="flex items-center justify-end gap-2">
+                                                                <span className="text-xs text-gray-400">
+                                                                    {new Date(m.time).toLocaleTimeString([], {
+                                                                        hour: '2-digit',
+                                                                        minute: '2-digit'
+                                                                    })}
+                                                                </span>
+                                                                {currentFd?.fdId === m.receverId && (
+                                                                    <span className="text-xs text-blue-500">
+                                                                        ✓✓
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                )
-                                            } else {
-                                                return (
-                                                    <div key={i} ref={scrollRef} className='w-full flex gap-2 justify-end items-center text-[14px]'>
-                                                        <img className='w-[30px] h-[30px] ' src="/images/user.png" alt="" />
-                                                        <div className='p-2 bg-cyan-500 text-white rounded-md'>
-                                                            <span>{m.message}</span>
-                                                        </div>
-                                                    </div>
-                                                )
-                                            }
-                                        })
-                                    }
-
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center h-full py-8 space-y-4">
+                                            <svg
+                                                className="w-24 h-24 text-gray-300"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={1.5}
+                                                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                                                />
+                                            </svg>
+                                            <p className="text-gray-400 text-lg font-medium">
+                                                No messages yet
+                                            </p>
+                                            <p className="text-gray-400 text-sm">
+                                                Start a conversation with your seller
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                            <div className='flex p-2 justify-between items-center w-full'>
-                                <div className='w-[40px] h-[40px] border p-2 justify-center items-center flex rounded-full'>
-                                    <label className='cursor-pointer' htmlFor=""><AiOutlinePlus /></label>
-                                    <input className='hidden' type="file" />
-                                </div>
-                                <div className='border h-[40px] p-0 ml-2 w-[calc(100%-90px)] rounded-full relative'>
-                                    <input value={text} onChange={(e) => setText(e.target.value)} type="text" placeholder='input message' className='w-full rounded-full h-full outline-none p-3' />
-                                    <div className='text-2xl right-2 top-2 absolute cursor-auto'>
-                                        <span><GrEmoji /></span>
-                                    </div>
 
-                                </div>
-                                <div className='w-[40px] p-2 justify-center items-center rounded-full'>
-                                    <div onClick={send} className='text-2xl cursor-pointer'>
-                                        <IoSend />
+                            <div className="mb-3 py-3 px-2 bg-gray-900">
+                                <div className="flex justify-center items-center gap-2">
+                                    <button className="p-2 bg-gray-100 rounded-full text-gray-600">
+                                        <label htmlFor="file-upload" className="cursor-pointer">
+                                            <AiOutlinePlus className="text-xl text-orange-500" />
+                                        </label>
+                                        <input id="file-upload" className="hidden" type="file" />
+                                    </button>
+                                    <div className="flex-1 relative">
+                                        <input
+                                            value={text}
+                                            onChange={(e) => setText(e.target.value)}
+                                            type="text"
+                                            placeholder="Type your message..."
+                                            className="w-full p-3 pr-12 border border-orange rounded-full focus:outline-none focus:border-orange-500"
+                                            onKeyPress={(e) => e.key === 'Enter' && send()}
+                                        />
+                                        <button className="absolute right-3 top-4 text-gray-500 hover:text-blue-600">
+                                            <GrEmoji className="text-xl" />
+                                        </button>
                                     </div>
+                                    <button
+                                        onClick={send}
+                                        disabled={!text.trim()}
+                                        className={`p-3 rounded-full transition-colors ${text.trim() ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+                                    >
+                                        <IoSend className="text-xl text-orange-500" />
+                                    </button>
                                 </div>
                             </div>
-                        </div> : <div onClick={()=>setShow(true)} className='w-full flex justify-center items-center text-lg ont-bold text-slate-600 h-[400px]'>
-                            <span>select seller</span>
+                        </>
+                    ) : (
+                        <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-4">
+                            <button
+                                onClick={() => setShowSidebar(true)}
+                                className="absolute bottom-5 right-3 shadow-sm md:hidden p-4 shadow-lg bg-orange-600 p-2 text-white rounded-xl mb-4"
+                            >
+                                <AddCommentIcon className="text-2xl" />
+                            </button>
+                            <AiOutlineMessage className="text-4xl mb-4" />
+                            <p className="text-lg text-center">Select a seller to start chatting</p>
+                            <p className="text-sm mt-2 text-center">Or start a new conversation with a seller</p>
                         </div>
-                    }
+                    )}
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default Chat
+export default Chat;

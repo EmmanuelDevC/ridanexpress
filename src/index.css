@@ -18,9 +18,17 @@
 /* Hide button on scroll down */
 .scroll-hide {
     transform: translateY(100%);
-  }
-  
-  /* Show button on scroll up */
-  .scroll-show {
+}
+
+/* Show button on scroll up */
+.scroll-show {
     transform: translateY(0);
-  }
+}
+
+.clip-corner-left {
+    clip-path: polygon(0 0, 100% 100%, 0 100%);
+}
+
+.clip-corner-right {
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}

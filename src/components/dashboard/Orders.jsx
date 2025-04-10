@@ -29,7 +29,7 @@ const Orders = () => {
     return (
         <div className="bg-white rounded-xl shadow-sm p-6">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <div className="flex flex-col sm:flex-row md:mt-10 justify-between items-start sm:items-center mb-6 gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                         <FiPackage className="text-indigo-600" />
