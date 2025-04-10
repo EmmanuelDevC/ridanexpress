@@ -1,5 +1,8 @@
 import React, { useEffect } from 'react';
 import HomeIcon from '@mui/icons-material/Home';
+import VerifiedUserTwoToneIcon from '@mui/icons-material/VerifiedUserTwoTone';
+import SupportAgentTwoToneIcon from '@mui/icons-material/SupportAgentTwoTone';
+
 import {
     AiOutlineShoppingCart,
     AiOutlineClockCircle,
@@ -44,24 +47,27 @@ const Index = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 mb-14">
             {/* Dashboard Header */}
-            <div className="bg-gradient-to-r from-gray-900 to-purple-600 rounded-2xl mt-3 sm:mt-10 md:mt-20 lg:mt-0 text-white py-10 px-6">
+            <div className="bg-gradient-to-r from-gray-900 to-purple-600 rounded-2xl mt-3 sm:mt-10 md:mt-20 lg:mt-0 text-white py-7 px-6">
                 <div className="max-w-9xl mx-auto">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
                         <div>
-                            <h1 className=" text-lg lg:text-2xl font-bold">Welcome back, {userInfo.name}</h1>
-                            <p className="text-gray-200 mt-2">Here's your activity summary</p>
+                            <div className='flex items-center gap-1'>
+                                <VerifiedUserTwoToneIcon className='text-indigo-200'/>
+                                <h1 className=" text-lg lg:text-2xl font-semi">Hi, {userInfo.name}</h1>
+                            </div>
+                            <p className="text-gray-200 text-xs mt-2">Here's your activity summary</p>
                         </div>
                         <div className="mt-4 md:mt-0 flex gap-4">
                             <button
                                 onClick={() => navigate('/home')}
-                                className="flex items-center text-sm bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all">
-                                <AiOutlineMessage className="mr-2" />
-                                Contact Support
+                                className="flex items-center text-xs bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all">
+                                <SupportAgentTwoToneIcon className="mr-2" />
+                                Support
                             </button>
                             <Link to={"/"}>
-                                <button className="flex items-center text-sm bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all">
+                                <button className="flex items-center text-xs bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all">
                                     <HomeIcon className="mr-2" />
                                     Back to shop
                                 </button>
@@ -75,7 +81,7 @@ const Index = () => {
             <div className="max-w-7xl mx-auto px-3 py-8 -mt-12">
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-3 mb-6">
-                    <div className="bg-white p-4 sm:p-6 rounded-lg border-l-2 sm:border-l-4 border-yellow-500">
+                    <div className="bg-white p-4 sm:p-6 shadow-md shadow-blue-500/20 rounded-lg border-l-2 sm:border-l-4 border-blue-500">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-gray-500 text-xs sm:text-sm">All Orders</p>
@@ -85,7 +91,7 @@ const Index = () => {
                         </div>
                     </div>
 
-                    <div className="bg-white p-4 sm:p-6 rounded-lg border-l-2 sm:border-l-4 border-yellow-500">
+                    <div className="bg-white p-4 sm:p-6 shadow-md shadow-yellow-500/20 rounded-lg border-l-2 sm:border-l-4 border-yellow-500">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-gray-500 text-xs sm:text-sm">Pending Orders</p>
@@ -95,17 +101,17 @@ const Index = () => {
                         </div>
                     </div>
 
-                    <div className="bg-white p-4 sm:p-6 rounded-lg border-l-2 sm:border-l-4 border-red-500">
+                    <div className="bg-white p-4 sm:p-6 shadow-md shadow-red-500/20 rounded-lg border-l-2 sm:border-l-4 border-red-500">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-gray-500 text-xs sm:text-sm">Cancelled Orders</p>
-                                <p className="text-2xl sm:text-3xl font-bold text-gray-900">{cancelledOrder}</p>
+                                <p className="text-gray-500 text-xs sm:text-sm">Cancelled</p>
+                                <p className="text-2xl font-semibold text-gray-900">{cancelledOrder}</p>
                             </div>
                             <AiOutlineCloseCircle className="text-3xl sm:text-4xl text-red-500" />
                         </div>
                     </div>
 
-                    <div className="bg-white p-4 sm:p-6 rounded-lg border-l-2 sm:border-l-4 border-green-500">
+                    <div className="bg-white p-4 sm:p-6 shadow-md shadow-green-500/20 rounded-lg border-l-2 sm:border-l-4 border-green-500">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-gray-500 text-xs sm:text-sm">Deliverd</p>

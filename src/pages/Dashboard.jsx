@@ -36,15 +36,15 @@ const MobileNav = () => {
         { path: '/dashboard', icon: <RxDashboard />, label: 'Dashboard' },
         { path: '/dashboard/my-orders', icon: <RiProductHuntLine />, label: 'Orders' },
         { path: '/dashboard/my-wishlist', icon: <BsHeart />, label: 'Wishlist' },
-        { path: '/dashboard/chat', icon: <BsChat />, label: 'Chat sellers' },
-        { path: '/dashboard/chage-password', icon: <TbLock />, label: 'Security' },
+        { path: '/dashboard/chat', icon: <BsChat />, label: 'Chats' },
+        { path: '/dashboard/chage-password', icon: <TbLock />, label: 'Password' },
     ];
 
     return (
         <motion.div
             initial={{ y: 100 }}
             animate={{ y: 0 }}
-            className={`block lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white shadow-lg transition-transform duration-300 ${visible ? 'translate-y-0' : 'translate-y-full'
+            className={`block lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white shadow-lg rounded-t-2xl transition-transform duration-300 ${visible ? 'translate-y-0' : 'translate-y-full'
                 }`}
         >
             <div className="flex justify-around border-t-2 border-gray-200 items-center p-2">
@@ -164,7 +164,7 @@ const Dashboard = () => {
 
                         {/* Main Content */}
                         <div className="flex-1">
-                            <div className="bg-white mt-14 rounded-2xl shadow-sm border border-gray-200 min-h-[calc(100vh-140px)]">
+                            <div className="bg-white mt-14 rounded-2xl shadow-sm border border-gray-200 px-2 min-h-[calc(100vh-140px)]">
                                 <Outlet />
                             </div>
                         </div>

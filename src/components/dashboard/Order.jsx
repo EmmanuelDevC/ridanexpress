@@ -68,6 +68,7 @@ const Order = () => {
 
     const statusStyles = {
         paid: { bg: 'bg-emerald-50', text: 'text-emerald-700', icon: <FiCheckCircle className="w-4 h-4" /> },
+        placed: { bg: 'bg-indigo-100', text: 'text-indigo-700', icon: <FiCheckCircle className="w-4 h-4" /> },
         pending: { bg: 'bg-orange-50', text: 'text-orange-700', icon: <FiCheckCircle className="w-4 h-4" /> },
         unpaid: { bg: 'bg-amber-50', text: 'text-amber-700' },
         cancelled: { bg: 'bg-red-200', text: 'text-amber-700' },

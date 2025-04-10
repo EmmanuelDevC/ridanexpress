@@ -27,7 +27,19 @@ const Chat = () => {
 
     useEffect(() => {
         socket.emit('add_user', userInfo.id, userInfo);
-    }, []);
+        
+        socket.on('message_seen', (messageId) => {
+            // Update message seen status in Redux store
+            dispatch(updateMessage({ 
+                ...fd_messages.find(m => m._id === messageId),
+                seen: true 
+            }));
+        });
+
+        return () => {
+            socket.off('message_seen');
+        };
+    }, [fd_messages]);
 
     useEffect(() => {
         dispatch(add_friend({
@@ -42,7 +54,9 @@ const Chat = () => {
                 userId: userInfo.id,
                 text,
                 sellerId,
-                name: userInfo.name
+                name: userInfo.name,
+                time: new Date().toISOString(),
+                seen: false // Mark as unread when first sent
             }));
             setText('');
         }
@@ -170,41 +184,43 @@ const Chat = () => {
                             <div className="flex-1 overflow-y-auto p- bg-gray-100/50">
                                 <div className="flex flex-col gap-4 p-2">
                                     {fd_messages.length > 0 ? (
-                                        fd_messages.map((m, i) => (
-                                            <div
-                                                key={i}
-                                                ref={i === fd_messages.length - 1 ? scrollRef : null}
-                                                className={`flex ${currentFd?.fdId !== m.receverId ? 'justify-start' : 'justify-end'}`}
-                                            >
-                                                {/* Message Container */}
-                                                <div className={`max-w-[85%] flex gap-3 ${currentFd?.fdId !== m.receverId ? 'flex-row' : 'flex-row-reverse'}`}>
-                                                    {/* Avatar */}
-
-                                                    {/* Message Bubble */}
-                                                    <div className={`p-3 rounded-xl border ${currentFd?.fdId !== m.receverId
-                                                        ? 'bg-white border-gray-200 rounded-tl-none'
-                                                        : 'bg-blue-50 border-blue-100 rounded-tr-none'
+                                        fd_messages.map((m, i) => {
+                                            const messageTime = new Date(m.time);
+                                            
+                                            return (
+                                                <div
+                                                    key={i}
+                                                    ref={i === fd_messages.length - 1 ? scrollRef : null}
+                                                    className={`flex ${currentFd?.fdId !== m.receverId ? 'justify-start' : 'justify-end'}`}
+                                                >
+                                                    <div className={`max-w-[85%] flex gap-3 ${currentFd?.fdId !== m.receverId ? 'flex-row' : 'flex-row-reverse'}`}>
+                                                        <div className={`p-3 rounded-xl border ${
+                                                            currentFd?.fdId !== m.receverId
+                                                            ? 'bg-white border-gray-200 rounded-tl-none'
+                                                            : 'bg-blue-50 border-blue-100 rounded-tr-none'
                                                         } shadow-sm`}>
-                                                        <div className="flex flex-col gap-1">
-                                                            <p className="text-gray-800 text-sm font-medium">{m.message}</p>
-                                                            <div className="flex items-center justify-end gap-2">
-                                                                <span className="text-xs text-gray-400">
-                                                                    {new Date(m.time).toLocaleTimeString([], {
-                                                                        hour: '2-digit',
-                                                                        minute: '2-digit'
-                                                                    })}
-                                                                </span>
-                                                                {currentFd?.fdId === m.receverId && (
-                                                                    <span className="text-xs text-blue-500">
-                                                                        ✓✓
+                                                            <div className="flex flex-col gap-1">
+                                                                <p className="text-gray-800 text-sm font-medium">{m.message}</p>
+                                                                <div className="flex items-center justify-end gap-2">
+                                                                    <span className="text-xs text-gray-400">
+                                                                        {messageTime.toLocaleTimeString([], {
+                                                                            hour: '2-digit',
+                                                                            minute: '2-digit',
+                                                                            hour12: true
+                                                                        })}
                                                                     </span>
-                                                                )}
+                                                                    {currentFd?.fdId === m.receverId && (
+                                                                        <span className="text-xs text-blue-500">
+                                                                            {m.seen ? '✓✓' : '✓'}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))
+                                            )
+                                        })
                                     ) : (
                                         <div className="flex flex-col items-center justify-center h-full py-8 space-y-4">
                                             <svg
@@ -255,7 +271,7 @@ const Chat = () => {
                                     <button
                                         onClick={send}
                                         disabled={!text.trim()}
-                                        className={`p-3 rounded-full transition-colors ${text.trim() ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+                                        className={`p-3 rounded-full transition-colors ${text.trim() ? 'bg-slate-600 text-white hover:bg-black' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
                                     >
                                         <IoSend className="text-xl text-orange-500" />
                                     </button>
