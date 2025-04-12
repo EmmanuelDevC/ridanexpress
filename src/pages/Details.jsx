@@ -589,7 +589,7 @@ const Details = () => {
                                         to={`/dashboard/chat/${product.sellerId}`}
                                         className="px-6 w-[100%] py-4 rounded-xl border-2 border-green-500 text-green-600 hover:bg-green-50 font-semibold text-center transition-colors"
                                     >
-                                        Chat Seller
+                                        Ask Seller
                                     </Link>
                                 </div>
 

@@ -164,7 +164,7 @@ const Dashboard = () => {
 
                         {/* Main Content */}
                         <div className="flex-1">
-                            <div className="bg-white mt-14 rounded-2xl shadow-sm border border-gray-200 px-2 min-h-[calc(100vh-140px)]">
+                            <div className="mt-14 lg:mt-0 rounded-2xl shadow-sm border border-gray-200 px-2 min-h-[calc(100vh-140px)]">
                                 <Outlet />
                             </div>
                         </div>
@@ -175,7 +175,7 @@ const Dashboard = () => {
             {/* Mobile Navigation */}
             <MobileNav />
 
-            <div className='hidden lg:block'>
+            <div className='hidden '>
                 <Footer />
             </div>
         </div>

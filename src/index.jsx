@@ -4,9 +4,16 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { Provider } from 'react-redux';
-import { Toaster } from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast'; // Import toast
 import store from './store/index';
-import { FiCheckCircle, FiAlertTriangle, FiInfo, FiXCircle, FiShoppingCart } from 'react-icons/fi';
+import { 
+  FiCheckCircle, 
+  FiAlertTriangle, 
+  FiInfo, 
+  FiXCircle, 
+  FiShoppingCart,
+  FiX // Add X icon for close button
+} from 'react-icons/fi';
 
 const EcommerceToaster = () => (
   <Toaster
@@ -49,7 +56,23 @@ const EcommerceToaster = () => (
           background: '#fff7ed',
           borderColor: '#f97316'
         }
-      }
+      },
+      // Add this children render function for all toast types
+      children: (t) => (
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            {t.icon}
+            <span>{t.message}</span>
+          </div>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="hover:bg-gray-100 rounded-full p-1 transition-colors"
+            aria-label="Close toast"
+          >
+            <FiX className="text-gray-500 w-5 h-5" />
+          </button>
+        </div>
+      )
     }}
   />
 );
