@@ -6,7 +6,6 @@ import { FaList, FaTimes } from 'react-icons/fa';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import AddCommentIcon from '@mui/icons-material/AddComment';
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import io from 'socket.io-client';
 import { add_friend, send_message, updateMessage, messageClear } from '../../store/reducers/chatReducer';
 import toast from 'react-hot-toast';
@@ -23,23 +22,11 @@ const Chat = () => {
     const [activeSeller, setActiveSeller] = useState([]);
     const { userInfo } = useSelector(state => state.auth);
     const { fd_messages, currentFd, my_friends, successMessage } = useSelector(state => state.chat);
-    const [showSidebar, setShowSidebar] = useState(true);
+    const [showSidebar, setShowSidebar] = useState(false);
 
     useEffect(() => {
         socket.emit('add_user', userInfo.id, userInfo);
-        
-        socket.on('message_seen', (messageId) => {
-            // Update message seen status in Redux store
-            dispatch(updateMessage({ 
-                ...fd_messages.find(m => m._id === messageId),
-                seen: true 
-            }));
-        });
-
-        return () => {
-            socket.off('message_seen');
-        };
-    }, [fd_messages]);
+    }, []);
 
     useEffect(() => {
         dispatch(add_friend({
@@ -54,9 +41,7 @@ const Chat = () => {
                 userId: userInfo.id,
                 text,
                 sellerId,
-                name: userInfo.name,
-                time: new Date().toISOString(),
-                seen: false // Mark as unread when first sent
+                name: userInfo.name
             }));
             setText('');
         }
@@ -99,14 +84,14 @@ const Chat = () => {
     }, [fd_messages]);
 
     return (
-        <div className="bg-white md:mt-20 lg:mt-1 rounded-lg shadow-lg h-[calc(100vh-120px)] md:h-[90vh] overflow-hidden">
+        <div className="bg-white rounded-lg shadow-lg h-[calc(100vh-120px)] md:h-[600px] overflow-hidden">
             <div className="flex h-full relative">
                 {/* Seller List Sidebar */}
-                <div className={`w-[100%] md:w-80 lg:w-80 bg-white border-r transition-all duration-300 fixed md:relative z-20 md:z-0 h-full ${showSidebar ? 'left-0' : '-left-full md:left-0'}`}>
+                <div className={`w-80 bg-white border-r transition-all duration-300 fixed md:relative z-20 md:z-0 h-full ${showSidebar ? 'left-0' : '-left-full md:left-0'}`}>
                     <div className="p-4 border-b flex items-center justify-between bg-gray-50">
                         <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
                             <AiOutlineMessage className="text-orange-600" />
-                            Chats
+                            Chat
                         </h2>
                         <button
                             onClick={() => setShowSidebar(false)}
@@ -143,8 +128,8 @@ const Chat = () => {
                                 </Link>
                             ))
                         ) : (
-                            <div className="p-4 text-center h-[50%] flex font-bold justify-center items-center text-indigo-500">
-                                You have no seller on your <br />chat yet.
+                            <div className="p-4 text-center h-[100%] flex justify-center items-cnetr text-indigo-500">
+                                No Seller on the list yet.
                             </div>
                         )}
                     </div>
@@ -160,7 +145,7 @@ const Chat = () => {
                                         onClick={() => setShowSidebar(true)}
                                         className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
                                     >
-                                        <KeyboardArrowLeftIcon className="text-orange-600 text-xl" />
+                                        <FaList className="text-gray-600" />
                                     </button>
                                     <div className="relative">
                                         <img
@@ -184,43 +169,41 @@ const Chat = () => {
                             <div className="flex-1 overflow-y-auto p- bg-gray-100/50">
                                 <div className="flex flex-col gap-4 p-2">
                                     {fd_messages.length > 0 ? (
-                                        fd_messages.map((m, i) => {
-                                            const messageTime = new Date(m.time);
-                                            
-                                            return (
-                                                <div
-                                                    key={i}
-                                                    ref={i === fd_messages.length - 1 ? scrollRef : null}
-                                                    className={`flex ${currentFd?.fdId !== m.receverId ? 'justify-start' : 'justify-end'}`}
-                                                >
-                                                    <div className={`max-w-[85%] flex gap-3 ${currentFd?.fdId !== m.receverId ? 'flex-row' : 'flex-row-reverse'}`}>
-                                                        <div className={`p-3 rounded-xl border ${
-                                                            currentFd?.fdId !== m.receverId
-                                                            ? 'bg-white border-gray-200 rounded-tl-none'
-                                                            : 'bg-blue-50 border-blue-100 rounded-tr-none'
+                                        fd_messages.map((m, i) => (
+                                            <div
+                                                key={i}
+                                                ref={i === fd_messages.length - 1 ? scrollRef : null}
+                                                className={`flex ${currentFd?.fdId !== m.receverId ? 'justify-start' : 'justify-end'}`}
+                                            >
+                                                {/* Message Container */}
+                                                <div className={`max-w-[85%] flex gap-3 ${currentFd?.fdId !== m.receverId ? 'flex-row' : 'flex-row-reverse'}`}>
+                                                    {/* Avatar */}
+                                                    
+                                                    {/* Message Bubble */}
+                                                    <div className={`p-3 rounded-xl border ${currentFd?.fdId !== m.receverId
+                                                        ? 'bg-white border-gray-200 rounded-tl-none'
+                                                        : 'bg-blue-50 border-blue-100 rounded-tr-none'
                                                         } shadow-sm`}>
-                                                            <div className="flex flex-col gap-1">
-                                                                <p className="text-gray-800 text-sm font-medium">{m.message}</p>
-                                                                <div className="flex items-center justify-end gap-2">
-                                                                    <span className="text-xs text-gray-400">
-                                                                        {messageTime.toLocaleTimeString([], {
-                                                                            hour: '2-digit',
-                                                                            minute: '2-digit',
-                                                                            hour12: true
-                                                                        })}
+                                                        <div className="flex flex-col gap-1">
+                                                            <p className="text-gray-800 text-sm font-medium">{m.message}</p>
+                                                            <div className="flex items-center justify-end gap-2">
+                                                                <span className="text-xs text-gray-400">
+                                                                    {new Date(m.time).toLocaleTimeString([], {
+                                                                        hour: '2-digit',
+                                                                        minute: '2-digit'
+                                                                    })}
+                                                                </span>
+                                                                {currentFd?.fdId === m.receverId && (
+                                                                    <span className="text-xs text-blue-500">
+                                                                        ✓✓
                                                                     </span>
-                                                                    {currentFd?.fdId === m.receverId && (
-                                                                        <span className="text-xs text-blue-500">
-                                                                            {m.seen ? '✓✓' : '✓'}
-                                                                        </span>
-                                                                    )}
-                                                                </div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            )
-                                        })
+                                            </div>
+                                        ))
                                     ) : (
                                         <div className="flex flex-col items-center justify-center h-full py-8 space-y-4">
                                             <svg
@@ -247,11 +230,11 @@ const Chat = () => {
                                 </div>
                             </div>
 
-                            <div className="mb-3 py-3 px-2 bg-gray-900">
-                                <div className="flex justify-center items-center gap-2">
-                                    <button className="p-2 bg-gray-100 rounded-full text-gray-600">
+                            <div className="p-4 border-t bg-white">
+                                <div className="flex items-center gap-2">
+                                    <button className="p-2 hover:bg-gray-100 rounded-full text-gray-600">
                                         <label htmlFor="file-upload" className="cursor-pointer">
-                                            <AiOutlinePlus className="text-xl text-orange-500" />
+                                            <AiOutlinePlus className="text-xl" />
                                         </label>
                                         <input id="file-upload" className="hidden" type="file" />
                                     </button>
@@ -261,19 +244,19 @@ const Chat = () => {
                                             onChange={(e) => setText(e.target.value)}
                                             type="text"
                                             placeholder="Type your message..."
-                                            className="w-full p-3 pr-12 border border-orange rounded-full focus:outline-none focus:border-orange-500"
+                                            className="w-full p-3 pr-12 border rounded-full focus:outline-none focus:border-blue-500"
                                             onKeyPress={(e) => e.key === 'Enter' && send()}
                                         />
-                                        <button className="absolute right-3 top-4 text-gray-500 hover:text-blue-600">
+                                        <button className="absolute right-3 top-3 text-gray-500 hover:text-blue-600">
                                             <GrEmoji className="text-xl" />
                                         </button>
                                     </div>
                                     <button
                                         onClick={send}
                                         disabled={!text.trim()}
-                                        className={`p-3 rounded-full transition-colors ${text.trim() ? 'bg-slate-600 text-white hover:bg-black' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+                                        className={`p-3 rounded-full transition-colors ${text.trim() ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
                                     >
-                                        <IoSend className="text-xl text-orange-500" />
+                                        <IoSend className="text-xl" />
                                     </button>
                                 </div>
                             </div>
@@ -282,7 +265,7 @@ const Chat = () => {
                         <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-4">
                             <button
                                 onClick={() => setShowSidebar(true)}
-                                className="absolute bottom-5 right-3 shadow-sm md:hidden p-4 shadow-lg bg-orange-600 p-2 text-white rounded-xl mb-4"
+                                className="absolute bottom-5 right-3 shadow-sm md:hidden p-4 bg-[#191919] p-2 text-white rounded-xl mb-4"
                             >
                                 <AddCommentIcon className="text-2xl" />
                             </button>

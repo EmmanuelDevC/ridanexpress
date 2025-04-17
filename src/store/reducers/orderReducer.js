@@ -32,7 +32,7 @@ export const place_order = createAsyncThunk(
                 userId,
                 navigate,
                 items,
-            },config)
+            }, config)
             navigate('/payment', {
                 state: {
                     price: price + shipping_fee,
@@ -47,6 +47,26 @@ export const place_order = createAsyncThunk(
         }
     }
 )
+
+export const order_confirm = createAsyncThunk(
+    'order/order_confirm',
+    async ({ orderId, transaction_id }, { getState }) => {
+        try {
+            const token = getState().auth.token
+            const config = {
+                headers: {
+                    'authorization': `Bearer ${token}`
+                }
+            }
+            await api.post(`/api/order/confirm/${orderId}`, { transaction_id }, config)
+            return { orderId }
+        } catch (error) {
+            console.log(error.response)
+            throw error.response.data
+        }
+    }
+)
+
 
 export const get_orders = createAsyncThunk(
     'order/get_orders',
@@ -67,7 +87,7 @@ export const get_orders = createAsyncThunk(
         try {
             const {
                 data
-            } = await api.get(`/home/customer/gat-orders/${customerId}/${status}`,config)
+            } = await api.get(`/home/customer/gat-orders/${customerId}/${status}`, config)
             return fulfillWithValue(data)
         } catch (error) {
             console.log(error.response)
@@ -91,7 +111,7 @@ export const get_order = createAsyncThunk(
         try {
             const {
                 data
-            } = await api.get(`/home/customer/gat-order/${orderId}`,config)
+            } = await api.get(`/home/customer/gat-order/${orderId}`, config)
             return fulfillWithValue(data)
         } catch (error) {
             console.log(error.response)
@@ -114,15 +134,22 @@ export const orderReducer = createSlice({
         }
     },
     extraReducers: {
-        [get_orders.fulfilled]: (state, {
-            payload
-        }) => {
+        [get_orders.fulfilled]: (state, { payload }) => {
             state.myOrders = payload.orders
         },
-        [get_order.fulfilled]: (state, {
-            payload
-        }) => {
+        [get_order.fulfilled]: (state, { payload }) => {
             state.myOrder = payload.order
+        },
+        [order_confirm.fulfilled]: (state, action) => {
+            state.successMessage = 'Payment confirmed'
+            state.myOrders = state.myOrders.map(order =>
+                order._id === action.payload.orderId
+                    ? { ...order, payment_status: 'paid' }
+                    : order
+            )
+        },
+        [order_confirm.rejected]: (state, action) => {
+            state.errorMessage = action.error.message
         }
     }
 })

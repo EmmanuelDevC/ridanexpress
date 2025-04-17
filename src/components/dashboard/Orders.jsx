@@ -57,6 +57,7 @@ const Orders = () => {
                     className="w-full sm:w-48 px-4 py-2.5 rounded-lg border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm transition-all"
                 >
                     <option value="all">All Orders</option>
+                    <option value="paid">Paid</option>
                     <option value="placed">Placed</option>
                     <option value="pending">Pending</option>
                     <option value="cancelled">Cancelled</option>
@@ -94,7 +95,7 @@ const Orders = () => {
                                 </td>
                                 <td className="px-3 sm:px-6 py-2 text-xs sm:text-sm text-gray-500 text-right">
                                     <div className="flex items-center justify-end gap-1">
-                                        ₦ 
+                                        ₦
                                         {Number(order.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                                     </div>
                                 </td>

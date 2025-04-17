@@ -1,86 +1,96 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import FadeLoader from 'react-spinners/FadeLoader'
 import axios from 'axios'
-import { loadStripe } from '@stripe/stripe-js'
 import error from '../assets/error.png'
 import success from '../assets/success.png'
-import { stripe_sky } from '../utils/config'
-import {api_url} from '../utils/config'
-const load = async () => {
-    return await loadStripe(stripe_sky)
-}
+import { api_url } from '../utils/config'
 
 const ConfirmOrder = () => {
     const [loader, setLoader] = useState(true)
-    const [stripe, setStripe] = useState('')
     const [message, setMessage] = useState(null)
+    const location = useLocation()
+    const dispatch = useDispatch();
 
 
-    useEffect(() => {
-        if (!stripe) {
-            return
-        }
-        const clientSecret = new URLSearchParams(window.location.search).get('payment_intent_client_secret')
-        if (!clientSecret) {
-            return
-        }
-        stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
-            switch (paymentIntent.status) {
-                case "succeeded":
-                    setMessage('succeeded')
-                    break
-                case "processing":
-                    setMessage('processing')
-                    break
-                case "requires_payment_method":
-                    setMessage('failed')
-                    break
-                default:
-                    setMessage('failed')
-            }
-        })
-    }, [stripe])
-
-    const get_load = async () => {
-        const tempStripe = await load()
-        setStripe(tempStripe)
-    }
-    useEffect(() => {
-        get_load()
-    }, [])
-
-
-    const update_payment = async () => {
+    const verifyPayment = async () => {
         const orderId = localStorage.getItem('orderId')
-        if (orderId) {
-            try {
-                await axios.get(`${api_url}/api/order/confirm/${orderId}`)
-                localStorage.removeItem('orderId')
-                setLoader(false)
-            } catch (error) {
-                console.log(error.response.data)
-            }
+        const urlParams = new URLSearchParams(location.search)
+        const transaction_id = urlParams.get('transaction_id')
+
+        if (!orderId || !transaction_id) {
+            setMessage('failed')
+            return
+        }
+
+        try {
+            await axios.post(
+                `${api_url}/api/order/confirm/${orderId}`,
+                { transaction_id },
+                { withCredentials: true }
+            )
+
+            localStorage.removeItem('orderId')
+            setMessage('succeeded')
+            setLoader(false)
+        } catch (error) {
+            console.error('Payment verification error:', error.response?.data)
+            setMessage('failed')
+            setLoader(false)
         }
     }
+
+    useEffect(() => {
+        const initializeVerification = async () => {
+            try {
+                await verifyPayment()
+            } catch (error) {
+                setMessage('failed')
+                setLoader(false)
+            }
+        }
+
+        initializeVerification()
+    }, [])
 
     useEffect(() => {
         if (message === 'succeeded') {
-            update_payment()
+            dispatch(get_orders({
+                status: 'all',
+                customerId: userInfo.id
+            }))
         }
     }, [message])
 
     return (
-        <div className='w-screeen h-screen flex justify-center items-center flex-col gap-4'>
-            {
-                (message === 'failed' || message === 'processing') ? <>
-                    <img src={error} alt="error logo" />
-                    <Link className='px-5 py-2 bg-green-500 rounded-sm text-white' to='/dashboard/my-orders'>Back to Dashboard</Link>
-                </> : message === 'succeeded' ? loader ? <FadeLoader /> : <>
-                    <img src={success} alt="error logo" />
-                    <Link className='px-5 py-2 bg-green-500 rounded-sm text-white' to='/dashboard/my-orders'>Back to Dashboard</Link>
-                </> : <FadeLoader />
-            }
+        <div className='w-screen h-screen flex justify-center items-center flex-col gap-4'>
+            {message === 'failed' ? (
+                <>
+                    <img src={error} alt="Payment error" className='w-32 h-32' />
+                    <Link
+                        className='px-5 py-2 bg-green-500 rounded-sm text-white hover:bg-green-600 transition-colors'
+                        to='/dashboard/my-orders'
+                    >
+                        Back to Dashboard
+                    </Link>
+                </>
+            ) : message === 'succeeded' ? (
+                loader ? (
+                    <FadeLoader color="#36d7b7" />
+                ) : (
+                    <>
+                        <img src={success} alt="Payment success" className='w-32 h-32' />
+                        <Link
+                            className='px-5 py-2 bg-green-500 rounded-sm text-white hover:bg-green-600 transition-colors'
+                            to='/dashboard/my-orders'
+                        >
+                            Back to Dashboard
+                        </Link>
+                    </>
+                )
+            ) : (
+                <FadeLoader color="#36d7b7" />
+            )}
         </div>
     )
 }
