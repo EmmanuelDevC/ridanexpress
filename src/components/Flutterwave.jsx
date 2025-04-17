@@ -12,7 +12,7 @@ const FlutterwavePayment = ({ price, orderId }) => {
             // Generate tx_ref
             const { data } = await axios.post(
                 `${api_url}/api/order/create-payment`,
-                { price },
+                { orderId },
                 { withCredentials: true }
             );
 
