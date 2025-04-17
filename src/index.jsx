@@ -57,7 +57,8 @@ const EcommerceToaster = () => (
           borderColor: '#f97316'
         }
       },
-      // Add this children render function for all toast types
+
+      
       children: (t) => (
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
