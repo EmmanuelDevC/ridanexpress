@@ -6,95 +6,140 @@ import { useLocation } from 'react-router-dom'
 
 const Payment = () => {
     const { state: { price, items, orderId } } = useLocation()
-    const [paymentMethod, setPaymentMethod] = useState('flutterwave') // Default to Flutterwave
+    const [paymentMethod, setPaymentMethod] = useState('flutterwave')
 
     return (
-        <div>
+        <div className="min-h-screen flex flex-col">
             <Headers />
-            <section className='bg-[#eeeeee]'>
-                <div className='max-w-[1440px] mx-auto px-16 sm:px-5 md-lg:px-12 md:px-10 py-16 mt-4'>
-                    <div className='flex flex-wrap md:flex-col-reverse'>
-                        <div className='w-7/12 md:w-full'>
-                            <div className='pr-2 md:pr-0'>
-                                <div className='flex flex-wrap'>
-                                    {/* Flutterwave Payment Option */}
-                                    <div 
-                                        onClick={() => setPaymentMethod('flutterwave')} 
-                                        className={`w-[20%] border-r cursor-pointer py-8 px-12 ${paymentMethod === 'flutterwave' ? 'bg-white' : 'bg-slate-100'}`}
-                                    >
-                                        <div className='flex flex-col gap-[3px] justify-center items-center'>
-                                            <img 
-                                                src="/images/payment/flutterwave.png" 
-                                                alt="flutterwave" 
-                                                className='h-10 object-contain'
-                                            />
-                                            <span className='text-slate-600'>Flutterwave</span>
+
+            <main className="flex-1 bg-gray-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                    <div className="max-w-3xl mx-auto">
+                        <h1 className="text-3xl font-bold text-gray-900 mb-8">Complete Your Payment</h1>
+
+                        <div className="flex flex-col lg:flex-row gap-8">
+                            {/* Payment Methods Section */}
+                            <div className="lg:w-2/3">
+                                <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+                                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Select Payment Method</h2>
+
+                                    <div className="grid grid-cols-2 gap-4 mb-6">
+                                        <div
+                                            onClick={() => setPaymentMethod('flutterwave')}
+                                            className={`p-4 border-2 rounded-lg cursor-pointer transition-all 
+                                                ${paymentMethod === 'flutterwave'
+                                                    ? 'border-blue-500 bg-blue-50'
+                                                    : 'border-gray-200 hover:border-blue-300'}`}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <img
+                                                    src="/images/payment/flutterwave.png"
+                                                    alt="Flutterwave"
+                                                    className="h-8 object-contain"
+                                                />
+                                                <span className="text-sm font-medium text-gray-700">Flutterwave</span>
+                                            </div>
                                         </div>
+
+                                        {/* Uncomment other payment methods as needed */}
+                                        {/* <div 
+                                            onClick={() => setPaymentMethod('bkash')}
+                                            className={`p-4 border-2 rounded-lg cursor-pointer transition-all 
+                                                ${paymentMethod === 'bkash' 
+                                                    ? 'border-blue-500 bg-blue-50' 
+                                                    : 'border-gray-200 hover:border-blue-300'}`}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <img 
+                                                    src="/images/payment/bkash.png" 
+                                                    alt="bKash" 
+                                                    className="h-8 object-contain"
+                                                />
+                                                <span className="text-sm font-medium text-gray-700">bKash</span>
+                                            </div>
+                                        </div> */}
                                     </div>
 
-                                    {/* Other Payment Methods */}
-                                    <div onClick={() => setPaymentMethod('bkash')} className={`w-[20%] border-r cursor-pointer py-8 px-12 ${paymentMethod === 'bkash' ? 'bg-white' : 'bg-slate-100'}`}>
-                                        <div className='flex flex-col gap-[3px] justify-center items-center'>
-                                            <img src="/images/payment/bkash.png" alt="bkash" />
-                                            <span className='text-slate-600'>Bkash</span>
-                                        </div>
-                                    </div>
-                                    <div onClick={() => setPaymentMethod('nogot')} className={`w-[20%] border-r cursor-pointer py-8 px-12 ${paymentMethod === 'nogot' ? 'bg-white' : 'bg-slate-100'}`}>
-                                        <div className='flex flex-col gap-[3px] justify-center items-center'>
-                                            <img src="/images/payment/nogot.png" alt="nogot" />
-                                            <span className='text-slate-600'>Nogot</span>
-                                        </div>
-                                    </div>
-                                    <div onClick={() => setPaymentMethod('roket')} className={`w-[20%] border-r cursor-pointer py-8 px-12 ${paymentMethod === 'roket' ? 'bg-white' : 'bg-slate-100'}`}>
-                                        <div className='flex flex-col gap-[3px] justify-center items-center'>
-                                            <img src="/images/payment/roket.png" alt="roket" />
-                                            <span className='text-slate-600'>Roket</span>
-                                        </div>
+                                    {/* Payment Form Area */}
+                                    <div className="pt-4 border-t border-gray-100">
+                                        {paymentMethod === 'flutterwave' && (
+                                            <FlutterwavePayment
+                                                orderId={orderId}
+                                                price={price}
+                                            />
+                                        )}
+
+                                        {paymentMethod === 'bkash' && (
+                                            <div className="space-y-4">
+                                                <div className="form-group">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                        bKash Number
+                                                    </label>
+                                                    <input
+                                                        type="tel"
+                                                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                        placeholder="01XXX-XXXXXX"
+                                                    />
+                                                </div>
+                                                <button className="w-full bg-blue-600 text-white py-2.5 px-6 rounded-md hover:bg-blue-700 transition-colors font-medium">
+                                                    Pay ${price}
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                                
-                                {/* Payment Components */}
-                                {paymentMethod === 'flutterwave' && (
-                                    <div className='mt-4'>
-                                        <FlutterwavePayment 
-                                            orderId={orderId} 
-                                            price={price} 
-                                        />
-                                    </div>
-                                )}
-                                
-                                {paymentMethod === 'bkash' && (
-                                    <div className='w-full px-4 py-8 bg-white shadow-sm'>
-                                        <button className='px-10 py-[6px] rounded-sm hover:shadow-orange-500/20 hover:shadow-lg bg-orange-500 text-white'>
-                                            Pay Now
-                                        </button>
-                                    </div>
-                                )}
 
-                                {/* Other payment method sections remain the same */}
+                                <div className="bg-blue-50 rounded-xl p-4 text-sm text-blue-800">
+                                    <p className="flex items-start gap-2">
+                                        <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                        </svg>
+                                        Your payment is secured with SSL encryption. We never store your payment details.
+                                    </p>
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Order Summary Section (No changes needed) */}
-                        <div className='w-5/12 md:w-full'>
-                            <div className='pl-2 md:pl-0 md:mb-0'>
-                                <div className='bg-white shadow p-5 text-slate-600 flex flex-col gap-3'>
-                                    <h2>Order Summary</h2>
-                                    <div className='flex justify-between items-center'>
-                                        <span>{items} items and shipping fee included</span>
-                                        <span>${price}</span>
+                            {/* Order Summary Section */}
+                            <div className="lg:w-1/3">
+                                <div className="bg-white rounded-xl shadow-sm p-6 sticky top-8">
+                                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Order Summary</h2>
+
+                                    <div className="space-y-3 mb-6">
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="text-gray-600">{items} items</span>
+                                            <span className="text-gray-900">${price}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="text-gray-600">Shipping</span>
+                                            <span className="text-green-600">Free</span>
+                                        </div>
                                     </div>
-                                    <div className='flex justify-between items-center font-semibold'>
-                                        <span>Total Amount</span>
-                                        <span className='text-lg text-orange-500'>${price}</span>
+
+                                    <div className="pt-4 border-t border-gray-100">
+                                        <div className="flex justify-between items-center">
+                                            <span className="font-medium text-gray-900">Total</span>
+                                            <span className="text-xl font-bold text-blue-600">${price}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-6 text-sm text-gray-500">
+                                        <p className="flex items-start gap-2">
+                                            <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Includes applicable taxes. Prices may vary for international orders.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </section>
-            <Footer />
+            </main>
+
+            <div className='sm:hidden lg:block '>
+                <Footer />
+            </div>
         </div>
     )
 }
