@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { get_orders } from '../../store/reducers/orderReducer'
 import { AiOutlineShoppingCart, AiOutlineFileSearch } from 'react-icons/ai'
-import { FiPackage, FiCheckCircle, FiXCircle, FiTruck, FiDollarSign } from 'react-icons/fi'
+import { FiPackage, FiCheckCircle, FiXCircle, FiTruck, FiClock, FiBox } from 'react-icons/fi'
 import { motion } from 'framer-motion'
 
 const Orders = () => {
@@ -15,16 +15,19 @@ const Orders = () => {
 
     useEffect(() => {
         dispatch(get_orders({ status: statusFilter, customerId: userInfo.id }))
-    }, [statusFilter])
+    }, [statusFilter, dispatch, userInfo.id])
 
     const getStatusBadge = (status) => {
         const statusClasses = {
             paid: 'bg-emerald-100 text-emerald-700',
-            pending: 'bg-amber-100 text-amber-700',
             unpaid: 'bg-amber-100 text-amber-700',
-            placed: 'bg-blue-100 text-blue-700',
-            cancelled: 'bg-red-100 text-red-700',
-            warehouse: 'bg-purple-100 text-purple-700'
+            failed: 'bg-red-100 text-red-700',
+            refunded: 'bg-purple-100 text-purple-700',
+            pending: 'bg-amber-100 text-amber-700',
+            processing: 'bg-blue-100 text-blue-700',
+            shipped: 'bg-indigo-100 text-indigo-700',
+            delivered: 'bg-green-100 text-green-700',
+            cancelled: 'bg-red-100 text-red-700'
         }
         return `${statusClasses[status] || 'bg-gray-100 text-gray-700'} rounded-full`
     }
@@ -47,7 +50,7 @@ const Orders = () => {
                         Order History
                     </h1>
                     <p className="text-sm text-gray-500 mt-1">
-                        Showing {myOrders.length} orders
+                        {myOrders.length} order{myOrders.length !== 1 && 's'} found
                     </p>
                 </div>
 
@@ -58,10 +61,11 @@ const Orders = () => {
                 >
                     <option value="all">All Orders</option>
                     <option value="paid">Paid</option>
-                    <option value="placed">Placed</option>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
                     <option value="pending">Pending</option>
                     <option value="cancelled">Cancelled</option>
-                    <option value="warehouse">Warehouse</option>
                 </select>
             </div>
 
@@ -70,10 +74,10 @@ const Orders = () => {
                 <table className="w-full min-w-[600px] sm:min-w-0">
                     <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-3 sm:px-6 py-2 text-left text-xs sm:text-sm font-medium text-orange-500">Order ID</th>
+                            <th className="px-3 sm:px-6 py-2 text-left text-xs sm:text-sm font-medium text-orange-500">Order Ref</th>
                             <th className="px-3 sm:px-6 py-2 text-right text-xs sm:text-sm font-medium text-orange-500">Amount</th>
                             <th className="px-3 sm:px-6 py-2 text-left text-xs sm:text-sm font-medium text-orange-500">Payment</th>
-                            <th className="px-3 sm:px-6 py-2 text-left text-xs sm:text-sm font-medium text-orange-500">Status</th>
+                            <th className="px-3 sm:px-6 py-2 text-left text-xs sm:text-sm font-medium text-orange-500">Fulfillment</th>
                             <th className="px-3 sm:px-6 py-2 text-right text-xs sm:text-sm font-medium text-orange-500">Actions</th>
                         </tr>
                     </thead>
@@ -87,29 +91,37 @@ const Orders = () => {
                                 transition={{ delay: index * 0.05 }}
                                 className="hover:bg-gray-50 transition-colors"
                             >
-                                <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-[90px] truncate">
+                                <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-[120px] truncate">
                                     <div className="flex items-center gap-2">
                                         <FiPackage className="text-gray-400" />
-                                        <span className="font-mono">#{order._id.slice(-8)}</span>
+                                        <span className="font-mono">#{order.flutterwave_ref}</span>
+                                    </div>
+                                    <div className="text-xs text-gray-400 mt-1">
+                                        {new Date(order.createdAt).toLocaleDateString()}
                                     </div>
                                 </td>
                                 <td className="px-3 sm:px-6 py-2 text-xs sm:text-sm text-gray-500 text-right">
                                     <div className="flex items-center justify-end gap-1">
-                                        ₦
-                                        {Number(order.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                        ₦{Number(order.price).toLocaleString(undefined, {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        })}
                                     </div>
                                 </td>
                                 <td className="px-3 sm:px-6 py-2">
                                     <span className={`${getStatusBadge(order.payment_status)} inline-flex items-center gap-1 px-2 py-0.5 text-xs`}>
                                         {order.payment_status === 'paid' && <FiCheckCircle className="w-4 h-4" />}
-                                        {order.payment_status === 'pending' && <FiPackage className="w-4 h-4" />}
-                                        {order.payment_status === 'cancelled' && <FiXCircle className="w-4 h-4" />}
+                                        {order.payment_status === 'unpaid' && <FiClock className="w-4 h-4" />}
+                                        {order.payment_status === 'failed' && <FiXCircle className="w-4 h-4" />}
+                                        {order.payment_status === 'refunded' && <FiBox className="w-4 h-4" />}
                                         {order.payment_status}
                                     </span>
                                 </td>
                                 <td className="px-3 sm:px-6 py-2">
                                     <span className={`${getStatusBadge(order.delivery_status)} inline-flex items-center gap-1 px-2 py-0.5 text-xs`}>
-                                        {order.delivery_status === 'warehouse' && <FiTruck className="w-4 h-4" />}
+                                        {order.delivery_status === 'processing' && <FiClock className="w-4 h-4" />}
+                                        {order.delivery_status === 'shipped' && <FiTruck className="w-4 h-4" />}
+                                        {order.delivery_status === 'delivered' && <FiCheckCircle className="w-4 h-4" />}
                                         {order.delivery_status}
                                     </span>
                                 </td>
@@ -121,7 +133,7 @@ const Orders = () => {
                                         <AiOutlineFileSearch className="hidden sm:inline mr-1" />
                                         <span>View</span>
                                     </Link>
-                                    {order.payment_status !== 'paid' && (
+                                    {order.payment_status !== 'paid' && order.payment_status !== 'refunded' && (
                                         <button
                                             onClick={() => redirectToPayment(order)}
                                             className="inline-flex items-center text-white hover:bg-green-600 bg-green-500 rounded-full px-3 py-1 text-xs sm:text-sm font-medium transition-colors"
@@ -144,7 +156,12 @@ const Orders = () => {
                             <FiPackage className="w-12 h-12 mx-auto" />
                         </div>
                         <h3 className="text-gray-900 font-medium">No orders found</h3>
-                        <p className="text-gray-500 mt-1">Try adjusting your filters</p>
+                        <p className="text-gray-500 mt-1">
+                            {statusFilter === 'all' ? 
+                                "You haven't placed any orders yet" : 
+                                "No orders match your current filters"
+                            }
+                        </p>
                     </div>
                 )}
             </div>
