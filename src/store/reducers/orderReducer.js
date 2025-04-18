@@ -24,7 +24,7 @@ export const place_order = createAsyncThunk(
             }
             const {
                 data
-            } = await api.post('/home/order/palce-order', {
+            } = await api.post('/home/order/place-order', {
                 price,
                 products,
                 shipping_fee,
