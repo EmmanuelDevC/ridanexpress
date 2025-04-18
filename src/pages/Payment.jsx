@@ -34,7 +34,7 @@ const Payment = () => {
                             <div className="lg:w-[60%]">
                                 <div className="bg-white rounded-xl shadow-sm p-6 mb-6 border border-gray-200">
                                     <div className="mb-6">
-                                        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                                        <h2 className="text-xl font-base text-gray-900 mb-4">
                                             Payment Method
                                         </h2>
                                         <p className="text-sm text-gray-500 mb-4">
@@ -73,10 +73,10 @@ const Payment = () => {
                                 </div>
 
                                 {/* Security Info */}
-                                <div className="bg-orange-50 rounded-xl p-4 text-sm text-gray-700 border border-orange-100">
+                                <div className="bg-indigo-50 rounded-xl p-4 text-sm text-gray-700 border border-indigo-300">
                                     <div className="flex items-start gap-3">
                                         <svg 
-                                            className="w-5 h-5 flex-shrink-0 text-orange-600" 
+                                            className="w-5 h-5 flex-shrink-0 text-indigo-600" 
                                             fill="currentColor" 
                                             viewBox="0 0 20 20"
                                         >
@@ -104,18 +104,18 @@ const Payment = () => {
                                     <div className="space-y-4 mb-6">
                                         <div className="flex justify-between items-center">
                                             <span className="text-gray-600">{items} items</span>
-                                            <span className="text-gray-900">₦{price}</span>
+                                            <span className="text-gray-900 font-medium">₦ {price}</span>
                                         </div>
                                         <div className="flex justify-between items-center">
                                             <span className="text-gray-600">Shipping</span>
-                                            <span className="text-orange-600 font-medium">Free</span>
+                                            <span className="text-indigo-600 font-medium">Free</span>
                                         </div>
                                     </div>
 
                                     <div className="py-4 border-t border-gray-200">
                                         <div className="flex justify-between items-center">
                                             <span className="font-medium text-gray-900">Total</span>
-                                            <span className="text-xl font-bold text-orange-600">₦{price}</span>
+                                            <span className="text-xl font-base text-gray-900">₦ {price}</span>
                                         </div>
                                     </div>
 

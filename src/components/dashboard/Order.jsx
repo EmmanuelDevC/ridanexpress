@@ -233,7 +233,7 @@ const Order = () => {
                 </div>
 
                 {/* Products List */}
-                <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+                <div className="bg-white rounded-xl shadow-sm p-4 mb-6 sm:p-6">
                     <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
                         Order Items ({myOrder.products?.length})
                     </h2>

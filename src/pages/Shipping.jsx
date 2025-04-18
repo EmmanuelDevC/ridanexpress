@@ -54,12 +54,12 @@ const Shipping = () => {
             <main className="flex-grow">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     {/* Progress Header */}
-                    <div className="mb-10">
-                        <h1 className="text-3xl font-bold text-gray-900 mb-2">Checkout</h1>
+                    <div className="mb-2 mt-10 lg:mt-[7rem] lg:mb-5 bg-indigo-50 p-4 rounded-lg shadow-sm border border-gray-200">
+                        <h1 className="text-3xl font-bold text-indigo-900 mb-2">Checkout</h1>
                         <div className="flex items-center text-sm text-gray-500">
-                            <Link to="/" className="text-blue-600 hover:text-blue-700">Home</Link>
+                            <Link to="/" className="text-indigo-600 hover:text-indigo-700">Home</Link>
                             <MdOutlineKeyboardArrowRight className="mx-2" />
-                            <span className="text-gray-600">Shipping Information</span>
+                            <span className="text-gray-800">Shipping Information</span>
                         </div>
                     </div>
 
@@ -71,13 +71,13 @@ const Shipping = () => {
                             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                                 <div className="flex items-center justify-between mb-6">
                                     <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                                        <MdLocationOn className="text-blue-600" />
+                                        <MdLocationOn className="text-indigo-600" />
                                         Shipping Details
                                     </h2>
                                     {res && (
                                         <button
                                             onClick={() => setRes(false)}
-                                            className="text-blue-600 hover:text-blue-700 text-sm flex items-center gap-1"
+                                            className="text-indigo-600 hover:text-indigo-700 text-sm flex items-center gap-1"
                                         >
                                             <MdEdit className="w-4 h-4" />
                                             Edit
@@ -107,7 +107,7 @@ const Shipping = () => {
                                                         onChange={inputHandle}
                                                         value={state[field.id]}
                                                         type="text"
-                                                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                                                         placeholder={field.placeholder}
                                                     />
                                                 </div>
@@ -115,7 +115,7 @@ const Shipping = () => {
                                         </div>
                                         <button
                                             type="submit"
-                                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
+                                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
                                         >
                                             Save Shipping Details
                                         </button>
@@ -133,33 +133,50 @@ const Shipping = () => {
                             </div>
 
                             {/* Order Items Section */}
-                            <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-                                <h3 className="px-6 py-4 border-b border-gray-100 text-lg font-semibold">Order Items</h3>
-                                <div className="p-6 space-y-4">
+                            <div className="bg-white rounded-lg border border-gray-100 shadow-sm">
+                                <h3 className="px-6 py-5 bg-gray-50 border-b border-gray-100 text-base font-semibold text-gray-700">
+                                    Order Items
+                                </h3>
+                                <div className="p-6 space-y-6">
                                     {products.map((p, i) => (
-                                        <div key={i} className="space-y-4">
-                                            <h4 className="text-sm font-medium text-gray-500">{p.shopName}</h4>
+                                        <div key={i} className="space-y-5">
+                                            <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                                {p.shopName}
+                                            </h4>
                                             {p.products.map((pt, j) => (
-                                                <div key={j} className="flex items-start justify-between py-4 border-b border-gray-100 last:border-0">
-                                                    <div className="flex items-start gap-4">
-                                                        <img
-                                                            src={pt.productInfo.images[0]}
-                                                            alt={pt.productInfo.name}
-                                                            className="w-16 h-16 rounded-lg object-cover border border-gray-200"
-                                                        />
-                                                        <div>
-                                                            <h4 className="font-medium text-gray-900">{pt.productInfo.name}</h4>
-                                                            <p className="text-sm text-gray-500">{pt.productInfo.brand}</p>
+                                                <div key={j} className="flex items-start justify-between py-5 border-b border-gray-400 ">
+                                                    <div className="flex items-start gap-4 flex-1">
+                                                        <div className="w-20 h-20 flex-shrink-0">
+                                                            <img
+                                                                src={pt.productInfo.images[0]}
+                                                                alt={pt.productInfo.name}
+                                                                className="w-full h-full rounded-md object-cover border border-gray-200"
+                                                            />
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <h4 className="text-sm font-semibold text-gray-900">
+                                                                {pt.productInfo.name}
+                                                            </h4>
+                                                            <p className="text-xs text-gray-500 uppercase tracking-wide">
+                                                                {pt.productInfo.brand}
+                                                            </p>
+                                                            {/* <div className="flex items-center gap-2 mt-2">
+                                                                <span className="px-2 py-1 bg-green-50 text-green-700 text-xs font-medium rounded">
+                                                                    Save {pt.productInfo.discount}%
+                                                                </span>
+                                                            </div> */}
                                                         </div>
                                                     </div>
-                                                    <div className="text-right">
-                                                        <p className="font-medium text-gray-900">
-                                                            ${pt.productInfo.price - Math.floor((pt.productInfo.price * pt.productInfo.discount) / 100)}
-                                                        </p>
-                                                        <p className="text-sm text-gray-500 line-through">${pt.productInfo.price}</p>
-                                                        <span className="text-xs font-medium text-green-600">
-                                                            Save {pt.productInfo.discount}%
-                                                        </span>
+                                                    <div className="text-right ml-4">
+                                                        <p className="text-xs text-gray-500 mb-1">Qty: {pt.quantity}</p>
+                                                        <div className="space-y-1">
+                                                            <p className="text-sm font-semibold text-gray-900">
+                                                                ₦ {pt.productInfo.price - Math.floor((pt.productInfo.price * pt.productInfo.discount) / 100)}
+                                                            </p>
+                                                            <p className="text-xs text-gray-400 line-through">
+                                                                ₦{pt.productInfo.price}
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             ))}
@@ -176,23 +193,23 @@ const Shipping = () => {
                                 <div className="space-y-3">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600">Subtotal ({items} items)</span>
-                                        <span className="font-medium">${price}</span>
+                                        <span className="font-medium">₦ {price}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-600">Shipping</span>
-                                        <span className="font-medium">${shipping_fee}</span>
+                                        <span className="font-medium">₦ {shipping_fee}</span>
                                     </div>
                                     <div className="border-t border-gray-100 pt-3">
                                         <div className="flex justify-between text-base font-medium">
                                             <span>Total</span>
-                                            <span className="text-blue-600">${price + shipping_fee}</span>
+                                            <span className="text-gray-900">₦ {price + shipping_fee}</span>
                                         </div>
                                     </div>
                                     <button
                                         onClick={placeOrder}
                                         disabled={!res}
                                         className={`w-full py-3 px-6 rounded-lg font-medium transition-all ${res
-                                            ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                                            ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
                                             : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                             }`}
                                     >
@@ -225,7 +242,9 @@ const Shipping = () => {
                 </div>
             </main>
 
-            <Footer />
+            <div className='hidden lg:block'>
+                <Footer />
+            </div>
         </div>
     );
 }

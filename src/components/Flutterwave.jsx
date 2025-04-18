@@ -93,7 +93,7 @@ const FlutterwavePayment = ({ price, orderId, customerEmail, customerName }) => 
             {error && <div className="mb-4 text-red-500">{error}</div>}
             <button 
                 onClick={initializePayment}
-                className='px-7 rounded-lg py-3 hover:shadow-orange-500/20 hover:shadow-lg bg-orange-500 text-white disabled:opacity-50'
+                className='px-20 rounded-lg py-3 hover:shadow-orange-500/20 hover:shadow-lg bg-orange-500 text-white disabled:opacity-50'
                 disabled={!price || !orderId}
             >
                 Proceed to Payment
