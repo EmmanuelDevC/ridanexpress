@@ -7,12 +7,12 @@ const VerifyEmail = () => {
     const [searchParams] = useSearchParams();
     const token = searchParams.get('token');
     const navigate = useNavigate();
-
+  
     useEffect(() => {
         const verifyEmailToken = async () => {
             try {
                 const response = await axios.get(
-                    `https://https://ridan-express-backend-wpxq.onrender.com/api/verify-email?token=${token}`
+                    `https://ridan-express-backend-wpxq.onrender.com/api/verify-email?token=${token}`
                 );
 
                 if (response.data.message) {
