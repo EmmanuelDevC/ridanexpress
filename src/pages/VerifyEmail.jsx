@@ -13,6 +13,7 @@ const VerifyEmail = () => {
             try {
                 const response = await axios.get(
                     `https://ridan-express-backend-wpxq.onrender.com/api/verify-email?token=${token}`
+                    // `http://localhost:5000/api/verify-email?token=${token}`
                 );
 
                 if (response.data.message) {
