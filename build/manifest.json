@@ -1,6 +1,9 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Ridan Express",
+  "name": "Shop like a Billionaire",
+  "description": "Ridan Express is a multi-vendor e-commerce platform that allows users to buy and sell products online.",
+  
+  
   "icons": [
     {
       "src": "favicon.ico",
