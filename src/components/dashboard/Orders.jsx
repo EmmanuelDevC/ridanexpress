@@ -60,12 +60,11 @@ const Orders = () => {
                     className="w-full sm:w-48 px-4 py-2.5 rounded-lg border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm transition-all"
                 >
                     <option value="all">All Orders</option>
-                    <option value="paid">Paid</option>
-                    <option value="processing">Processing</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
+                    <option value="all">--order status---</option>
+                    <option value="placed">Placed</option>
                     <option value="pending">Pending</option>
                     <option value="cancelled">Cancelled</option>
+                    <option value="warehouse">Warehouse</option>
                 </select>
             </div>
 
