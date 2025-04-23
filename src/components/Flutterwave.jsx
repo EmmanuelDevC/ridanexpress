@@ -19,10 +19,10 @@ const FlutterwavePayment = ({ price, orderId, customerEmail, customerName }) => 
     const initializePayment = async () => {
         try {
             setError(null);
-            
+
             // 1. Generate payment reference
             const { data } = await axios.post(
-                `${api_url}/api/order/create-payment`, 
+                `${api_url}/api/order/create-payment`,
                 { price, orderId },  // Include orderId in request
                 { withCredentials: true }
             );
@@ -30,7 +30,7 @@ const FlutterwavePayment = ({ price, orderId, customerEmail, customerName }) => 
             // 2. Load Flutterwave script safely
             const script = document.createElement('script');
             script.src = 'https://checkout.flutterwave.com/v3.js';
-            
+
             script.onload = () => {
                 if (!isMounted) return;
 
@@ -38,7 +38,7 @@ const FlutterwavePayment = ({ price, orderId, customerEmail, customerName }) => 
                 window.FlutterwaveCheckout({
                     public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
                     tx_ref: data.tx_ref,
-                    amount: parseFloat(price).toFixed(2), // Ensure valid number format
+                    amount: price, // Convert Naira to kobo ✅
                     currency: 'NGN',
                     payment_options: 'card,ussd,mobilemoney',
                     customer: {
@@ -49,11 +49,11 @@ const FlutterwavePayment = ({ price, orderId, customerEmail, customerName }) => 
                         try {
                             // 4. Verify payment with backend
                             await axios.post(
-                                `${api_url}/api/order/verify-payment`,
-                                { transactionId: response.transaction_id, orderId },
+                                `${api_url}/api/order/confirm/${orderId}`,
+                                { transaction_id: response.transaction_id }, // ✅ snake_case
                                 { withCredentials: true }
                             );
-
+                            
                             // 5. Navigate only if component is still mounted
                             if (isMounted) {
                                 navigate(`/order/confirm/${orderId}`, {
@@ -65,9 +65,27 @@ const FlutterwavePayment = ({ price, orderId, customerEmail, customerName }) => 
                             console.error(verificationError);
                         }
                     },
-                    onclose: () => {
-                        if (isMounted) setError('Payment was cancelled');
-                    },
+                    onclose: async () => {
+                        if (!isMounted) return;
+
+                        try {
+                            // Check payment status using order_confirm endpoint
+                            const { data } = await axios.post(
+                                `${api_url}/api/order/confirm/${orderId}`,
+                                {},
+                                { withCredentials: true }
+                            );
+
+                            if (data.success && isMounted) {
+                                navigate(`/order/confirm/${orderId}`);
+                            } else {
+                                setError('Payment was cancelled');
+                            }
+                        } catch (error) {
+                            setError('Payment status check failed');
+                            console.error(error);
+                        }
+                    }
                 });
             };
 
@@ -91,7 +109,7 @@ const FlutterwavePayment = ({ price, orderId, customerEmail, customerName }) => 
     return (
         <div className='bg-white'>
             {error && <div className="mb-4 text-red-500">{error}</div>}
-            <button 
+            <button
                 onClick={initializePayment}
                 className='px-20 rounded-lg py-3 hover:shadow-orange-500/20 hover:shadow-lg bg-orange-500 text-white disabled:opacity-50'
                 disabled={!price || !orderId}

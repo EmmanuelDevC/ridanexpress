@@ -146,9 +146,9 @@ const FeatureProducts = ({ products }) => {
                 </div>
             ) : // Render products when loaded
 
-                <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 md:gap-2 lg:gap-2'>
+                <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-1 md:gap-2 lg:gap-2'>
                     {products.map((p, i) => (
-                        <div key={i} className='bg-white md:rounded-lg lg:rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 group overflow-hidden flex flex-col'>
+                        <div key={i} className='bg-white rounded-md md:rounded-lg lg:rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 group overflow-hidden flex flex-col'>
                             <Link to={`/product/details/${p.slug}`} className='relative flex-1'>
                                 {p.discount && (
                                     <div className='absolute left-1 top-1 bg-orange-500 text-white px-3 py-1 rounded-lg text-xs font-semibold z-0 z-10'>

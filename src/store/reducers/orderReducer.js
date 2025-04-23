@@ -58,7 +58,7 @@ export const order_confirm = createAsyncThunk(
                     'authorization': `Bearer ${token}`
                 }
             }
-            await api.post(`/api/order/confirm/${orderId}`, { transaction_id }, config)
+            await api.post(`/home/order/confirm/${orderId}`, { transaction_id }, config)
             return { orderId }
         } catch (error) {
             console.log(error.response)
@@ -87,7 +87,7 @@ export const get_orders = createAsyncThunk(
         try {
             const {
                 data
-            } = await api.get(`/home/customer/gat-orders/${customerId}/${status}`, config)
+            } = await api.get(`/home/customer/get-orders/${customerId}/${status}`, config)
             return fulfillWithValue(data)
         } catch (error) {
             console.log(error.response)
@@ -111,7 +111,7 @@ export const get_order = createAsyncThunk(
         try {
             const {
                 data
-            } = await api.get(`/home/customer/gat-order/${orderId}`, config)
+            } = await api.get(`/home/customer/get-order/${orderId}`, config)
             return fulfillWithValue(data)
         } catch (error) {
             console.log(error.response)
