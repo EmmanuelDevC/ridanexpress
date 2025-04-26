@@ -54,7 +54,7 @@ const Index = () => {
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
                         <div>
                             <div className='flex items-center gap-1'>
-                                <VerifiedUserTwoToneIcon className='text-indigo-200'/>
+                                <VerifiedUserTwoToneIcon className='text-indigo-200' />
                                 <h1 className=" text-lg lg:text-2xl font-semi">Hi, {userInfo.name}</h1>
                             </div>
                             <p className="text-gray-200 text-xs mt-2">Here's your activity summary</p>
@@ -185,49 +185,65 @@ const Index = () => {
                             </thead>
 
                             <tbody className="divide-y divide-gray-100">
-                                {recentOrders.map((order, index) => (
-                                    <tr key={index} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-[90px] truncate">
-                                            #{order._id.slice(-8)}
-                                        </td>
-                                        <td className="px-3 sm:px-6 py-2 text-xs sm:text-sm text-gray-500 text-right">
-                                            {order.price && (
-                                                <>
-                                                    ₦ {Number(order.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                                                </>
-                                            )}
-                                        </td>
-                                        <td className="px-3 sm:px-6 py-2">
-                                            <span className={`${getStatusBadge(order.payment_status)} text-xs px-2 py-0.5`}>
-                                                {order.payment_status}
-                                            </span>
-                                        </td>
-                                        <td className="px-3 sm:px-6 py-2">
-                                            <span className={`${getStatusBadge(order.delivery_status)} text-xs px-2 py-0.5`}>
-                                                {order.delivery_status}
-                                            </span>
-                                        </td>
-                                        <td className="px-3 sm:px-6 py-2 text-right space-x-1 sm:space-x-2">
-                                            <Link
-                                                to={`/dashboard/order/details/${order._id}`}
-                                                className="inline-flex items-center pr-4 text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium"
-                                            >
-                                                <AiOutlineFileSearch className="hidden sm:inline mr-1" />
-                                                <span>View</span>
-                                            </Link>
-                                            {order.payment_status !== 'paid' && (
-                                                <button
-                                                    onClick={() => redirect(order)}
-                                                    className="inline-flex items-center text-white hover:text-slate-800 bg-green-500 rounded-full px-3 text-xs sm:text-sm font-medium"
+                                {[...recentOrders]
+                                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                                    .map((order, index) => (
+                                        <tr key={index} className="hover:bg-gray-50 transition-colors">
+                                            <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-[90px] truncate">
+                                                <div className="flex items-center gap-2">
+                                                    <span>#{order._id.slice(-8)}</span>
+                                                    {Date.now() - new Date(order.createdAt) < 86400000 && (
+                                                        <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xxs">
+                                                            New
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="text-xs text-gray-400 mt-1">
+                                                    {new Date(order.createdAt).toLocaleDateString('en-GB', {
+                                                        day: 'numeric',
+                                                        month: 'short',
+                                                        year: 'numeric'
+                                                    })}
+                                                </div>
+                                            </td>
+                                            <td className="px-3 sm:px-6 py-2 text-xs sm:text-sm text-gray-500 text-right">
+                                                {order.price && (
+                                                    <>
+                                                        ₦ {Number(order.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                                    </>
+                                                )}
+                                            </td>
+                                            <td className="px-3 sm:px-6 py-2">
+                                                <span className={`${getStatusBadge(order.payment_status)} text-xs px-2 py-0.5`}>
+                                                    {order.payment_status}
+                                                </span>
+                                            </td>
+                                            <td className="px-3 sm:px-6 py-2">
+                                                <span className={`${getStatusBadge(order.delivery_status)} text-xs px-2 py-0.5`}>
+                                                    {order.delivery_status}
+                                                </span>
+                                            </td>
+                                            <td className="px-3 sm:px-6 py-2 text-right space-x-1 sm:space-x-2">
+                                                <Link
+                                                    to={`/dashboard/order/details/${order._id}`}
+                                                    className="inline-flex items-center pr-4 text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium"
                                                 >
-                                                    <AiOutlineShoppingCart className="hidden sm:inline mr-1" />
-                                                    <span>Pay</span>
-                                                    <span className='pl-1 hidden sm:inline'>now</span>
-                                                </button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
+                                                    <AiOutlineFileSearch className="hidden sm:inline mr-1" />
+                                                    <span>View</span>
+                                                </Link>
+                                                {order.payment_status !== 'paid' && (
+                                                    <button
+                                                        onClick={() => redirect(order)}
+                                                        className="inline-flex items-center text-white hover:text-slate-800 bg-green-500 rounded-full px-3 text-xs sm:text-sm font-medium"
+                                                    >
+                                                        <AiOutlineShoppingCart className="hidden sm:inline mr-1" />
+                                                        <span>Pay</span>
+                                                        <span className='pl-1 hidden sm:inline'>now</span>
+                                                    </button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
                             </tbody>
                         </table>
                     </div>

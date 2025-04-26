@@ -1,4 +1,3 @@
-// Flutterwave.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -8,10 +7,10 @@ const FlutterwavePayment = ({ price, orderId, customerEmail, customerName }) => 
     const navigate = useNavigate();
     const [error, setError] = useState(null);
     const [isMounted, setIsMounted] = useState(true);
+    const [isLoading, setIsLoading] = useState(false); // New loading state
 
     useEffect(() => {
         return () => {
-            // Cleanup to prevent state updates on unmounted component
             setIsMounted(false);
         };
     }, []);
@@ -19,57 +18,51 @@ const FlutterwavePayment = ({ price, orderId, customerEmail, customerName }) => 
     const initializePayment = async () => {
         try {
             setError(null);
+            setIsLoading(true); // Start loading
 
-            // 1. Generate payment reference
             const { data } = await axios.post(
                 `${api_url}/api/order/create-payment`,
-                { price, orderId },  // Include orderId in request
+                { price, orderId },
                 { withCredentials: true }
             );
 
-            // 2. Load Flutterwave script safely
             const script = document.createElement('script');
             script.src = 'https://checkout.flutterwave.com/v3.js';
 
             script.onload = () => {
                 if (!isMounted) return;
 
-                // 3. Initialize payment
                 window.FlutterwaveCheckout({
                     public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
                     tx_ref: data.tx_ref,
-                    amount: price, // Convert Naira to kobo ✅
+                    amount: price,
                     currency: 'NGN',
                     payment_options: 'card,ussd,mobilemoney',
                     customer: {
-                        email: "emmanueldev584@gmail.com",  // Use prop instead of hardcoded value
-                        name: customerName,     // Use prop instead of hardcoded value
+                        email: "emmanueldev584@gmail.com",
+                        name: customerName,
                     },
                     callback: async (response) => {
                         try {
-                            // 4. Verify payment with backend
                             await axios.post(
                                 `${api_url}/api/order/confirm/${orderId}`,
-                                { transaction_id: response.transaction_id }, // ✅ snake_case
+                                { transaction_id: response.transaction_id },
                                 { withCredentials: true }
                             );
                             
-                            // 5. Navigate only if component is still mounted
                             if (isMounted) {
-                                navigate(`/order/confirm/${orderId}`, {
+                                navigate(`/dashboard/my-orders/`, {
                                     state: { transaction_id: response.transaction_id }
                                 });
                             }
                         } catch (verificationError) {
-                            setError('Payment verification failed');
-                            console.error(verificationError);
+                            if (isMounted) setError('Payment verification failed');
                         }
                     },
                     onclose: async () => {
                         if (!isMounted) return;
 
                         try {
-                            // Check payment status using order_confirm endpoint
                             const { data } = await axios.post(
                                 `${api_url}/api/order/confirm/${orderId}`,
                                 {},
@@ -77,20 +70,24 @@ const FlutterwavePayment = ({ price, orderId, customerEmail, customerName }) => 
                             );
 
                             if (data.success && isMounted) {
-                                navigate(`/order/confirm/${orderId}`);
+                                navigate(`/dashboard/my-orders/`);
                             } else {
-                                setError('Payment was cancelled');
+                                if (isMounted) setError('Payment was cancelled');
                             }
                         } catch (error) {
-                            setError('Payment status check failed');
-                            console.error(error);
+                            if (isMounted) setError('Payment status check failed');
                         }
                     }
                 });
+
+                if (isMounted) setIsLoading(false); // Stop loading after Flutterwave modal opens
             };
 
             script.onerror = () => {
-                if (isMounted) setError('Failed to load payment processor');
+                if (isMounted) {
+                    setError('Failed to load payment processor');
+                    setIsLoading(false); // Stop loading on error
+                }
             };
 
             document.body.appendChild(script);
@@ -101,7 +98,7 @@ const FlutterwavePayment = ({ price, orderId, customerEmail, customerName }) => 
         } catch (error) {
             if (isMounted) {
                 setError(error.response?.data?.message || 'Payment initialization failed');
-                console.error(error);
+                setIsLoading(false); // Stop loading on error
             }
         }
     };
@@ -112,9 +109,35 @@ const FlutterwavePayment = ({ price, orderId, customerEmail, customerName }) => 
             <button
                 onClick={initializePayment}
                 className='px-20 rounded-lg py-3 hover:shadow-orange-500/20 hover:shadow-lg bg-orange-500 text-white disabled:opacity-50'
-                disabled={!price || !orderId}
+                disabled={!price || !orderId || isLoading} // Disable during loading
             >
-                Proceed to Payment
+                {isLoading ? (
+                    <div className="flex items-center justify-center">
+                        <svg
+                            className="animate-spin h-5 w-5 mr-3 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                        >
+                            <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                            ></circle>
+                            <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                        </svg>
+                        Processing...
+                    </div>
+                ) : (
+                    'Proceed to Payment'
+                )}
             </button>
         </div>
     );

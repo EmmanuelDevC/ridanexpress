@@ -2,16 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { get_order } from '../../store/reducers/orderReducer';
-import {
-  FiPackage,
-  FiCopy,
-  FiCheckCircle,
-  FiTruck,
-  FiHome,
-  FiUser,
-  FiMapPin,
-  FiMail,
-} from 'react-icons/fi';
+import { FiPackage, FiCopy, FiCheckCircle, FiTruck, FiHome, FiUser, FiMapPin, FiMail } from 'react-icons/fi';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { motion } from 'framer-motion';
@@ -64,10 +55,10 @@ const Order = () => {
   };
 
   const statusStyles = {
-    paid:    { bg: 'bg-emerald-50', text: 'text-emerald-700', icon: <FiCheckCircle className="w-4 h-4" /> },
-    placed:  { bg: 'bg-indigo-100', text: 'text-indigo-700', icon: <FiCheckCircle className="w-4 h-4" /> },
+    paid: { bg: 'bg-emerald-50', text: 'text-emerald-700', icon: <FiCheckCircle className="w-4 h-4" /> },
+    placed: { bg: 'bg-indigo-100', text: 'text-indigo-700', icon: <FiCheckCircle className="w-4 h-4" /> },
     pending: { bg: 'bg-orange-50', text: 'text-orange-700', icon: <FiCheckCircle className="w-4 h-4" /> },
-    unpaid:  { bg: 'bg-amber-50', text: 'text-amber-700' },
+    unpaid: { bg: 'bg-amber-50', text: 'text-amber-700' },
     cancelled: { bg: 'bg-red-200', text: 'text-amber-700' },
     delivered: { bg: 'bg-indigo-50', text: 'text-indigo-700', icon: <FiTruck className="w-4 h-4" /> },
   };
@@ -81,6 +72,15 @@ const Order = () => {
       console.error('Error formatting date:', error);
       return 'N/A';
     }
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
   };
 
   return (
@@ -226,16 +226,14 @@ const Order = () => {
           {/* Payment Summary */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <span className="text-green-500 font-base">
-                ₦
-              </span>
+              <span className="text-green-500">₦</span>
               Payment Summary
             </h3>
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-600">Subtotal</span>
-                <span className="text-gray-900 font-base">
-                  {myOrder.price && `₦ ${Number(myOrder.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`}
+                <span className="text-gray-900">
+                  {myOrder.price && formatCurrency(myOrder.price)}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -245,7 +243,7 @@ const Order = () => {
               <div className="flex justify-between border-t pt-3">
                 <span className="font-semibold text-gray-900">Total</span>
                 <span className="font-medium text-black">
-                  {myOrder.price && `₦ ${Number(myOrder.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`}
+                  {myOrder.price && formatCurrency(myOrder.price)}
                 </span>
               </div>
             </div>
@@ -258,46 +256,60 @@ const Order = () => {
             Order Items ({myOrder.products?.length || 0})
           </h3>
           <div className="space-y-3 mb-20">
-            {myOrder.products
-              ?.filter(p => Array.isArray(p.images) && p.images.length > 0)
-              .map((p, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex items-start sm:items-center p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
+            {myOrder.products?.map((p, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex items-start sm:items-center p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0">
                   <img
-                    src={p.images[0] || '/placeholder.png'}
+                    src={p.images?.[0]?.url || '/placeholder.png'}
                     alt={p.name}
-                    className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-md border flex-shrink-0"
+                    className="w-full h-full object-cover rounded-md border"
+                    onError={(e) => {
+                      e.target.src = '/placeholder.png';
+                      e.target.alt = 'Product image not available';
+                    }}
                   />
+                  {p.discount > 0 && (
+                    <span className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-tr-md rounded-bl-md">
+                      -{p.discount}%
+                    </span>
+                  )}
+                </div>
 
-                  <div className="ml-2 sm:ml-4 flex-1 min-w-0">
-                    <Link
-                      to={`/product/${p.productId}`}
-                      className="text-sm sm:text-base font-medium text-gray-900 hover:text-indigo-600 transition-colors line-clamp-2"
-                    >
-                      {p.name}
-                    </Link>
-                    <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 items-center">
-                      <span className="text-xs sm:text-sm text-gray-500">
-                        {p.brand}
-                      </span>
-                      <span className="text-gray-300">•</span>
-                      <span className="text-xs sm:text-sm text-gray-500">
-                        Qty: {p.quantity}
-                      </span>
-                    </div>
+                <div className="ml-2 sm:ml-4 flex-1 min-w-0">
+                  <Link
+                    to={`/product/${p.productId}`}
+                    className="text-sm sm:text-base font-medium text-gray-900 hover:text-indigo-600 transition-colors line-clamp-2"
+                  >
+                    {p.name}
+                  </Link>
+                  <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 items-center">
+                    <span className="text-xs sm:text-sm text-gray-500">
+                      Brand: {p.brand}
+                    </span>
+                    <span className="text-gray-300">•</span>
+                    <span className="text-xs sm:text-sm text-gray-500">
+                      Qty: {p.quantity}
+                    </span>
                   </div>
+                </div>
 
-                  <div className="ml-2 sm:ml-4 text-right flex-shrink-0">
-                    <p className="text-base sm:text-lg font-semibold text-green-600">
-                      ₦ {(p.price - (p.price * p.discount) / 100).toLocaleString()}
+                <div className="ml-2 sm:ml-4 text-right flex-shrink-0">
+                  <p className="text-base sm:text-lg font-semibold text-green-600">
+                    {formatCurrency(p.price - (p.price * p.discount) / 100)}
+                  </p>
+                  {p.discount > 0 && (
+                    <p className="text-xs line-through text-gray-400 mt-1">
+                      {formatCurrency(p.price)}
                     </p>
-                  </div>
-                </motion.div>
-              ))}
+                  )}
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </div>

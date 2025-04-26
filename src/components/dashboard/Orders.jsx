@@ -33,11 +33,14 @@ const Orders = () => {
     }
 
     const redirectToPayment = (order) => {
-        if (order.payment_url) {
-            window.location.href = order.payment_url
-        } else {
-            navigate(`/dashboard/order/details/${order._id}`)
-        }
+        const items = order.products.reduce((acc, product) => acc + product.quantity, 0);
+        navigate('/payment', {
+            state: {
+                price: order.price,
+                items,
+                orderId: order._id
+            }
+        });
     }
 
     return (
@@ -82,69 +85,71 @@ const Orders = () => {
                     </thead>
 
                     <tbody className="divide-y divide-gray-100">
-                        {myOrders.map((order, index) => (
-                            <motion.tr
-                                key={order._id}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: index * 0.05 }}
-                                className="hover:bg-gray-50 transition-colors"
-                            >
-                                <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-[120px] truncate">
-                                    <div className="flex items-center gap-2">
-                                        <FiPackage className="text-gray-400" />
-                                        <span className="font-mono">#{order.flutterwave_ref}</span>
-                                    </div>
-                                    <div className="text-xs text-gray-400 mt-1">
-                                        {new Date(order.createdAt).toLocaleDateString()}
-                                    </div>
-                                </td>
-                                <td className="px-3 sm:px-6 py-2 text-xs sm:text-sm text-gray-500 text-right">
-                                    <div className="flex items-center justify-end gap-1">
-                                        ₦{Number(order.price).toLocaleString(undefined, {
-                                            minimumFractionDigits: 2,
-                                            maximumFractionDigits: 2
-                                        })}
-                                    </div>
-                                </td>
-                                <td className="px-3 sm:px-6 py-2">
-                                    <span className={`${getStatusBadge(order.payment_status)} inline-flex items-center gap-1 px-2 py-0.5 text-xs`}>
-                                        {order.payment_status === 'paid' && <FiCheckCircle className="w-4 h-4" />}
-                                        {order.payment_status === 'unpaid' && <FiClock className="w-4 h-4" />}
-                                        {order.payment_status === 'failed' && <FiXCircle className="w-4 h-4" />}
-                                        {order.payment_status === 'refunded' && <FiBox className="w-4 h-4" />}
-                                        {order.payment_status}
-                                    </span>
-                                </td>
-                                <td className="px-3 sm:px-6 py-2">
-                                    <span className={`${getStatusBadge(order.delivery_status)} inline-flex items-center gap-1 px-2 py-0.5 text-xs`}>
-                                        {order.delivery_status === 'processing' && <FiClock className="w-4 h-4" />}
-                                        {order.delivery_status === 'shipped' && <FiTruck className="w-4 h-4" />}
-                                        {order.delivery_status === 'delivered' && <FiCheckCircle className="w-4 h-4" />}
-                                        {order.delivery_status}
-                                    </span>
-                                </td>
-                                <td className="px-3 sm:px-6 py-2 text-right space-x-1 sm:space-x-2">
-                                    <Link
-                                        to={`/dashboard/order/details/${order._id}`}
-                                        className="inline-flex items-center pr-4 text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium"
-                                    >
-                                        <AiOutlineFileSearch className="hidden sm:inline mr-1" />
-                                        <span>View</span>
-                                    </Link>
-                                    {order.payment_status !== 'paid' && order.payment_status !== 'refunded' && (
-                                        <button
-                                            onClick={() => redirectToPayment(order)}
-                                            className="inline-flex items-center text-white hover:bg-green-600 bg-green-500 rounded-full px-3 py-1 text-xs sm:text-sm font-medium transition-colors"
+                        {[...myOrders]
+                            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                            .map((order, index) => (
+                                <motion.tr
+                                    key={order._id}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: index * 0.05 }}
+                                    className="hover:bg-gray-50 transition-colors"
+                                >
+                                    <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-[120px] truncate">
+                                        <div className="flex items-center gap-2">
+                                            <FiPackage className="text-gray-400" />
+                                            <span className="font-mono">#{order.flutterwave_ref}</span>
+                                        </div>
+                                        <div className="text-xs text-gray-400 mt-1">
+                                            {new Date(order.createdAt).toLocaleDateString()}
+                                        </div>
+                                    </td>
+                                    <td className="px-3 sm:px-6 py-2 text-xs sm:text-sm text-gray-500 text-right">
+                                        <div className="flex items-center justify-end gap-1">
+                                            ₦{Number(order.price).toLocaleString(undefined, {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2
+                                            })}
+                                        </div>
+                                    </td>
+                                    <td className="px-3 sm:px-6 py-2">
+                                        <span className={`${getStatusBadge(order.payment_status)} inline-flex items-center gap-1 px-2 py-0.5 text-xs`}>
+                                            {order.payment_status === 'paid' && <FiCheckCircle className="w-4 h-4" />}
+                                            {order.payment_status === 'unpaid' && <FiClock className="w-4 h-4" />}
+                                            {order.payment_status === 'failed' && <FiXCircle className="w-4 h-4" />}
+                                            {order.payment_status === 'refunded' && <FiBox className="w-4 h-4" />}
+                                            {order.payment_status}
+                                        </span>
+                                    </td>
+                                    <td className="px-3 sm:px-6 py-2">
+                                        <span className={`${getStatusBadge(order.delivery_status)} inline-flex items-center gap-1 px-2 py-0.5 text-xs`}>
+                                            {order.delivery_status === 'processing' && <FiClock className="w-4 h-4" />}
+                                            {order.delivery_status === 'shipped' && <FiTruck className="w-4 h-4" />}
+                                            {order.delivery_status === 'delivered' && <FiCheckCircle className="w-4 h-4" />}
+                                            {order.delivery_status}
+                                        </span>
+                                    </td>
+                                    <td className="px-3 sm:px-6 py-2 text-right space-x-1 sm:space-x-2">
+                                        <Link
+                                            to={`/dashboard/order/details/${order._id}`}
+                                            className="inline-flex items-center pr-4 text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium"
                                         >
-                                            <AiOutlineShoppingCart className="hidden sm:inline mr-1" />
-                                            <span>Pay</span>
-                                            <span className='pl-1 hidden sm:inline'>now</span>
-                                        </button>
-                                    )}
-                                </td>
-                            </motion.tr>
-                        ))}
+                                            <AiOutlineFileSearch className="hidden sm:inline mr-1" />
+                                            <span>View</span>
+                                        </Link>
+                                        {order.payment_status !== 'paid' && order.payment_status !== 'refunded' && (
+                                            <button
+                                                onClick={() => redirectToPayment(order)}
+                                                className="inline-flex items-center text-white hover:bg-green-600 bg-green-500 rounded-full px-3 py-1 text-xs sm:text-sm font-medium transition-colors"
+                                            >
+                                                <AiOutlineShoppingCart className="hidden sm:inline mr-1" />
+                                                <span>Pay</span>
+                                                <span className='pl-1 hidden sm:inline'>now</span>
+                                            </button>
+                                        )}
+                                    </td>
+                                </motion.tr>
+                            ))}
                     </tbody>
                 </table>
 
@@ -156,8 +161,8 @@ const Orders = () => {
                         </div>
                         <h3 className="text-gray-900 font-medium">No orders found</h3>
                         <p className="text-gray-500 mt-1">
-                            {statusFilter === 'all' ? 
-                                "You haven't placed any orders yet" : 
+                            {statusFilter === 'all' ?
+                                "You haven't placed any orders yet" :
                                 "No orders match your current filters"
                             }
                         </p>

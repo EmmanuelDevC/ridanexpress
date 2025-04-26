@@ -4,9 +4,10 @@ import Headers from '../components/Headers'
 import Footer from '../components/Footer'
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { RxDashboard, RxPerson } from 'react-icons/rx'
-import { RiProductHuntLine, RiArrowLeftRightLine } from 'react-icons/ri'
+import { RiArrowLeftRightLine } from 'react-icons/ri'
 import { BsChat, BsHeart, BsGear } from 'react-icons/bs'
-import { TbLock } from 'react-icons/tb'
+import PermIdentityIcon from '@mui/icons-material/PermIdentity';
+import { FiPackage } from 'react-icons/fi'
 import { FiLogOut } from 'react-icons/fi'
 import api from '../api/api'
 import { useDispatch } from 'react-redux'
@@ -20,31 +21,31 @@ const MobileNav = () => {
 
     useEffect(() => {
         const handleScroll = () => {
-            const currentScrollPos = window.pageYOffset
-            const isVisible = scrollPos > currentScrollPos
+            const currentScrollPos = window.pageYOffset;
+            const isVisible = scrollPos > currentScrollPos;
 
-            setScrollPos(currentScrollPos)
-            setVisible(isVisible || currentScrollPos < 10)
-        }
+            setScrollPos(currentScrollPos);
+            setVisible(isVisible);
+        };
 
-        window.addEventListener('scroll', handleScroll)
-        return () => window.removeEventListener('scroll', handleScroll)
-    }, [scrollPos])
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [scrollPos]);
 
 
     const navItems = [
         { path: '/dashboard', icon: <RxDashboard />, label: 'Dashboard' },
-        { path: '/dashboard/my-orders', icon: <RiProductHuntLine />, label: 'Orders' },
+        { path: '/dashboard/my-orders', icon: <FiPackage />, label: 'Orders' },
         { path: '/dashboard/my-wishlist', icon: <BsHeart />, label: 'Wishlist' },
         { path: '/dashboard/chat', icon: <BsChat />, label: 'Chats' },
-        { path: '/dashboard/chage-password', icon: <TbLock />, label: 'Password' },
+        { path: '/dashboard/chage-password', icon: <PermIdentityIcon />, label: 'Account' },
     ];
 
     return (
         <motion.div
             initial={{ y: 100 }}
             animate={{ y: 0 }}
-            className={`block lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white shadow-lg rounded-t-2xl transition-transform duration-300 ${visible ? 'translate-y-0' : 'translate-y-full'
+            className={`block lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-black shadow-lg rounded-t-2xl transition-transform duration-300 ${visible ? 'translate-y-0' : 'translate-y-full'
                 }`}
         >
             <div className="flex justify-around border-t-2 border-gray-200 items-center p-2">
@@ -56,23 +57,23 @@ const MobileNav = () => {
                     >
                         <span
                             className={`text-2xl transition-colors duration-200 ${location.pathname === item.path
-                                ? 'text-indigo-600'
-                                : 'text-gray-400 hover:text-indigo-500'
+                                ? 'text-orange-500'
+                                : 'text-gray-300 hover:text-orange-500'
                                 }`}
                         >
                             {item.icon}
                         </span>
                         <span
                             className={`text-[10px] font-medium mt-1 transition-colors ${location.pathname === item.path
-                                ? 'text-indigo-600'
-                                : 'text-gray-500'
+                                ? 'text-orange-500'
+                                : 'text-gray-300'
                                 }`}
                         >
                             {item.label}
                         </span>
                         {location.pathname === item.path && (
                             <motion.div
-                                className="absolute -bottom-1 w-6 h-1 bg-indigo-600 rounded-full"
+                                className="absolute -bottom-1 w-6 h-1 bg-orange-500 rounded-full"
                                 initial={{ scaleX: 0 }}
                                 animate={{ scaleX: 1 }}
                             />
@@ -123,10 +124,10 @@ const Dashboard = () => {
                                 <ul className="space-y-2 flex-1">
                                     {[
                                         { path: '/dashboard', icon: <RxDashboard />, label: 'Dashboard' },
-                                        { path: '/dashboard/my-orders', icon: <RiProductHuntLine />, label: 'Orders' },
+                                        { path: '/dashboard/my-orders', icon: <FiPackage />, label: 'Orders' },
                                         { path: '/dashboard/my-wishlist', icon: <BsHeart />, label: 'Wishlist' },
                                         { path: '/dashboard/chat', icon: <BsChat />, label: 'Messages', badge: 3 },
-                                        { path: '/dashboard/chage-password', icon: <TbLock />, label: 'Security' },
+                                        { path: '/dashboard/chage-password', icon: <PermIdentityIcon />, label: 'Account' },
                                     ].map((item) => (
                                         <li key={item.path}>
                                             <Link
