@@ -113,6 +113,7 @@ export const get_order = createAsyncThunk(
                 data
             } = await api.get(`/home/customer/get-order/${orderId}`, config)
             return fulfillWithValue(data)
+            
         } catch (error) {
             console.log(error.response)
         }

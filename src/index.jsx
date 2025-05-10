@@ -17,11 +17,11 @@ import {
 
 const EcommerceToaster = () => (
   <Toaster
-    position="top-right"
-    gutter={16}
+    position="top-left"
+    gutter={10}
     containerClassName="ecommerce-toast-container"
     toastOptions={{
-      duration: 4000,
+      duration: 500,
       style: {
         border: '1px solid #e5e7eb',
         borderRadius: '12px',
@@ -67,7 +67,7 @@ const EcommerceToaster = () => (
           </div>
           <button
             onClick={() => toast.dismiss(t.id)}
-            className="hover:bg-gray-100 rounded-full p-1 transition-colors"
+            className="hover:bg-gray-200 rounded-full p-1 transition-colors"
             aria-label="Close toast"
           >
             <FiX className="text-gray-500 w-5 h-5" />

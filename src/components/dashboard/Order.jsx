@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { get_order } from '../../store/reducers/orderReducer';
 import { FiPackage, FiCopy, FiCheckCircle, FiTruck, FiHome, FiUser, FiMapPin, FiMail } from 'react-icons/fi';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { motion } from 'framer-motion';
 import { format, parseISO } from 'date-fns';
+import { get_order } from '../../store/reducers/orderReducer';
 
 const Order = () => {
   const [isCopied, setIsCopied] = useState(false);
   const { orderId } = useParams();
   const dispatch = useDispatch();
   const { myOrder } = useSelector(state => state.order);
+  console.log(myOrder);
   const { userInfo } = useSelector(state => state.auth);
+  console.log(userInfo);
 
   useEffect(() => {
     dispatch(get_order(orderId));
@@ -24,7 +26,7 @@ const Order = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading order details...</p>
+          <p className="mt-4 text-gray-600">Processing order details...</p>
         </div>
       </div>
     );
@@ -122,7 +124,7 @@ const Order = () => {
               </div>
               <ToastContainer />
               <p className="text-gray-500 text-sm mt-1">
-                Placed on {formatDate(myOrder.date)}
+                Placed on {formatDate(myOrder.createdAt)}
               </p>
             </div>
 
@@ -251,67 +253,84 @@ const Order = () => {
         </div>
 
         {/* Products List */}
-        <div className="rounded-xl shadow-sm p-4 mb-6 bg-gray-800 sm:p-6">
+        <div className="rounded-xl shadow-sm p-4 mb-6 bg-[#191919] sm:p-6">
           <h3 className="text-base sm:text-lg text-white font-semibold mb-4 sm:mb-6">
             Order Items ({myOrder.products?.length || 0})
           </h3>
           <div className="space-y-3 mb-20">
-            {myOrder.products?.map((p, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex items-start sm:items-center p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0">
-                  <img
-                    src={p.images?.[0]?.url || '/placeholder.png'}
-                    alt={p.name}
-                    className="w-full h-full object-cover rounded-md border"
-                    onError={(e) => {
-                      e.target.src = '/placeholder.png';
-                      e.target.alt = 'Product image not available';
-                    }}
-                  />
-                  {p.discount > 0 && (
-                    <span className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-tr-md rounded-bl-md">
-                      -{p.discount}%
-                    </span>
-                  )}
-                </div>
+            {myOrder.products?.map((product, index) => {
+              // Add proper fallbacks and ensure data structure
+              const productData = {
+                name: product.name || 'Unnamed Product',
+                brand: product.brand || 'Generic Brand',
+                images: product.images || [],
+                price: product.price || 0,
+                discount: product.discount || 0,
+                quantity: product.quantity || null,
+                productId: product.productId || ''
+              };
 
-                <div className="ml-2 sm:ml-4 flex-1 min-w-0">
-                  <Link
-                    to={`/product/${p.productId}`}
-                    className="text-sm sm:text-base font-medium text-gray-900 hover:text-indigo-600 transition-colors line-clamp-2"
-                  >
-                    {p.name}
-                  </Link>
-                  <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 items-center">
-                    <span className="text-xs sm:text-sm text-gray-500">
-                      Brand: {p.brand}
-                    </span>
-                    <span className="text-gray-300">•</span>
-                    <span className="text-xs sm:text-sm text-gray-500">
-                      Qty: {p.quantity}
-                    </span>
+              return (
+                <motion.div
+                  key={product._id || index}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex items-start sm:items-center p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0">
+                    <img
+                      src={productData.images[0] || '/placeholder.png'}
+                      alt={productData.name}
+                      className="w-full h-full object-cover rounded-md border"
+                      onError={(e) => {
+                        e.target.src = '/placeholder.png';
+                        e.target.alt = 'Product image not available';
+                      }}
+                    />
+                    {/* {productData.discount > 0 && (
+                      <span className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-tr-md rounded-bl-md">
+                        -{productData.discount}%
+                      </span>
+                    )} */}
                   </div>
-                </div>
 
-                <div className="ml-2 sm:ml-4 text-right flex-shrink-0">
-                  <p className="text-base sm:text-lg font-semibold text-green-600">
-                    {formatCurrency(p.price - (p.price * p.discount) / 100)}
-                  </p>
-                  {p.discount > 0 && (
-                    <p className="text-xs line-through text-gray-400 mt-1">
-                      {formatCurrency(p.price)}
+                  <div className="ml-2 sm:ml-4 flex-1 min-w-0">
+                    <Link
+                      to={`/product/${productData.productId}`}
+                      className="text-sm sm:text-base font-medium line-clamp-1 text-gray-900 hover:text-indigo-600 transition-colors"
+                    >
+                      {productData.name}
+                    </Link>
+                    <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 items-center">
+                      <span className="text-xs sm:text-sm text-gray-500">
+                        Brand: {productData.brand}
+                      </span>
+                      <span className="text-gray-300">•</span>
+                      <span className="text-xs sm:text-sm text-gray-500">
+                        Qty: {productData.quantity}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="ml-2 sm:ml-4 text-right flex-shrink-0">
+                    {productData.discount > 0 && (
+                      <p className="text-xs lg:text-lg font-bold text-orange-500 mt-1">
+                        {formatCurrency(
+                          productData.price - (productData.price * productData.discount) / 100)
+                        }
+                      </p>
+                    )}
+                    <p className="text-xs line-through  text-gray-500">
+                      {formatCurrency(productData.price)}
                     </p>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+
+                  </div>
+                </motion.div>
+              )
+            })}
           </div>
         </div>
+
       </div>
     </motion.div>
   );
