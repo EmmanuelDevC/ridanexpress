@@ -8,7 +8,7 @@ import toast from 'react-hot-toast'
 import Ratings from '../Ratings'
 import { add_to_card, messageClear, add_to_wishlist } from '../../store/reducers/cardReducer'
 
-const FeatureProducts = ({ products }) => {
+const ShopProducts = ({ products }) => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const { userInfo } = useSelector(state => state.auth)
@@ -129,4 +129,4 @@ const FeatureProducts = ({ products }) => {
     )
 }
 
-export default FeatureProducts
+export default ShopProducts

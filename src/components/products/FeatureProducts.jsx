@@ -67,7 +67,7 @@ const FeatureProducts = ({ products }) => {
                     <span className="hidden lg:block w-12 h-1.5 block lg:hidden bg-orange-500 mt-2 rounded-full" />
                 </h2>
                 <Link
-                    to="/products"
+                    to='/shops'
                     className="text-white font-medium transition-colors flex items-center gap-2"
                 >
                     See All
@@ -189,7 +189,8 @@ const FeatureProducts = ({ products }) => {
                                     </button>
                                 </div>
 
-                                <Link to={`/product/debg-gradient-to-r from-gray-800 to-indigo-700tails/${p.slug}`} className='hover:text-orange-600'>
+                                <Link to={`/product/debg-gradient-to-r from-gray-800 to-indigo-700tails/${p.slug}`}
+                                    className='hover:text-orange-600'>
                                     <h2 className="text-sm md:text-base font-semibold line-clamp-1">
                                         {p.name}
                                     </h2>

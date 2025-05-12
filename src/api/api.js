@@ -7,6 +7,7 @@ const api = axios.create({
   withCredentials: true
 });
 
+
 // Export a function to set up interceptors later
 export const setupResponseInterceptor = (store) => {
   api.interceptors.response.use(

@@ -91,7 +91,7 @@ const CategoryShops = () => {
             </div>
 
             {/* Main Content */}
-            <main className="flex-1 container mx-auto px-4">
+            <main className="flex-1 container mx-auto px-1">
                 <div className="flex flex-col lg:flex-row gap-6">
                     {/* Filters Sidebar */}
                     <aside className={`lg:w-80 xl:w-96 ${showFilters ? 'block' : 'hidden'} lg:block`}>

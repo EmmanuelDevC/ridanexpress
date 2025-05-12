@@ -22,6 +22,7 @@ import Order from './components/dashboard/Order';
 import Chat from './components/dashboard/Chat';
 import ConfirmOrder from './pages/ConfirmOrder';
 import VerifyEmail from './pages/VerifyEmail';
+import Seller from './pages/Seller';
 import ErrorPage from './pages/Error';
 import NotFoundPage from './pages/NotFoundPage'; // Add this import
 
@@ -40,10 +41,11 @@ function App() {
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path='/' element={<Home />} />
           <Route path='/shops' element={<Shops />} />
-          <Route path='/products?' element={<CategoryShops />} />
-          <Route path='/products/search?' element={<SearchProducts />} />
+          <Route path='/seller/:sellerId' element={<Seller />} />
+          <Route path='/products' element={<CategoryShops />} />
+          <Route path='/products/search' element={<SearchProducts />} />
           <Route path='/card' element={<Card />} />
-          <Route path='/order/confirm?' element={<ConfirmOrder />} />
+          <Route path='/order/confirm' element={<ConfirmOrder />} />
           <Route path='/shipping' element={<Shipping />} />
           <Route path='/payment' element={<Payment />} />
           <Route path='/product/details/:slug' element={<Details />} />

@@ -3,6 +3,8 @@ import {
     createAsyncThunk
 } from '@reduxjs/toolkit'
 import api from '../../api/api'
+
+
 export const get_category = createAsyncThunk(
     'product/get_category',
     async (_, {
@@ -55,7 +57,7 @@ export const get_product = createAsyncThunk(
             return fulfillWithValue(data)
         } catch (error) {
             return rejectWithValue(error.response.data || error.response)
-            console.log(error.response)
+            // console.log(error.response)
         }
     }
 )
@@ -186,7 +188,9 @@ export const homeReducer = createSlice({
         totalReview: 0,
         rating_review: [],
         reviews: [],
-        banners: []
+        banners: [],
+        loading: false,
+        error: null
     },
     reducers: {
         messageClear: (state, _) => {

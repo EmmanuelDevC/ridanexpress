@@ -551,9 +551,10 @@ const Details = () => {
                                             <FormControl fullWidth disabled={!selectedState}>
                                                 <InputLabel>City/Town</InputLabel>
                                                 <Select
-                                                    value={selectedTown}
-                                                    onChange={(e) => setSelectedTown(e.target.value)}
-                                                    label="City/Town"
+                                                    value={selectedState}
+                                                    onChange={handleStateChange} 
+                                                    label="State"
+
                                                 >
                                                     {loadingTowns ? (
                                                         <MenuItem><CircularProgress size={20} /></MenuItem>
@@ -625,7 +626,7 @@ const Details = () => {
                                     <div className="flex items-start gap-4">
                                         <div className="w-16 h-16 rounded-full bg-orange-500 flex items-center justify-center">
                                             <span className="text-white text-2xl font-bold">
-                                                {product?.shopName?.charAt(0).toUpperCase() || 'S'}
+                                                {product?.shopName?.charAt(0).toUpperCase() || 'R'}
                                             </span>
                                         </div>
 
@@ -669,7 +670,7 @@ const Details = () => {
                                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                                         }`}
                                 >
-                                    📖 Description
+                                    Description
                                 </button>
                                 <button
                                     onClick={() => setState("reviews")}
@@ -678,7 +679,7 @@ const Details = () => {
                                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                                         }`}
                                 >
-                                    ⭐Reviews
+                                    Reviews
                                 </button>
                             </div>
                         </div>
