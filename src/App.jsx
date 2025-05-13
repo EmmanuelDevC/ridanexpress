@@ -24,7 +24,8 @@ import ConfirmOrder from './pages/ConfirmOrder';
 import VerifyEmail from './pages/VerifyEmail';
 import Seller from './pages/Seller';
 import ErrorPage from './pages/Error';
-import NotFoundPage from './pages/NotFoundPage'; // Add this import
+import NotFoundPage from './pages/NotFoundPage';
+import CustomerReview from './pages/CustomerReview';
 
 function App() {
   const dispatch = useDispatch()
@@ -33,7 +34,6 @@ function App() {
   }, [])
   return (
     <div className='max-w-screen min-h-screen'>
-
       <BrowserRouter>
         <Routes>
           <Route path='/register' element={<Register />} />
@@ -43,6 +43,7 @@ function App() {
           <Route path='/shops' element={<Shops />} />
           <Route path='/seller/:sellerId' element={<Seller />} />
           <Route path='/products' element={<CategoryShops />} />
+          <Route path='/product/:slug/reviews' element={<CustomerReview />} />
           <Route path='/products/search' element={<SearchProducts />} />
           <Route path='/card' element={<Card />} />
           <Route path='/order/confirm' element={<ConfirmOrder />} />
@@ -51,7 +52,6 @@ function App() {
           <Route path='/product/details/:slug' element={<Details />} />
           <Route path="/error" element={<ErrorPage />} />
           <Route path="*" element={<NotFoundPage />} />
-
 
           <Route path='/dashboard' element={<ProtectUser />}>
             <Route path='' element={<Dashboard />}>
@@ -64,7 +64,6 @@ function App() {
               <Route path='chat/:sellerId' element={<Chat />} />
             </Route>
           </Route>
-
         </Routes>
       </BrowserRouter>
     </div>

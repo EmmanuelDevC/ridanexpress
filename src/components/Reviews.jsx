@@ -170,44 +170,39 @@ const Reviews = ({ product }) => {
           Customer Experiences
           <span className='text-sm text-gray-500'>({totalReview} verified)</span>
         </h2>
-        <div className='flex flex-col gap-6 pb-8 md:pb-10'>
-          <div className='space-y-4 max-h-[300px] overflow-y-auto pb-4'>
-            {reviews.map((r, i) => (
+        <div className='flex flex-col gap-6 pb-3 md:pb-10'>
+          <div className='space-y-2 pb-4'>
+            {reviews.slice(0, 2).map((r, i) => (
               <div
                 key={i}
-                className="flex flex-col gap-2 border border-gray-200 p-4 md:p-5 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow"
+                className="flex flex-col  border border-gray-200 p-4 md:p-5 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold text-gray-900">{r.name}</span>
-                    <AiOutlineShopping className="text-green-500 text-sm" />
+                    <AiOutlineShopping className="text-orange-500 text-sm" />
                   </div>
                   <div className="flex gap-1 text-orange-400">
                     <RatingTemp rating={r.rating} />
                   </div>
                 </div>
                 <span className="text-xs text-gray-400">{r.date}</span>
-                <p className="text-sm text-gray-600 leading-relaxed mt-2">{r.review}</p>
+                <p className="text-sm text-gray-600 leading-relaxed mt-1">{r.review}</p>
                 {r.userId === userInfo?._id && (
-                  <div className="mt-2 text-xs text-blue-500 flex items-center gap-1">
+                  <div className="mt-1 text-xs text-blue-500 flex items-center gap-1">
                     Verified customer review
                   </div>
                 )}
               </div>
             ))}
           </div>
-
-          {totalReview > 2 && (
-            <div className='flex justify-center md:justify-end'>
-              <Pagination
-                pageNumber={pageNumber}
-                setPageNumber={setPageNumber}
-                totalItem={totalReview}
-                perPage={perPage}
-                showItem={Math.round(totalReview / 5)}
-              />
-            </div>
-          )}
+          <button className='py-2 px-8 bg-orange-400 text-white rounded-lg hover:bg-orange-600 transition-all flex justify-center items-center gap-2'>
+            <Link to={`/product/${product.slug}/reviews`} className='flex items-center gap-2'>
+              <AiOutlineShopping className="text-lg" />
+              View all reviews
+            </Link>
+            <AiFillStar className="text-white" />
+          </button>
         </div>
       </div>
     </div>

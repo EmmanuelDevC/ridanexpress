@@ -8,8 +8,6 @@ import { Toaster, toast } from 'react-hot-toast'; // Import toast
 import store from './store/index';
 import { 
   FiCheckCircle, 
-  FiAlertTriangle, 
-  FiInfo, 
   FiXCircle, 
   FiShoppingCart,
   FiX // Add X icon for close button
@@ -21,7 +19,7 @@ const EcommerceToaster = () => (
     gutter={10}
     containerClassName="ecommerce-toast-container"
     toastOptions={{
-      duration: 500,
+      duration: 1000,
       style: {
         border: '1px solid #e5e7eb',
         borderRadius: '12px',

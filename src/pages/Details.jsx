@@ -80,6 +80,10 @@ const Details = () => {
         }
     }, [dispatch, userInfo]);
 
+    const handleCategoryClick = () => {
+        navigate(`/products?category=${product?.category}`);
+    };
+
     // Fetch states on mount
     useEffect(() => {
         const fetchStates = async () => {
@@ -347,10 +351,14 @@ const Details = () => {
             <div className=" py-2 mb-0 bg-gray-800 lg:mb-3 mt-[4rem] lg:mt-[8rem] md:mb-0">
                 <div className="w-[85%] xl:w-[90%] lg:w-[95%] md:w-full mx-auto">
                     <Breadcrumb aria-label="breadcrumb" className="px-0 md:px-7 lg:px-5 dark:bg-gray-800">
-                        <Breadcrumb.Item href="/">
-                            <HiHome className="text-white mr-1 text-lg" /> <span className="text-white">Home</span>
-                        </Breadcrumb.Item>
-                        <Breadcrumb.Item href="#"><span className="text-white">{product?.category || "Unknown Category"}</span></Breadcrumb.Item>
+                        <Link to="/">
+                            <Breadcrumb.Item>
+                                <HiHome className="text-white mr-1 text-lg" /> <span className="text-white">Home</span>
+                            </Breadcrumb.Item>
+                        </Link>
+                        <Breadcrumb.Item
+                            onClick={() => handleCategoryClick(product?.category)}
+                        ><span className="text-white">{product?.category || "Unknown Category"}</span></Breadcrumb.Item>
                         <Breadcrumb.Item>
                             {/* Only truncate on mobile screens */}
                             <span className="text-white">
@@ -474,12 +482,12 @@ const Details = () => {
                                     </h1>
                                     <div className="flex items-center gap-2 mb-4">
                                         <Ratings ratings={product?.rating} />
-                                        <span className="text-sm text-orange-500">( {product.rating} )</span>
+                                        <span className="text-sm text-gray-700 font-semibold">({product.rating})</span>
 
                                     </div>
                                     <div className="flex items-center gap-3 mb-5">
                                         <span className="text-xl font-bold text-gray-900">
-                                            ₦{product?.price?.toLocaleString()}
+                                            ₦ {(product.price - (product.price * product.discount) / 100).toLocaleString()}
                                         </span>
                                         {product?.discount > 0 && (
                                             <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs">
@@ -552,7 +560,7 @@ const Details = () => {
                                                 <InputLabel>City/Town</InputLabel>
                                                 <Select
                                                     value={selectedState}
-                                                    onChange={handleStateChange} 
+                                                    onChange={handleStateChange}
                                                     label="State"
 
                                                 >
@@ -666,7 +674,7 @@ const Details = () => {
                                 <button
                                     onClick={() => setState("description")}
                                     className={`px-4 py-3 md:px-6 md:py-4 rounded-lg md:rounded-t-lg transition-all duration-200 ${state === 'description'
-                                        ? 'bg-orange-50 text-orange-600 font-semibold border-b-2 md:border-b-4 border-orange-500 shadow-inner'
+                                        ? 'bg-orange-50 text-orange-600 font-semibold  shadow-inner'
                                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                                         }`}
                                 >
@@ -675,7 +683,7 @@ const Details = () => {
                                 <button
                                     onClick={() => setState("reviews")}
                                     className={`px-4 py-3 md:px-6 md:py-4 rounded-lg md:rounded-t-lg transition-all duration-200 ${state === 'reviews'
-                                        ? 'bg-orange-50 text-orange-600 font-semibold border-b-2 md:border-b-4 border-orange-500 shadow-inner'
+                                        ? 'bg-orange-50 text-orange-600 font-semibold shadow-inner'
                                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                                         }`}
                                 >

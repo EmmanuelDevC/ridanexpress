@@ -148,8 +148,8 @@ const FeatureProducts = ({ products }) => {
 
                 <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-1 md:gap-2 lg:gap-2'>
                     {products.map((p, i) => (
-                        <div key={i} className='bg-white rounded-md md:rounded-lg lg:rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 group overflow-hidden flex flex-col'>
-                            <Link to={`/product/details/${p.slug}`} className='relative flex-1'>
+                        <Link to={`/product/details/${p.slug}`} className='relative flex-1'>
+                            <div key={i} className='bg-white rounded-md md:rounded-lg lg:rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 group overflow-hidden flex flex-col'>
                                 {p.discount && (
                                     <div className='absolute left-1 top-1 bg-orange-500 text-white px-3 py-1 rounded-lg text-xs font-semibold z-0 z-10'>
                                         {p.discount}% OFF
@@ -163,56 +163,55 @@ const FeatureProducts = ({ products }) => {
                                         loading='lazy'
                                     />
                                 </div>
-                            </Link>
 
-                            {/* Action Buttons */}
-                            <div className='absolute top-[10rem] hidden lg:block right-3 flex flex-col gap-3'>
-                                <button
-                                    onClick={(e) => add_card(p._id, e)}
-                                    className='w-9 h-9 flex mb-3 items-center justify-center bg-white rounded-full shadow-md hover:bg-gray-900 hover:text-white text-gray-800 transition-all'
-                                    aria-label="Add to cart"
-                                >
-                                    <AddShoppingCartIcon className='w-5 h-5' />
-                                </button>
-                            </div>
-
-
-                            <div className="relative py-3 px-2 text-gray-700">
-
-                                <div className='absolute right-1 -top-11 flex flex-col gap-2'>
+                                {/* Action Buttons */}
+                                <div className='absolute top-[10rem] hidden lg:block right-3 flex flex-col gap-3'>
                                     <button
                                         onClick={(e) => add_card(p._id, e)}
-                                        className='w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-md hover:bg-gray-900 hover:text-white transition-all'
+                                        className='w-9 h-9 flex mb-3 items-center justify-center bg-white rounded-full shadow-md hover:bg-gray-900 hover:text-white text-gray-800 transition-all'
                                         aria-label="Add to cart"
                                     >
-                                        <ShoppingCartOutlinedIcon className='w-6 h-6 text-orange-600' />
+                                        <AddShoppingCartIcon className='w-5 h-5' />
                                     </button>
                                 </div>
 
-                                <Link to={`/product/debg-gradient-to-r from-gray-800 to-indigo-700tails/${p.slug}`}
-                                    className='hover:text-orange-600'>
-                                    <h2 className="text-sm md:text-base font-semibold line-clamp-1">
-                                        {p.name}
-                                    </h2>
-                                </Link>
 
-                                <div className="flex items-center my-1 gap-1">
-                                    <Ratings ratings={p.rating} />
-                                    <span className="text-xs text-gray-500">({p.rating})</span>
-                                </div>
+                                <div className="relative py-3 px-2 text-gray-700">
 
-                                <div className="flex flex-row flex-wrap items-center gap-2 md:gap-1">
-                                    <span className="text-[15px] font-base text-black">
-                                        ₦ {(p.price - (p.price * p.discount) / 100).toLocaleString()}
-                                    </span>
-                                    {p.discount > 0 && (
-                                        <del className="text-gray-500 text-[13px] font-base">
-                                            ₦ {p.price.toLocaleString()}
-                                        </del>
-                                    )}
+                                    <div className='absolute right-1 -top-11 flex flex-col gap-2'>
+                                        <button
+                                            onClick={(e) => add_card(p._id, e)}
+                                            className='w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-md hover:bg-gray-900 hover:text-white transition-all'
+                                            aria-label="Add to cart"
+                                        >
+                                            <ShoppingCartOutlinedIcon className='w-6 h-6 text-orange-600' />
+                                        </button>
+                                    </div>
+
+                                    <p className='hover:text-orange-600'>
+                                        <h2 className="text-sm md:text-base font-semibold line-clamp-1">
+                                            {p.name}
+                                        </h2>
+                                    </p>
+
+                                    <div className="flex items-center my-1 gap-1">
+                                        <Ratings ratings={p.rating} />
+                                        <span className="text-xs text-gray-500">({p.rating})</span>
+                                    </div>
+
+                                    <div className="flex flex-row flex-wrap items-center gap-2 md:gap-1">
+                                        <span className="text-[15px] font-base text-black">
+                                            ₦ {(p.price - (p.price * p.discount) / 100).toLocaleString()}
+                                        </span>
+                                        {p.discount > 0 && (
+                                            <del className="text-gray-500 text-[13px] font-base">
+                                                ₦ {p.price.toLocaleString()}
+                                            </del>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             }
