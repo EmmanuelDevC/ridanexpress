@@ -7,7 +7,7 @@ export const get_dashboard_index_data = createAsyncThunk(
     const { auth } = getState();
     const token = auth.token;
     const userId = auth.userInfo?.id; // Get ID from auth state
-    
+
     if (!userId) {
       return rejectWithValue({ error: 'User not authenticated' });
     }
@@ -17,10 +17,10 @@ export const get_dashboard_index_data = createAsyncThunk(
         'Authorization': `Bearer ${token}` // Capital 'A' in Authorization
       }
     };
-    
+
     try {
       const { data } = await api.get(
-        `/home/customer/get-dashboard-data/${userId}`, 
+        `/home/customer/get-dashboard-data/${userId}`,
         config
       );
       return fulfillWithValue(data);
@@ -36,30 +36,27 @@ export const update_profile = createAsyncThunk(
   async ({ userId, updates }, { rejectWithValue, getState }) => {
     const { auth } = getState();
     const token = auth.token;
-    
-    if (!token) {
-      return rejectWithValue({ error: 'No authentication token' });
-    }
 
     const config = {
-      headers: {
-        'Authorization': `Bearer ${token}` // Capital 'A' in Authorization
-      }
+      headers: { 'Authorization': `Bearer ${token}` }
     };
-    
+
     try {
       const { data } = await api.patch(
-        `/customer/update/${userId}`, // Added /api prefix
+        `/customer/update/${userId}`,
         updates,
         config
       );
       return data;
     } catch (error) {
       console.error('Update error:', error.response?.data || error.message);
-      return rejectWithValue(error.response?.data || { error: 'Update failed' });
+      return rejectWithValue(
+        error.response?.data || { error: 'Update failed' }
+      );
     }
   }
 );
+
 
 export const dashboardReducer = createSlice({
   name: 'dashboard',
@@ -98,6 +95,7 @@ export const dashboardReducer = createSlice({
       .addCase(update_profile.rejected, (state, { payload }) => {
         state.loading = false;
         state.errorMessage = payload?.error || 'Update failed';
+        console.log('Update error payload:', payload);
       });
   }
 });

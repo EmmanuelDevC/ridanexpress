@@ -21,8 +21,10 @@ const Profile = () => {
   const [formData, setFormData] = useState({
     name: userInfo.name || '',
     email: userInfo.email || '',
-    password: ''
+    currentPassword: '',  // Add current password field
+    newPassword: ''       // Rename password to newPassword
   });
+
 
   const [strength, setStrength] = useState('');
 
@@ -33,6 +35,7 @@ const Profile = () => {
   }, [dispatch, userInfo?.id]);
 
   // Handle success/error messages with toast
+  // Update your useEffect for messages
   useEffect(() => {
     if (successMessage) {
       toast.success(successMessage, {
@@ -43,9 +46,10 @@ const Profile = () => {
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        className: 'bg-orange-100 text-orange-700 border border-orange-300'
+        className: 'bg-orange-100 text-orange-700 border border-orange-300',
+        onClose: () => dispatch(messageClear()
+      ) // Clear after toast closes
       });
-      dispatch(messageClear());
     }
 
     if (errorMessage) {
@@ -57,31 +61,50 @@ const Profile = () => {
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        className: 'bg-red-100 text-red-700 border border-red-300'
+        className: 'bg-red-100 text-red-700 border border-red-300',
+        onClose: () => dispatch(messageClear()) // Clear after toast closes
       });
-      dispatch(messageClear());
     }
   }, [successMessage, errorMessage, dispatch]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const updates = {
-      name: formData.name !== userInfo.name ? formData.name : undefined,
-      email: formData.email !== userInfo.email ? formData.email : undefined,
-      password: formData.password || undefined
-    };
+  // Update handleSubmit to reset fields on error
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      await dispatch(update_profile({
-        userId: userInfo.id,
-        updates
-      })).unwrap();
+  if (!formData.currentPassword) {
+    toast.error('Current password is required', { /* ... */ });
+    return;
+  }
 
-      setFormData(prev => ({ ...prev, password: '' }));
-    } catch (error) {
-      // Error handled by reducer
-    }
-  };
+  try {
+    await dispatch(update_profile({
+      userId: userInfo.id,
+      updates: {
+        name: formData.name,
+        email: formData.email,
+        newPassword: formData.newPassword,
+        currentPassword: formData.currentPassword
+      }
+    })).unwrap();
+
+    // Reset only on success
+    setFormData({
+      name: userInfo.name,
+      email: userInfo.email,
+      currentPassword: '',
+      newPassword: ''
+    });
+
+  } catch (error) {
+    // Clear password fields on error
+    setFormData(prev => ({
+      ...prev,
+      currentPassword: '',
+      newPassword: ''
+    }));
+  }
+};
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -90,10 +113,11 @@ const Profile = () => {
       [name]: value
     }));
 
-    if (name === 'password') {
+    if (name === 'newPassword') {
       setStrength(checkPasswordStrength(value));
     }
   };
+
 
   const checkPasswordStrength = (pass) => {
     const hasLower = /[a-z]/.test(pass);
@@ -148,13 +172,13 @@ const Profile = () => {
   };
 
   return (
-    <div className="bg-white flex justify-center">
+    <div className="bg-white flex justify-center ">
       <ToastContainer
         toastClassName={() => "relative flex p-4 min-h-10 rounded-md justify-between overflow-hidden cursor-pointer shadow-lg"}
         bodyClassName={() => "text-sm flex"}
       />
-      
-      <div className="w-full max-w-4xl bg-white mt-1 lg:mt-10 rounded-2xl p-2 px-7">
+
+      <div className="w-full max-w-4xl bg-white mt-1 lg:mt-10 rounded-2xl p-2 pb-24 lg:pb-0 px-7">
         <h1 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-4 lg:mb-8">My Profile</h1>
 
         {/* Profile Picture Section */}
@@ -202,6 +226,21 @@ const Profile = () => {
               />
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-2">
+                Current Password <DriveFileRenameOutlineOutlinedIcon className='text-orange-400' />
+              </label>
+              <input
+                name="currentPassword"
+                type="password"
+                value={formData.currentPassword}
+                onChange={handleChange}
+                placeholder="Enter current password"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                required
+              />
+            </div>
+
             {/* Password Field */}
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-2">
@@ -209,10 +248,10 @@ const Profile = () => {
               </label>
               <div className="flex items-center gap-2">
                 <input
-                  name="password"
+                  name="newPassword"
                   type="password"
                   placeholder="Enter new password"
-                  value={formData.password}
+                  value={formData.newPassword}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
                 />
