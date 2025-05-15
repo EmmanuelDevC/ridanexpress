@@ -17,7 +17,6 @@ import ProtectUser from './utils/ProtectUser';
 import Index from './components/dashboard/Index';
 import Orders from './components/dashboard/Orders';
 import Wishlist from './components/dashboard/Wishlist';
-import ChangePassword from './components/dashboard/ChangePassword';
 import Order from './components/dashboard/Order';
 import Chat from './components/dashboard/Chat';
 import ConfirmOrder from './pages/ConfirmOrder';
@@ -26,6 +25,7 @@ import Seller from './pages/Seller';
 import ErrorPage from './pages/Error';
 import NotFoundPage from './pages/NotFoundPage';
 import CustomerReview from './pages/CustomerReview';
+import Profile from './components/dashboard/Profile';
 
 function App() {
   const dispatch = useDispatch()
@@ -59,7 +59,7 @@ function App() {
               <Route path='my-orders' element={<Orders />} />
               <Route path='my-wishlist' element={<Wishlist />} />
               <Route path='order/details/:orderId' element={<Order />} />
-              <Route path='chage-password' element={<ChangePassword />} />
+              <Route path='profile' element={<Profile />} />
               <Route path='chat' element={<Chat />} />
               <Route path='chat/:sellerId' element={<Chat />} />
             </Route>

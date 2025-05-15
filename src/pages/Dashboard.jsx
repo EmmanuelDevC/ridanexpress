@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react'
+import { motion } from 'framer-motion'
 import Headers from '../components/Headers'
 import Footer from '../components/Footer'
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { RxDashboard, RxPerson } from 'react-icons/rx'
-import { RiArrowLeftRightLine } from 'react-icons/ri'
-import { BsChat, BsHeart, BsGear } from 'react-icons/bs'
-import PermIdentityIcon from '@mui/icons-material/PermIdentity';
+import { BsChat, BsHeart } from 'react-icons/bs'
+import AccountBoxOutlinedIcon from '@mui/icons-material/AccountBoxOutlined';
 import { FiPackage } from 'react-icons/fi'
 import { FiLogOut } from 'react-icons/fi'
 import api from '../api/api'
@@ -17,34 +16,37 @@ import { reset_count } from '../store/reducers/cardReducer'
 const MobileNav = () => {
     const location = useLocation()
     const [visible, setVisible] = useState(true)
-    const [scrollPos, setScrollPos] = useState(0)
+    const lastScrollPos = useRef(0)
 
     useEffect(() => {
         const handleScroll = () => {
-            const currentScrollPos = window.pageYOffset;
-            const isVisible = scrollPos > currentScrollPos;
+            const currentScrollPos = window.pageYOffset
+            const isScrollingDown = currentScrollPos > lastScrollPos.current
 
-            setScrollPos(currentScrollPos);
-            setVisible(isVisible);
-        };
+            // Show/hide logic
+            if (currentScrollPos > 100) {
+                setVisible(!isScrollingDown)
+            } else {
+                setVisible(true)
+            }
 
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [scrollPos]);
+            lastScrollPos.current = currentScrollPos
+        }
 
+        window.addEventListener('scroll', handleScroll, { passive: true })
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
 
     const navItems = [
         { path: '/dashboard', icon: <RxDashboard />, label: 'Dashboard' },
         { path: '/dashboard/my-orders', icon: <FiPackage />, label: 'Orders' },
         { path: '/dashboard/my-wishlist', icon: <BsHeart />, label: 'Wishlist' },
         { path: '/dashboard/chat', icon: <BsChat />, label: 'Chats' },
-        { path: '/dashboard/chage-password', icon: <PermIdentityIcon />, label: 'Account' },
-    ];
+        { path: '/dashboard/profile', icon: <AccountBoxOutlinedIcon />, label: 'Profile' },
+    ]
 
     return (
-        <motion.div
-            initial={{ y: 100 }}
-            animate={{ y: 0 }}
+        <div
             className={`block lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-black shadow-lg rounded-t-2xl transition-transform duration-300 ${visible ? 'translate-y-0' : 'translate-y-full'
                 }`}
         >
@@ -57,16 +59,16 @@ const MobileNav = () => {
                     >
                         <span
                             className={`text-2xl transition-colors duration-200 ${location.pathname === item.path
-                                ? 'text-orange-500'
-                                : 'text-gray-300 hover:text-orange-500'
+                                    ? 'text-orange-500'
+                                    : 'text-gray-300 hover:text-orange-500'
                                 }`}
                         >
                             {item.icon}
                         </span>
                         <span
                             className={`text-[10px] font-medium mt-1 transition-colors ${location.pathname === item.path
-                                ? 'text-orange-500'
-                                : 'text-gray-300'
+                                    ? 'text-orange-500'
+                                    : 'text-gray-300'
                                 }`}
                         >
                             {item.label}
@@ -81,14 +83,15 @@ const MobileNav = () => {
                     </Link>
                 ))}
             </div>
-        </motion.div>
+        </div>
     )
-};
+}
 
 const Dashboard = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const location = useLocation()
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     const logout = async () => {
         try {
@@ -102,15 +105,34 @@ const Dashboard = () => {
         }
     }
 
+    const navItems = [
+        { path: '/dashboard', icon: <RxDashboard />, label: 'Dashboard' },
+        { path: '/dashboard/my-orders', icon: <FiPackage />, label: 'Orders' },
+        { path: '/dashboard/my-wishlist', icon: <BsHeart />, label: 'Wishlist' },
+        { path: '/dashboard/chat', icon: <BsChat />, label: 'Messages', badge: 3 },
+        { path: '/dashboard/profile', icon: <AccountBoxOutlinedIcon />, label: 'Profile' },
+    ]
+
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
             <Headers />
             <div className="flex-1 lg:mt-[8rem]">
                 <div className="max-w-7xl mx-auto">
-                    <div className="flex flex-col lg:flex-row gap-6 ">
-                        {/* Desktop Sidebar */}
-                        <div className="hidden lg:block w-72 flex-shrink-0">
-                            <div className="bg-gray-900 rounded-2xl shadow-xl p-6 h-[calc(100vh-120px)] sticky top-8 flex flex-col">
+                    <div className="flex flex-col lg:flex-row gap-6">
+                        {/* Mobile Sidebar Toggle
+                        <button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="lg:hidden fixed bottom-20 right-4 z-50 p-3 bg-black text-white rounded-full shadow-lg"
+                        >
+                            <BsList className="text-2xl" />
+                        </button> */}
+
+                        {/* Responsive Sidebar */}
+                        <div
+                            className={`fixed lg:sticky lg:block inset-y-0 left-0 z-40 w-72 bg-gray-900 transform transition-transform duration-300 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+                                }`}
+                        >
+                            <div className="rounded-2xl shadow-xl p-6 h-[calc(100vh-120px)] lg:h-[calc(100vh-120px)] sticky top-8 flex flex-col">
                                 <div className="mb-8 flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-full bg-indigo-600 flex items-center justify-center">
                                         <RxPerson className="text-2xl text-white" />
@@ -122,19 +144,14 @@ const Dashboard = () => {
                                 </div>
 
                                 <ul className="space-y-2 flex-1">
-                                    {[
-                                        { path: '/dashboard', icon: <RxDashboard />, label: 'Dashboard' },
-                                        { path: '/dashboard/my-orders', icon: <FiPackage />, label: 'Orders' },
-                                        { path: '/dashboard/my-wishlist', icon: <BsHeart />, label: 'Wishlist' },
-                                        { path: '/dashboard/chat', icon: <BsChat />, label: 'Messages', badge: 3 },
-                                        { path: '/dashboard/chage-password', icon: <PermIdentityIcon />, label: 'Account' },
-                                    ].map((item) => (
+                                    {navItems.map((item) => (
                                         <li key={item.path}>
                                             <Link
                                                 to={item.path}
+                                                onClick={() => setIsMobileMenuOpen(false)}
                                                 className={`flex items-center justify-between gap-3 p-3 rounded-xl transition-all ${location.pathname === item.path
-                                                    ? 'bg-indigo-600/20 text-indigo-400'
-                                                    : 'text-gray-300 hover:bg-gray-800'
+                                                        ? 'bg-indigo-600/20 text-indigo-400'
+                                                        : 'text-gray-300 hover:bg-gray-800'
                                                     }`}
                                             >
                                                 <div className="flex items-center gap-3">
@@ -176,7 +193,7 @@ const Dashboard = () => {
             {/* Mobile Navigation */}
             <MobileNav />
 
-            <div className='hidden '>
+            <div className="hidden">
                 <Footer />
             </div>
         </div>

@@ -44,80 +44,86 @@ export const resend_verification = createAsyncThunk(
 
 
 const decodeToken = (token) => {
-    if (token) {
-        const userInfo = jwt(token)
-        return userInfo
-    } else {
-        return ''
+    try {
+        return token ? jwt(token) : null;
+    } catch (error) {
+        console.error('Token decoding failed:', error);
+        return null;
     }
-}
+};
+
+const getInitialState = () => ({
+    loader: false,
+    userInfo: decodeToken(localStorage.getItem('customerToken')),
+    token: localStorage.getItem('customerToken') || null,
+    errorMessage: '',
+    successMessage: '',
+    verificationSent: false
+});
 
 export const authReducer = createSlice({
     name: 'auth',
-    initialState: {
-        loader: false,
-        userInfo: decodeToken(localStorage.getItem('customerToken')),
-        errorMessage: '',
-        successMessage: '',
-        verificationSent: false
-    },
+    initialState: getInitialState(),
     reducers: {
-        messageClear: (state, _) => {
-            state.errorMessage = ''
-            state.successMessage = ''
+        messageClear: (state) => {
+            state.errorMessage = '';
+            state.successMessage = '';
         },
-        user_reset: (state, _) => {
-            state.userInfo = ""
+        user_reset: (state) => {
+            localStorage.removeItem('customerToken');
+            state.userInfo = null;
+            state.token = null;
         },
-        // New reducer for verification state
         verification_sent: (state, action) => {
-            state.verificationSent = action.payload
+            state.verificationSent = action.payload;
         }
     },
     extraReducers: {
-        [customer_register.pending]: (state, _) => {
-            state.loader = true
-        },
-        [customer_register.rejected]: (state, { payload }) => {
-            state.errorMessage = payload.error
-            state.loader = false
-            state.verificationSent = false
+        [customer_register.pending]: (state) => {
+            state.loader = true;
         },
         [customer_register.fulfilled]: (state, { payload }) => {
-            state.successMessage = payload.message
-            state.loader = false
-            state.verificationSent = true  // Track verification state
+            state.loader = false;
+            state.successMessage = payload.message;
+            state.verificationSent = true;
+        },
+        [customer_register.rejected]: (state, { payload }) => {
+            state.loader = false;
+            state.errorMessage = payload?.error || 'Registration failed';
+            state.verificationSent = false;
         },
 
-        [customer_login.pending]: (state, _) => {
-            state.loader = true
-        },
-        [customer_login.rejected]: (state, { payload }) => {
-            state.errorMessage = payload.error
-            state.loader = false
+        [customer_login.pending]: (state) => {
+            state.loader = true;
         },
         [customer_login.fulfilled]: (state, { payload }) => {
-            const userInfo = decodeToken(payload.token)
-            state.successMessage = payload.message
-            state.loader = false
-            state.userInfo = userInfo
+            if (payload.token) {
+                localStorage.setItem('customerToken', payload.token);
+                state.token = payload.token;
+                state.userInfo = decodeToken(payload.token);
+            }
+            state.loader = false;
+            state.successMessage = payload?.message || 'Login successful';
+        },
+        [customer_login.rejected]: (state, { payload }) => {
+            state.loader = false;
+            state.errorMessage = payload?.error || 'Login failed';
         },
 
-        // Handle resend verification
         [resend_verification.pending]: (state) => {
-            state.loader = true
-        },
-        [resend_verification.rejected]: (state, { payload }) => {
-            state.errorMessage = payload.error
-            state.loader = false
+            state.loader = true;
         },
         [resend_verification.fulfilled]: (state, { payload }) => {
-            state.successMessage = payload.message
-            state.loader = false
-            state.verificationSent = true
+            state.loader = false;
+            state.successMessage = payload?.message || 'Verification email resent';
+            state.verificationSent = true;
+        },
+        [resend_verification.rejected]: (state, { payload }) => {
+            state.loader = false;
+            state.errorMessage = payload?.error || 'Failed to resend verification';
         }
     }
-})
+});
 
-export const { messageClear, user_reset, verification_sent } = authReducer.actions
-export default authReducer.reducer
+export const { messageClear, user_reset, verification_sent } = authReducer.actions;
+export default authReducer.reducer;

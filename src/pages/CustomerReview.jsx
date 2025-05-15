@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import Ratings from '../components/Ratings'
 import RatingTemp from '../components/RatingTemp'
 import Pagination from '../components/Pagination'
@@ -25,6 +25,7 @@ const CustomerReview = () => {
   const [re, setRe] = useState('')
   const [selectedRating, setSelectedRating] = useState(null)
   const [sortBy, setSortBy] = useState('recent')
+  const { myOrders } = useSelector(state => state.order)
 
   useEffect(() => {
     if (slug) {
@@ -33,20 +34,31 @@ const CustomerReview = () => {
     if (userInfo?._id) {
       dispatch(get_orders({
         customerId: userInfo._id,
-        status: 'pending'
+        status: 'pending' // Make sure your backend supports this
       }))
-    }
-  }, [slug, dispatch, userInfo?._id])
 
-  const hasPurchased = useSelector(state => {
+    }
+  }, [dispatch, userInfo?._id, successMessage])
+
+  const hasPurchased = useMemo(() => {
     if (!product) return false
-    const orders = state.order.myOrders || []
-    return orders.some(order =>
-      order.delivery_status === 'pending' &&
+    return myOrders?.some(order =>
       order.payment_status === 'paid' &&
-      order.products?.some(p => p.productId === product?._id)
-    )
+      order.delivery_status === 'pending' &&
+      order.products?.some(p => p.productId === product._id)
+    ), [product, myOrders]
   })
+
+  //    const hasPurchased = useMemo(() => {
+  //     if (!product) return false
+  //     return myOrders?.some(order => 
+  //       order.payment_status === 'paid' &&
+  //       order.delivery_status === 'delivered' &&
+  //       order.products?.some(p => p.productId === product._id)
+  //   ), [product, myOrders]) // Add proper dependencies
+
+  //   // Rest of your component remains the same
+  // }
 
   const reviewSubmit = (e) => {
     e.preventDefault()
