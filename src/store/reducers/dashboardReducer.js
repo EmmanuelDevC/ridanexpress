@@ -94,7 +94,14 @@ export const dashboardReducer = createSlice({
       })
       .addCase(update_profile.rejected, (state, { payload }) => {
         state.loading = false;
-        state.errorMessage = payload?.error || 'Update failed';
+
+        if (payload?.message === 'Session expired - security revision') {
+          state.errorMessage = 'Session expired. Please login again.';
+          // Add logic to trigger logout
+        } else {
+          state.errorMessage = payload?.error || 'Update failed';
+        }
+
         console.log('Update error payload:', payload);
       });
   }

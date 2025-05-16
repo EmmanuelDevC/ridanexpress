@@ -21,10 +21,9 @@ const Profile = () => {
   const [formData, setFormData] = useState({
     name: userInfo.name || '',
     email: userInfo.email || '',
-    currentPassword: '',  // Add current password field
-    newPassword: ''       // Rename password to newPassword
+    currentPassword: '',
+    newPassword: ''
   });
-
 
   const [strength, setStrength] = useState('');
 
@@ -34,8 +33,6 @@ const Profile = () => {
     }
   }, [dispatch, userInfo?.id]);
 
-  // Handle success/error messages with toast
-  // Update your useEffect for messages
   useEffect(() => {
     if (successMessage) {
       toast.success(successMessage, {
@@ -45,14 +42,14 @@ const Profile = () => {
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
-        progress: undefined,
         className: 'bg-orange-100 text-orange-700 border border-orange-300',
-        onClose: () => dispatch(messageClear()
-      ) // Clear after toast closes
+        onClose: () => dispatch(messageClear())
       });
     }
 
     if (errorMessage) {
+      const isSecurityError = errorMessage.includes('Session expired - security revision');
+      
       toast.error(errorMessage, {
         position: "top-right",
         autoClose: 4000,
@@ -60,51 +57,73 @@ const Profile = () => {
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
-        progress: undefined,
         className: 'bg-red-100 text-red-700 border border-red-300',
-        onClose: () => dispatch(messageClear()) // Clear after toast closes
+        onClose: isSecurityError ? () => {
+          localStorage.removeItem('customerToken');
+          dispatch(user_reset());
+          navigate('/login');
+        } : undefined
       });
     }
-  }, [successMessage, errorMessage, dispatch]);
+  }, [successMessage, errorMessage, dispatch, navigate]);
 
-  // Update handleSubmit to reset fields on error
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (!formData.currentPassword) {
-    toast.error('Current password is required', { /* ... */ });
-    return;
-  }
+    if (!formData.currentPassword) {
+      toast.error('Current password is required', {
+        className: 'bg-red-100 text-red-700 border border-red-300'
+      });
+      return;
+    }
 
-  try {
-    await dispatch(update_profile({
-      userId: userInfo.id,
-      updates: {
-        name: formData.name,
-        email: formData.email,
-        newPassword: formData.newPassword,
-        currentPassword: formData.currentPassword
+    if (formData.newPassword && strength !== 'Strong') {
+      toast.error('Password must be strong (8+ chars with uppercase, number, and special char)', {
+        className: 'bg-red-100 text-red-700 border border-red-300'
+      });
+      return;
+    }
+
+    try {
+      await dispatch(update_profile({
+        userId: userInfo.id,
+        updates: {
+          name: formData.name,
+          email: formData.email,
+          newPassword: formData.newPassword,
+          currentPassword: formData.currentPassword
+        }
+      })).unwrap();
+
+      setFormData(prev => ({
+        ...prev,
+        currentPassword: '',
+        newPassword: ''
+      }));
+
+      if (formData.newPassword) {
+        toast.success('Password updated. Please login again.', {
+          className: 'bg-green-100 text-green-700 border border-green-300',
+          onClose: () => {
+            localStorage.removeItem('customerToken');
+            dispatch(user_reset());
+            navigate('/login');
+          }
+        });
+      } else {
+        toast.success('Profile updated successfully', {
+          className: 'bg-green-100 text-green-700 border border-green-300'
+        });
       }
-    })).unwrap();
 
-    // Reset only on success
-    setFormData({
-      name: userInfo.name,
-      email: userInfo.email,
-      currentPassword: '',
-      newPassword: ''
-    });
-
-  } catch (error) {
-    // Clear password fields on error
-    setFormData(prev => ({
-      ...prev,
-      currentPassword: '',
-      newPassword: ''
-    }));
-  }
-};
-
+    } catch (error) {
+      setFormData(prev => ({
+        ...prev,
+        currentPassword: '',
+        newPassword: ''
+      }));
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -117,7 +136,6 @@ const handleSubmit = async (e) => {
       setStrength(checkPasswordStrength(value));
     }
   };
-
 
   const checkPasswordStrength = (pass) => {
     const hasLower = /[a-z]/.test(pass);
@@ -150,38 +168,37 @@ const handleSubmit = async (e) => {
     }
   };
 
+  const validatePassword = (pass) => {
+    const errors = [];
+    if (pass.length < 8) errors.push('At least 8 characters');
+    if (!/[A-Z]/.test(pass)) errors.push('One uppercase letter');
+    if (!/\d/.test(pass)) errors.push('One number');
+    if (!/[!@#$%^&*]/.test(pass)) errors.push('One special character');
+    return errors;
+  };
+
   const logout = async () => {
     try {
       await api.get('/customer-logout');
       localStorage.removeItem('customerToken');
       dispatch(user_reset());
       dispatch(reset_count());
-      toast.info("You've been successfully logged out", {
-        position: "top-right",
-        autoClose: 2000,
-        className: 'bg-blue-100 text-blue-700 border border-blue-300'
-      });
       navigate('/login');
     } catch (error) {
-      toast.error('Logout failed. Please try again.', {
-        position: "top-right",
-        className: 'bg-red-100 text-red-700 border border-red-300'
-      });
       console.error('Logout error:', error.response?.data || error.message);
     }
   };
 
   return (
-    <div className="bg-white flex justify-center ">
+    <div className="bg-white flex justify-center">
       <ToastContainer
-        toastClassName={() => "relative flex p-4 min-h-10 rounded-md justify-between overflow-hidden cursor-pointer shadow-lg"}
-        bodyClassName={() => "text-sm flex"}
+        toastClassName="relative flex p-4 min-h-10 rounded-md justify-between overflow-hidden cursor-pointer shadow-lg"
+        bodyClassName="text-sm flex"
       />
 
       <div className="w-full max-w-4xl bg-white mt-1 lg:mt-10 rounded-2xl p-2 pb-24 lg:pb-0 px-7">
         <h1 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-4 lg:mb-8">My Profile</h1>
 
-        {/* Profile Picture Section */}
         <div className="flex items-center mb-8">
           <div className="relative">
             <div className="w-20 h-20 bg-orange-500 rounded-full flex items-center justify-center">
@@ -195,10 +212,8 @@ const handleSubmit = async (e) => {
           <h2 className="ml-6 text-medium font-bold text-gray-800">{userInfo.name}</h2>
         </div>
 
-        {/* Details Form */}
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            {/* Name Field */}
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-2">
                 Change Name <DriveFileRenameOutlineOutlinedIcon className='text-orange-400' />
@@ -212,7 +227,6 @@ const handleSubmit = async (e) => {
               />
             </div>
 
-            {/* Email Field */}
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-2">
                 Change Email <DriveFileRenameOutlineOutlinedIcon className='text-orange-400' />
@@ -241,7 +255,6 @@ const handleSubmit = async (e) => {
               />
             </div>
 
-            {/* Password Field */}
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-2">
                 New Password <DriveFileRenameOutlineOutlinedIcon className='text-orange-400' />
@@ -254,19 +267,26 @@ const handleSubmit = async (e) => {
                   value={formData.newPassword}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
+                  pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}"
+                  title="Must contain 8+ characters with uppercase, number, and special character"
                 />
                 <span className={`font-medium text-sm ${getStrengthColor()}`}>
                   {strength || 'Password Strength'}
                 </span>
               </div>
-              <p className="mt-1 text-xs text-gray-500 flex items-center">
-                <ErrorOutlineOutlinedIcon className='text-orange-600 mr-1' />
-                Include uppercase, numbers, and special characters
-              </p>
+              {formData.newPassword && (
+                <div className="mt-2 text-xs text-gray-600">
+                  {validatePassword(formData.newPassword).map((error, i) => (
+                    <div key={i} className="flex items-center gap-1">
+                      <ErrorOutlineOutlinedIcon className="text-red-500 text-xs" />
+                      <span>{error}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
@@ -276,7 +296,6 @@ const handleSubmit = async (e) => {
           </button>
         </form>
 
-        {/* Mobile Logout */}
         <button
           onClick={logout}
           className="w-full mt-2 px-6 py-3 block lg:hidden bg-white hover:bg-orange-100 border border-orange-500 text-orange-600 font-semibold rounded-lg transition-all duration-200"
