@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { FiMail, FiArrowLeft } from 'react-icons/fi';
-import Loader from '../components/Loader';
+import Loader from '../components/Loader'; // Assume you have a Loader component
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
@@ -14,7 +14,7 @@ const ForgotPassword = () => {
         e.preventDefault();
         setIsLoading(true);
         try {
-            const { data } = await axios.post('/api/forgot-password', { email });
+            const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/forgot-password`, { email });
             setMessage(data.message);
             setError('');
         } catch (err) {
