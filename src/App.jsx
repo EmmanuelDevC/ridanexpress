@@ -26,6 +26,9 @@ import ErrorPage from './pages/Error';
 import NotFoundPage from './pages/NotFoundPage';
 import CustomerReview from './pages/CustomerReview';
 import Profile from './components/dashboard/Profile';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+
 
 function App() {
   const dispatch = useDispatch()
@@ -39,6 +42,8 @@ function App() {
           <Route path='/register' element={<Register />} />
           <Route path='/login' element={<Login />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path='/' element={<Home />} />
           <Route path='/shops' element={<Shops />} />
           <Route path='/seller/:sellerId' element={<Seller />} />
