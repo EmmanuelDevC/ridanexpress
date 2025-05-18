@@ -9,7 +9,7 @@ const mode = production
 let app_url, api_url
 
 if (mode === production) {
-    app_url = "https://ridanexpress-client.vercel.app"
+    app_url = "https://ridan-express-client.vercel.app"
     // app_url = "http://localhost:3000"
     api_url = "https://ridanexpress-backend-xpmk.onrender.com"
     // api_url = "http://localhost:5000"
