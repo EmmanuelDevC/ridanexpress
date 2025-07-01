@@ -37,19 +37,33 @@ const Login = () => {
 
     const handleGoogleSuccess = async (credentialResponse) => {
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/google-auth`, {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/google-auth`, {
                 token: credentialResponse.credential
             });
 
-            if (response.data.success) {
+            const data = response.data;
+
+            if (data.token) {
+                // ✅ Store token
+                localStorage.setItem('customerToken', data.token);
+
+                // ✅ Manually dispatch the fulfilled action to Redux
+                dispatch({
+                    type: 'auth/customer_login/fulfilled',
+                    payload: data
+                });
+
                 toast.success('Logged in with Google');
                 navigate('/');
+            } else {
+                toast.error('Login failed: No token returned');
             }
         } catch (error) {
             console.error('Google Login Error:', error);
             toast.error(error.response?.data?.error || 'Google login failed');
         }
     };
+
 
     const handleGoogleError = () => {
         toast.error('Google login failed');
@@ -221,12 +235,10 @@ const Login = () => {
                                             <GoogleLogin
                                                 onSuccess={handleGoogleSuccess}
                                                 onError={handleGoogleError}
-                                                useOneTap
-                                                auto_select
-                                                theme="filled_black"
+                                                theme="filled_orange"
                                                 shape="pill"
                                                 size="large"
-                                                text=" Sign in with Google"
+                                                text="signin_with"
                                             />
                                         </GoogleOAuthProvider>
 

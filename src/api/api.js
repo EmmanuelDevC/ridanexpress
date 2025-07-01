@@ -1,4 +1,3 @@
-// api.js (updated)
 import axios from 'axios';
 import { api_url } from '../utils/config';
 
@@ -7,8 +6,16 @@ const api = axios.create({
   withCredentials: true
 });
 
+// ✅ Attach token from localStorage to every request
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('customerToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
-// Export a function to set up interceptors later
+// Response interceptor (already in your code)
 export const setupResponseInterceptor = (store) => {
   api.interceptors.response.use(
     response => response,

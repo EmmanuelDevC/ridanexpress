@@ -19,19 +19,33 @@ const Register = () => {
 
     const handleGoogleSuccess = async (credentialResponse) => {
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/google-auth`, {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/google-auth`, {
                 token: credentialResponse.credential
             });
 
-            if (response.data.success) {
-                toast.success('Logged in with Google');
+            const data = response.data;
+
+            if (data.token) {
+                // ✅ Store token
+                localStorage.setItem('customerToken', data.token);
+
+                // ✅ Manually update Redux
+                dispatch({
+                    type: 'auth/customer_login/fulfilled',
+                    payload: data
+                });
+
+                toast.success('Account created and logged in with Google');
                 navigate('/');
+            } else {
+                toast.error('Something went wrong: No token returned');
             }
         } catch (error) {
-            console.error('Google Login Error:', error);
-            toast.error(error.response?.data?.error || 'Google login failed');
+            console.error('Google Register Error:', error);
+            toast.error(error.response?.data?.error || 'Google registration failed');
         }
     };
+
 
     const handleGoogleError = () => {
         toast.error('Google login failed');
@@ -311,8 +325,6 @@ const Register = () => {
                                         <GoogleLogin
                                             onSuccess={handleGoogleSuccess}
                                             onError={handleGoogleError}
-                                            useOneTap
-                                            auto_select
                                             theme="filled_orange"
                                             shape="pill"
                                             size="large"
