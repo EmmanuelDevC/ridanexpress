@@ -7,8 +7,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import Ratings from '../Ratings'
 import { add_to_card, messageClear, add_to_wishlist } from '../../store/reducers/cardReducer'
-import Skeleton from "@mui/material/Skeleton"; // Import Skeleton from Material UI
-
+import Skeleton from "@mui/material/Skeleton";
 
 const FeatureProducts = ({ products }) => {
     const navigate = useNavigate()
@@ -41,7 +40,7 @@ const FeatureProducts = ({ products }) => {
         }
     }, [errorMessage, successMessage])
 
-    const isLoading = products.length === 0; // Loading state: Assuming if no products, data is loading
+    const isLoading = products.length === 0;
 
     const add_wishlist = (pro, e) => {
         e.preventDefault()
@@ -61,14 +60,15 @@ const FeatureProducts = ({ products }) => {
     return (
         <div className='w-full max-w-7xl mx-auto py-0 lg:py-2 px-1'>
 
-            <div className="flex border border-gray-200 bg-orange-500 lg:bg-orange-600 px-2 py-2 rounded-lg justify-between items-center mb-2 lg:mb-6">
-                <h2 className="text-xl font-base text-white ">
+            {/* Header Section - Updated to light brown */}
+            <div className="flex border border-[#e9d8c5] bg-gray-800 px-4 py-3 rounded-xl justify-between items-center mb-4 shadow-sm">
+                <h2 className="text-xl font-bold text-white">
                     Special For You
-                    <span className="hidden lg:block w-12 h-1.5 block lg:hidden bg-orange-500 mt-2 rounded-full" />
+                    <span className="hidden lg:block w-14 h-1 bg-[#a1887f] mt-2 rounded-full" />
                 </h2>
                 <Link
                     to='/shops'
-                    className="text-white font-medium transition-colors flex items-center gap-2"
+                    className="text-white font-medium transition-colors flex items-center gap-2 hover:text-[#8d6e63]"
                 >
                     See All
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -78,13 +78,12 @@ const FeatureProducts = ({ products }) => {
             </div>
 
             {isLoading ? (
-                <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 lg:gap-4'>
+                <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 lg:gap-4'>
                     {[1, 2, 3, 4, 5, 6].map((_, index) => (
                         <div
                             key={index}
-                            className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden"
+                            className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-[#efebe9]"
                         >
-                            {/* Image Skeleton with Shimmer Effect */}
                             <div className="relative aspect-square bg-gray-100 overflow-hidden">
                                 <Skeleton
                                     variant="rectangular"
@@ -94,7 +93,6 @@ const FeatureProducts = ({ products }) => {
                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
                             </div>
 
-                            {/* Content Skeleton */}
                             <div className="p-3 space-y-2">
                                 <div className="flex justify-between items-start">
                                     <Skeleton
@@ -144,71 +142,68 @@ const FeatureProducts = ({ products }) => {
                         </div>
                     ))}
                 </div>
-            ) : // Render products when loaded
-
+            ) : 
                 <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-1 md:gap-2 lg:gap-2'>
                     {products.map((p, i) => (
-                        <Link to={`/product/details/${p.slug}`} className='relative flex-1'>
-                            <div key={i} className='bg-white rounded-md md:rounded-lg lg:rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 group overflow-hidden flex flex-col'>
+                        <Link 
+                            to={`/product/details/${p.slug}`} 
+                            className='relative flex-1 group'
+                            key={i}
+                        >
+                            <div className='bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col border border-[#efebe9] h-full'>
                                 {p.discount && (
-                                    <div className='absolute left-1 top-1 bg-orange-500 text-white px-3 py-1 rounded-lg text-xs font-semibold z-0 z-10'>
+                                    <div className='absolute left-2 top-2 bg-green-500 text-white px-2 py-1 rounded-lg text-xs font-bold z-10 shadow-sm'>
                                         {p.discount}% OFF
                                     </div>
                                 )}
-                                <div className='aspect-square overflow-hidden'>
+                                
+                                <div className='relative aspect-square overflow-hidden'>
                                     <img
-                                        className='w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105'
+                                        className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-110'
                                         src={p.images[0]}
                                         alt={p.name}
                                         loading='lazy'
                                     />
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className='absolute top-[10rem] hidden lg:block right-3 flex flex-col gap-3'>
-                                    <button
-                                        onClick={(e) => add_card(p._id, e)}
-                                        className='w-9 h-9 flex mb-3 items-center justify-center bg-white rounded-full shadow-md hover:bg-gray-900 hover:text-white text-gray-800 transition-all'
-                                        aria-label="Add to cart"
-                                    >
-                                        <AddShoppingCartIcon className='w-5 h-5' />
-                                    </button>
-                                </div>
-
-
-                                <div className="relative py-3 px-2 text-gray-700">
-
-                                    <div className='absolute right-1 -top-11 flex flex-col gap-2'>
+                                    
+                                    <div className='absolute top-3 right-3 flex flex-col gap-2'>
                                         <button
-                                            onClick={(e) => add_card(p._id, e)}
-                                            className='w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-md hover:bg-gray-900 hover:text-white transition-all'
-                                            aria-label="Add to cart"
+                                            onClick={(e) => add_wishlist(p, e)}
+                                            className='w-8 h-8 flex items-center justify-center bg-white rounded-full shadow-md hover:bg-[#e9d8c5] text-gray-600 hover:text-[#d32f2f] transition-all'
+                                            aria-label="Add to wishlist"
                                         >
-                                            <ShoppingCartOutlinedIcon className='w-6 h-6 text-orange-600' />
+                                            <AiFillHeart className='w-4 h-4' />
                                         </button>
                                     </div>
+                                </div>
 
-                                    <p className='hover:text-orange-600'>
-                                        <h2 className="text-sm md:text-base font-semibold line-clamp-1">
-                                            {p.name}
-                                        </h2>
-                                    </p>
+                                <div className="py-3 px-3 flex-grow flex flex-col">
+                                    <h2 className="text-sm font-semibold text-black mb-1 line-clamp-1 group-hover:text-[#8d6e63] transition-colors">
+                                        {p.name}
+                                    </h2>
 
-                                    <div className="flex items-center my-1 gap-1">
+                                    <div className="flex items-center my-1 gap-1 mt-auto">
                                         <Ratings ratings={p.rating} />
                                         <span className="text-xs text-gray-500">({p.rating})</span>
                                     </div>
 
-                                    <div className="flex flex-row flex-wrap items-center gap-2 md:gap-1">
-                                        <span className="text-[15px] font-base text-black">
+                                    <div className="flex flex-row flex-wrap items-center gap-2 mt-2">
+                                        <span className="text-base font-bold text-[#5d4037]">
                                             ₦ {(p.price - (p.price * p.discount) / 100).toLocaleString()}
                                         </span>
                                         {p.discount > 0 && (
-                                            <del className="text-gray-500 text-[13px] font-base">
+                                            <del className="text-gray-500 text-sm">
                                                 ₦ {p.price.toLocaleString()}
                                             </del>
                                         )}
                                     </div>
+                                    
+                                    <button
+                                        onClick={(e) => add_card(p._id, e)}
+                                        className='mt-3 w-full py-2 bg-gray-800 rounded-lg text-white font-medium flex items-center justify-center gap-2 hover:bg-[#d7ccc8] transition-colors'
+                                    >
+                                        <AddShoppingCartIcon className='w-5 h-5' />
+                                        <span>Add to Cart</span>
+                                    </button>
                                 </div>
                             </div>
                         </Link>

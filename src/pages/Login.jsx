@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { PulseLoader } from 'react-spinners';
 import { IoArrowBack } from 'react-icons/io5';
 import { useSelector, useDispatch } from 'react-redux';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { customer_login, messageClear } from '../store/reducers/authReducer';
 import ridanLogo from '../assets/Images/banner/logo2.png';
 import toast from 'react-hot-toast';
@@ -34,17 +35,25 @@ const Login = () => {
         dispatch(customer_login(state));
     };
 
-    // const handleResendVerification = async () => {
-    //     try {
-    //         await axios.post(`${process.env.REACT_APP_API_URL}/api/resend-verification`, {
-    //             email: state.email
-    //         });
-    //         toast.success('Verification email resent! Please check your inbox.');
-    //         setShowResendButton(false);
-    //     } catch (error) {
-    //         toast.error(error.response?.data?.error || 'Failed to resend verification email');
-    //     }
-    // };
+    const handleGoogleSuccess = async (credentialResponse) => {
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/google-auth`, {
+                token: credentialResponse.credential
+            });
+
+            if (response.data.success) {
+                toast.success('Logged in with Google');
+                navigate('/');
+            }
+        } catch (error) {
+            console.error('Google Login Error:', error);
+            toast.error(error.response?.data?.error || 'Google login failed');
+        }
+    };
+
+    const handleGoogleError = () => {
+        toast.error('Google login failed');
+    };
 
     const handleResendVerification = async () => {
         try {
@@ -206,22 +215,21 @@ const Login = () => {
                                         </div>
                                     </div>
 
-                                    <div className="mt-6 grid grid-cols-2 gap-3">
-                                        <button
-                                            type="button"
-                                            className="w-full flex items-center justify-center py-2.5 px-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200"
-                                        >
-                                            <FaFacebookF className="text-blue-600 mr-2" />
-                                            <span className="text-sm font-medium text-gray-700">Facebook</span>
-                                        </button>
+                                    <div className="mt-6 flex justify-center mx-auto gap-3">
 
-                                        <button
-                                            type="button"
-                                            className="w-full flex items-center justify-center py-2.5 px-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200"
-                                        >
-                                            <FaGoogle className="text-blue-500 mr-2" />
-                                            <span className="text-sm font-medium text-gray-700">Google</span>
-                                        </button>
+                                        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+                                            <GoogleLogin
+                                                onSuccess={handleGoogleSuccess}
+                                                onError={handleGoogleError}
+                                                useOneTap
+                                                auto_select
+                                                theme="filled_black"
+                                                shape="pill"
+                                                size="large"
+                                                text=" Sign in with Google"
+                                            />
+                                        </GoogleOAuthProvider>
+
                                     </div>
                                 </div>
 

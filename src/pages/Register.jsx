@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
 import ridanLogo from '../assets/Images/banner/logo2.png';
 import { useSelector, useDispatch } from 'react-redux';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { customer_register, messageClear } from '../store/reducers/authReducer';
 import toast from 'react-hot-toast';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
@@ -15,6 +16,26 @@ const Register = () => {
     const navigate = useNavigate();
     const { loader, successMessage, errorMessage, userInfo } = useSelector(state => state.auth);
     const dispatch = useDispatch();
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/google-auth`, {
+                token: credentialResponse.credential
+            });
+
+            if (response.data.success) {
+                toast.success('Logged in with Google');
+                navigate('/');
+            }
+        } catch (error) {
+            console.error('Google Login Error:', error);
+            toast.error(error.response?.data?.error || 'Google login failed');
+        }
+    };
+
+    const handleGoogleError = () => {
+        toast.error('Google login failed');
+    };
 
     const [form, setForm] = useState({
         name: '',
@@ -285,7 +306,21 @@ const Register = () => {
                                     </div>
                                 </div>
 
-                                {/* ... (existing social login buttons remain unchanged) ... */}
+                                <div className='mt-2 flex justify-center gap-4'>
+                                    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+                                        <GoogleLogin
+                                            onSuccess={handleGoogleSuccess}
+                                            onError={handleGoogleError}
+                                            useOneTap
+                                            auto_select
+                                            theme="filled_orange"
+                                            shape="pill"
+                                            size="large"
+                                            text="signin_with"
+                                        />
+                                    </GoogleOAuthProvider>
+                                </div>
+
                             </div>
 
                             {/* Existing Account Prompt */}

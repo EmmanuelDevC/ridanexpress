@@ -82,15 +82,15 @@ const BottomNav = () => {
     };
 
     return (
-        <div className={`fixed bottom-0 left-0 right-0 z-40 bg-gray-900 shadow-2xl rounded-t-2xl transition-transform duration-300 ${visible ? 'translate-y-0' : 'translate-y-full'}`}>
+        <div className={`fixed bottom-0 left-0 right-0 z-40 bg-slate-100 shadow-4xl border border-[#C48A47] rounded-t-2xl transition-transform duration-300 ${visible ? 'translate-y-0' : 'translate-y-full'}`}>
             <div className="flex justify-around items-center py-3 px-2">
                 {navItems.map((item, index) => (
                     <button
                         key={index}
                         onClick={() => handleNavigation(item, index)}
                         className={`flex flex-col items-center p-2 rounded-xl transition-all ${activeTab === index
-                            ? "text-orange-500 bg-orange-50"
-                            : "text-slate-100 hover:text-orange-400"
+                            ? "text-white bg-[#C48A47]"
+                            : "text-gray-800 hover:text-orange-400"
                             }`}
                         style={{ minWidth: "60px" }}
                     >
@@ -103,7 +103,7 @@ const BottomNav = () => {
                             </span>
                             {item.count > 0 && (
                                 <span className={`absolute -top-1 -right-2 text-xs w-5 h-5 rounded-full flex items-center justify-center 
-                                    ${item.label === 'Cart' ? 'bg-red-500' : 'bg-red-500'} text-white`}>
+                                    ${item.label === 'Cart' ? 'bg-[#C48A47]' : 'bg-[#C48A47]'} text-white`}>
                                     {item.count}
                                 </span>
                             )}

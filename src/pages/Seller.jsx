@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import {
     get_seller_details,
-    get_seller_products
+    get_seller_products 
 } from '../store/reducers/sellerReducer'
 import { add_to_card } from '../store/reducers/cardReducer'
 import { MdLocationOn, MdOutlineKeyboardArrowRight, MdFilterList } from 'react-icons/md'
@@ -63,7 +63,7 @@ const ProductCard = ({ product, viewMode }) => {
                         }`}
                 />
                 {product.discount > 0 && (
-                    <div className="absolute left-1 top-1 bg-orange-500 text-white px-3 py-1 rounded-lg text-xs font-semibold z-10">
+                    <div className="absolute left-1 top-1 bg-green-500 text-white px-3 py-1 rounded-lg text-xs font-semibold z-10">
                         {product.discount}% OFF
                     </div>
                 )}
@@ -102,7 +102,7 @@ const ProductCard = ({ product, viewMode }) => {
                 <button
                     onClick={add_card}
                     className={`mt-3 w-full flex items-center justify-center gap-2 ${product.stock > 0
-                        ? 'bg-orange-500 hover:bg-orange-600'
+                        ? 'bg-gray-800 hover:bg-gray-700'
                         : 'bg-gray-400 cursor-not-allowed'
                         } text-white py-2 rounded-lg transition-colors`}
                     disabled={product.stock <= 0}
@@ -179,7 +179,7 @@ const Seller = () => {
         <div className="min-h-screen bg-gray-50">
             <Headers />
             {/* Seller Header */}
-            <div className="relative bg-gradient-to-r from-black to-indigo-900 mt-14 md:mt-[8rem] lg:mt-[7rem] shadow-lg">
+            <div className="relative bg-gradient-to-r from-black to-gray-700 mt-14 md:mt-[8rem] lg:mt-[7rem] shadow-lg">
                 <div className="absolute inset-0 bg-noise-pattern opacity-20"></div>
                 <div className="max-w-7xl mx-auto px-4 py-8 relative z-10">
                     <div className="flex flex-row md:flex-row items-center gap-3 text-white">

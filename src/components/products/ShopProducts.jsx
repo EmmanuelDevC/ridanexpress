@@ -62,7 +62,7 @@ const ShopProducts = ({ products }) => {
                     <div key={i} className='bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 group overflow-hidden flex flex-col'>
                         <Link to={`/product/details/${p.slug}`} className='relative flex-1'>
                             {p.discount && (
-                                <div className='absolute left-1 top-1 bg-orange-500 text-white px-3 py-1 rounded-lg text-xs font-semibold z-10'>
+                                <div className='absolute left-1 top-1 bg-green-500 text-white px-3 py-1 rounded-lg text-xs font-semibold z-10'>
                                     {p.discount}% OFF
                                 </div>
                             )}
@@ -76,29 +76,8 @@ const ShopProducts = ({ products }) => {
                             </div>
                         </Link>
 
-                        {/* Action Buttons */}
-                        <div className='absolute top-[10rem] hidden lg:block right-3 flex flex-col gap-3'>
-                            <button
-                                onClick={(e) => add_card(p._id, e)}
-                                className='w-9 h-9 flex mb-3 items-center justify-center bg-white rounded-full shadow-md hover:bg-gray-900 hover:text-white text-gray-800 transition-all'
-                                aria-label="Add to cart"
-                            >
-                                <AddShoppingCartIcon className='w-5 h-5' />
-                            </button>
-                        </div>
-
 
                         <div className="relative py-3 px-2 text-gray-700">
-
-                            <div className='absolute right-1 -top-11 flex flex-col gap-2'>
-                                <button
-                                    onClick={(e) => add_card(p._id, e)}
-                                    className='w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-lg hover:bg-gray-900 hover:text-white transition-all'
-                                    aria-label="Add to cart"
-                                >
-                                    <ShoppingCartOutlinedIcon className='w-6 h-6 text-orange-600' />
-                                </button>
-                            </div>
 
                             <Link to={`/product/debg-gradient-to-r from-gray-800 to-indigo-700tails/${p.slug}`} className='hover:text-orange-600'>
                                 <h2 className="text-sm md:text-base font-semibold line-clamp-1">
@@ -121,6 +100,17 @@ const ShopProducts = ({ products }) => {
                                     </del>
                                 )}
                             </div>
+                            <div className='flex flex-col gap-2'>
+                                <button
+                                    onClick={(e) => add_card(p._id, e)}
+                                    className='px-4 py-2 flex items-center justify-center gap-2 bg-gray-700 rounded-lg shadow-lg transition-all duration-300 ease-in-out hover:from-orange-600 hover:to-amber-600 hover:shadow-xl active:scale-[.98] focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 text-white font-medium'
+                                    aria-label="Add to cart"
+                                >
+                                    <span>Add to cart</span>
+                                    <ShoppingCartOutlinedIcon className='w-5 h-5' />
+                                </button>
+                            </div>
+
                         </div>
                     </div>
                 ))}
