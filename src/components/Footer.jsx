@@ -1,5 +1,5 @@
 import React from 'react'
-import  ridanLogo from '../assets/Images/banner/logo.png'
+import  ridanLogo from '../assets/Images/banner/m2.png'
 import { Link } from 'react-router-dom'
 import { FaFacebookF, FaInstagram, FaYoutube, FaTwitter } from 'react-icons/fa'
 import { BsPhone, BsHeadset, BsShieldCheck } from 'react-icons/bs'

@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { GrMail } from 'react-icons/gr';
-import ridanLogo from "../assets/Images/banner/logo.png";
-import ridanLogo2 from "../assets/Images/banner/logo2.png";
+import ridanLogo from "../assets/Images/banner/m2.png";
+import ridanLogo2 from "../assets/Images/banner/m2.png";
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -271,7 +271,9 @@ const Headers = () => {
                                         <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
                                             <FaUser size={14} />
                                         </div>
-                                        <span className="text-sm font-medium text-gray-700">Hi, {userInfo.name.split(' ')[0]}</span>
+                                        <span className="text-sm font-medium text-gray-700">
+                                            Hi, {userInfo?.name?.split(' ')[0] || 'User'}
+                                        </span>
                                         <ExpandMoreSharpIcon className="text-gray-500" fontSize="small" />
                                     </button>
                                     <div className="absolute top-full right-0 mt-1 w-48 bg-white rounded-lg shadow-lg py-1 hidden group-hover:block z-50">

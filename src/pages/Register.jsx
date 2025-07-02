@@ -3,7 +3,7 @@ import { IoArrowBack } from 'react-icons/io5';
 import { FaFacebookF, FaGoogle } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
-import ridanLogo from '../assets/Images/banner/logo2.png';
+import ridanLogo from '../assets/Images/banner/m2.png';
 import { useSelector, useDispatch } from 'react-redux';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { customer_register, messageClear } from '../store/reducers/authReducer';

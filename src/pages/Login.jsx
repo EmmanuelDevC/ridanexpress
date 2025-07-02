@@ -6,7 +6,7 @@ import { IoArrowBack } from 'react-icons/io5';
 import { useSelector, useDispatch } from 'react-redux';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { customer_login, messageClear } from '../store/reducers/authReducer';
-import ridanLogo from '../assets/Images/banner/logo2.png';
+import ridanLogo from '../assets/Images/banner/m2.png';
 import toast from 'react-hot-toast';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import axios from 'axios';
