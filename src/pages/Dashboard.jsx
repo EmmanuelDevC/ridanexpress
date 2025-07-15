@@ -41,7 +41,6 @@ const MobileNav = () => {
         { path: '/dashboard', icon: <RxDashboard />, label: 'Dashboard' },
         { path: '/dashboard/my-orders', icon: <FiPackage />, label: 'Orders' },
         { path: '/dashboard/my-wishlist', icon: <BsHeart />, label: 'Wishlist' },
-        { path: '/dashboard/chat', icon: <BsChat />, label: 'Chats' },
         { path: '/dashboard/profile', icon: <AccountBoxOutlinedIcon />, label: 'Profile' },
     ]
 
@@ -109,7 +108,6 @@ const Dashboard = () => {
         { path: '/dashboard', icon: <RxDashboard />, label: 'Dashboard' },
         { path: '/dashboard/my-orders', icon: <FiPackage />, label: 'Orders' },
         { path: '/dashboard/my-wishlist', icon: <BsHeart />, label: 'Wishlist' },
-        { path: '/dashboard/chat', icon: <BsChat />, label: 'Messages', badge: 3 },
         { path: '/dashboard/profile', icon: <AccountBoxOutlinedIcon />, label: 'Profile' },
     ]
 

@@ -96,7 +96,7 @@ const Order = () => {
 
         {/* Order Header */}
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h1 className="mb-8 text-xl lg:text-2xl font-bold text-orange-500 uppercase">
+          <h1 className="mb-8 text-xl lg:text-2xl font-bold text-[#c48a47] uppercase">
             Order Info
           </h1>
 
@@ -314,7 +314,7 @@ const Order = () => {
 
                   <div className="ml-2 sm:ml-4 text-right flex-shrink-0">
                     {productData.discount > 0 && (
-                      <p className="text-xs lg:text-lg font-bold text-orange-500 mt-1">
+                      <p className="text-xs lg:text-lg font-bold text-[#c48a47] mt-1">
                         {formatCurrency(
                           productData.price - (productData.price * productData.discount) / 100)
                         }

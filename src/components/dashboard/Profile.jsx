@@ -201,7 +201,7 @@ const Profile = () => {
 
         <div className="flex items-center mb-8">
           <div className="relative">
-            <div className="w-20 h-20 bg-orange-500 rounded-full flex items-center justify-center">
+            <div className="w-20 h-20 bg-gray-700 rounded-full flex items-center justify-center">
               <span className='w-[90%] h-[90%] bg-black-500 border border-white rounded-full flex items-center justify-center'>
                 <span className="text-white text-3xl font-bold">
                   {userInfo.name.charAt(0).toUpperCase() || 'R'}
@@ -290,7 +290,7 @@ const Profile = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg shadow-md transition-all duration-200 disabled:opacity-70"
+            className="w-full px-6 py-3 bg-gray-700 hover:bg-orange-600 text-white font-semibold rounded-lg shadow-md transition-all duration-200 disabled:opacity-70"
           >
             {loading ? 'Saving...' : 'Save Changes'}
           </button>

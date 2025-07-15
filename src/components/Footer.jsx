@@ -57,7 +57,7 @@ const Footer = () => {
                             <a
                                 key={index}
                                 href="#"
-                                className='p-2 bg-[#2d3d52] rounded-full hover:bg-orange-500 transition-colors duration-200'
+                                className='p-2 bg-[#2d3d52] rounded-full hover:bg-[#c48a47] transition-colors duration-200'
                                 aria-label={social.label}
                             >
                                 {social.icon}

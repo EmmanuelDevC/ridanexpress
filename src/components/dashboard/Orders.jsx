@@ -49,7 +49,7 @@ const Orders = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                        <FiPackage className="text-orange-500" />
+                        <FiPackage className="text-[#c48a47]" />
                         Order History
                     </h1>
                     <p className="text-sm text-gray-500 mt-1">
@@ -76,11 +76,11 @@ const Orders = () => {
                 <table className="w-full min-w-[600px] sm:min-w-0">
                     <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-3 sm:px-6 py-2 text-left text-xs sm:text-sm font-medium text-orange-500">Order Ref</th>
-                            <th className="px-3 sm:px-6 py-2 text-right text-xs sm:text-sm font-medium text-orange-500">Amount</th>
-                            <th className="px-3 sm:px-6 py-2 text-left text-xs sm:text-sm font-medium text-orange-500">Payment</th>
-                            <th className="px-3 sm:px-6 py-2 text-left text-xs sm:text-sm font-medium text-orange-500">Fulfillment</th>
-                            <th className="px-3 sm:px-6 py-2 text-right text-xs sm:text-sm font-medium text-orange-500">Actions</th>
+                            <th className="px-3 sm:px-6 py-2 text-left text-xs sm:text-sm font-medium text-[#c48a47]">Order Ref</th>
+                            <th className="px-3 sm:px-6 py-2 text-right text-xs sm:text-sm font-medium text-[#c48a47]">Amount</th>
+                            <th className="px-3 sm:px-6 py-2 text-left text-xs sm:text-sm font-medium text-[#c48a47]">Payment</th>
+                            <th className="px-3 sm:px-6 py-2 text-left text-xs sm:text-sm font-medium text-[#c48a47]">Fulfillment</th>
+                            <th className="px-3 sm:px-6 py-2 text-right text-xs sm:text-sm font-medium text-[#c48a47]">Actions</th>
                         </tr>
                     </thead>
 

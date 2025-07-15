@@ -100,7 +100,7 @@ const Headers = () => {
                 <input
                     type="text"
                     value={searchValue}
-                    className="w-full px-5 py-2.5 pr-16 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-gray-700 shadow-sm hover:shadow-lg"
+                    className="w-full px-5 py-2.5 pr-16 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-#c48a47 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-gray-700 shadow-sm hover:shadow-lg"
                     placeholder="Search products, brands & categories..."
                     onChange={(e) => handleSearchChange(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && search()}
@@ -109,7 +109,7 @@ const Headers = () => {
                 />
                 <button
                     onClick={search}
-                    className="absolute right-0 top-0 h-full px-5 bg-orange-500 text-white rounded-r-full font-medium hover:bg-orange-600 transition-all duration-200 flex items-center"
+                    className="absolute right-0 top-0 h-full px-5 bg-[#c48a47] text-white rounded-r-full font-medium hover:bg-orange-600 transition-all duration-200 flex items-center"
                 >
                     <AiOutlineSearch className="mr-2" />
                     <span>Search</span>
@@ -302,7 +302,7 @@ const Headers = () => {
                             >
                                 <ShoppingCartOutlinedIcon className="text-gray-700" />
                                 {card_product_count > 0 && (
-                                    <span className="absolute border-2 border-white bottom-5 left-6 bg-orange-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium">
+                                    <span className="absolute border-2 border-white bottom-5 left-6 bg-[#c48a47] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium">
                                         {card_product_count}
                                     </span>
                                 )}
