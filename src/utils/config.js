@@ -9,9 +9,9 @@ const mode = production
 let app_url, api_url
 
 if (mode === production) {
-    app_url = "https://martafrik.vercel.app"
+    app_url = "https://ridanexpress.vercel.app"
     // app_url = "http://localhost:3000"
-    api_url = "https://martafrik-api.onrender.com"
+    api_url = "https://ridanexpress-api-lqo6.onrender.com"
     // api_url = "http://localhost:5000"
 } else {
     app_url = 'http://localhost:3000'
