@@ -58,16 +58,16 @@ const MobileNav = () => {
                     >
                         <span
                             className={`text-2xl transition-colors duration-200 ${location.pathname === item.path
-                                    ? 'text-orange-500'
-                                    : 'text-gray-300 hover:text-orange-500'
+                                ? 'text-orange-500'
+                                : 'text-gray-300 hover:text-orange-500'
                                 }`}
                         >
                             {item.icon}
                         </span>
                         <span
                             className={`text-[10px] font-medium mt-1 transition-colors ${location.pathname === item.path
-                                    ? 'text-orange-500'
-                                    : 'text-gray-300'
+                                ? 'text-orange-500'
+                                : 'text-gray-300'
                                 }`}
                         >
                             {item.label}
@@ -107,6 +107,7 @@ const Dashboard = () => {
     const navItems = [
         { path: '/dashboard', icon: <RxDashboard />, label: 'Dashboard' },
         { path: '/dashboard/my-orders', icon: <FiPackage />, label: 'Orders' },
+        { path: '/dashboard/my-chat', icon: <BsChat />, label: 'Chat', badge: 'New' },
         { path: '/dashboard/my-wishlist', icon: <BsHeart />, label: 'Wishlist' },
         { path: '/dashboard/profile', icon: <AccountBoxOutlinedIcon />, label: 'Profile' },
     ]
@@ -148,8 +149,8 @@ const Dashboard = () => {
                                                 to={item.path}
                                                 onClick={() => setIsMobileMenuOpen(false)}
                                                 className={`flex items-center justify-between gap-3 p-3 rounded-xl transition-all ${location.pathname === item.path
-                                                        ? 'bg-indigo-600/20 text-indigo-400'
-                                                        : 'text-gray-300 hover:bg-gray-800'
+                                                    ? 'bg-indigo-600/20 text-indigo-400'
+                                                    : 'text-gray-300 hover:bg-gray-800'
                                                     }`}
                                             >
                                                 <div className="flex items-center gap-3">
