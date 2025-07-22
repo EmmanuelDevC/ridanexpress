@@ -4,17 +4,17 @@
   "description": "Martafrik is a multi-vendor e-commerce platform that allows users to buy and sell products online.",
   "icons": [
     {
-      "src": "m.png",
+      "src": "ridan.png",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
     {
-      "src": "m.png",
+      "src": "ridan.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "m.png",
+      "src": "ridan.png",
       "type": "image/png",
       "sizes": "512x512"
     }
@@ -22,5 +22,5 @@
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "background_color": "#f76201"
 }
