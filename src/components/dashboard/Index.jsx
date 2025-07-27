@@ -1,256 +1,357 @@
-import React, { useEffect } from 'react';
-import HomeIcon from '@mui/icons-material/Home';
-import VerifiedUserTwoToneIcon from '@mui/icons-material/VerifiedUserTwoTone';
-import SupportAgentTwoToneIcon from '@mui/icons-material/SupportAgentTwoTone';
+"use client"
 
+import { useEffect } from "react"
+import { motion } from "framer-motion"
 import {
-    AiOutlineShoppingCart,
-    AiOutlineClockCircle,
-    AiOutlineCloseCircle,
-    AiOutlineLineChart,
-    AiOutlineMessage,
-    AiOutlineFileSearch
-} from 'react-icons/ai';
-import { useSelector, useDispatch } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
-import { get_dashboard_index_data } from '../../store/reducers/dashboardReducer';
+  FiShoppingCart,
+  FiClock,
+  FiX,
+  FiTrendingUp,
+  FiEye,
+  FiCreditCard,
+  FiHome,
+  FiHeadphones,
+  FiPackage,
+  FiBarChart2, // Changed from FiBarChart3 to FiBarChart2
+} from "react-icons/fi"
+import { HiOutlineSparkles } from "react-icons/hi"
+import { useSelector, useDispatch } from "react-redux"
+import { Link, useNavigate } from "react-router-dom"
+import { get_dashboard_index_data } from "../../store/reducers/dashboardReducer"
 
 const Index = () => {
-    const navigate = useNavigate();
-    const { userInfo } = useSelector(state => state.auth);
-    const { totalOrder, pendingOrder, recentOrders, cancelledOrder } = useSelector(state => state.dashboard);
-    const dispatch = useDispatch();
+  const navigate = useNavigate()
+  const { userInfo } = useSelector((state) => state.auth)
+  const { totalOrder, pendingOrder, recentOrders, cancelledOrder } = useSelector((state) => state.dashboard)
+  const dispatch = useDispatch()
 
-    useEffect(() => {
-        dispatch(get_dashboard_index_data(userInfo.id));
-    }, [dispatch, userInfo.id]);
+  useEffect(() => {
+    dispatch(get_dashboard_index_data(userInfo.id))
+  }, [dispatch, userInfo.id])
 
-    const redirect = (ord) => {
-        const items = ord.products.reduce((acc, product) => acc + product.quantity, 0);
-        navigate('/payment', {
-            state: {
-                price: ord.price,
-                items,
-                orderId: ord._id
-            }
-        });
-    };
+  const redirect = (ord) => {
+    const items = ord.products.reduce((acc, product) => acc + product.quantity, 0)
+    navigate("/payment", {
+      state: {
+        price: ord.price,
+        items,
+        orderId: ord._id,
+      },
+    })
+  }
 
-    const getStatusBadge = (status) => {
-        const statusMap = {
-            'paid': 'bg-green-100 text-green-800',
-            'pending': 'bg-yellow-100 text-yellow-800',
-            'cancelled': 'bg-red-100 text-red-800',
-            'delivered': 'bg-blue-100 text-blue-800'
-        };
-        return `px-3 py-1 rounded-full text-sm ${statusMap[status.toLowerCase()] || 'bg-gray-100 text-gray-800'}`;
-    };
+  const getStatusBadge = (status) => {
+    const statusMap = {
+      paid: "bg-green-100 text-green-800 border border-green-200",
+      pending: "bg-orange-100 text-orange-800 border border-orange-200",
+      cancelled: "bg-red-100 text-red-800 border border-red-200",
+      delivered: "bg-blue-100 text-blue-800 border border-blue-200",
+    }
+    return `px-3 py-1 rounded-full text-xs font-medium ${statusMap[status.toLowerCase()] || "bg-gray-100 text-gray-800 border border-gray-200"}`
+  }
 
-    return (
-        <div className="min-h-screen bg-gray-50 mb-14">
-            {/* Dashboard Header */}
-            <div className="bg-gradient-to-r from-gray-900 to-purple-600 rounded-2xl mt-3 sm:mt-10 md:mt-20 lg:mt-0 text-white py-7 px-6">
-                <div className="max-w-9xl mx-auto">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-                        <div>
-                            <div className='flex items-center gap-1'>
-                                <VerifiedUserTwoToneIcon className='text-indigo-200' />
-                                <h1 className=" text-lg lg:text-2xl font-semi">Hi, {userInfo.name}</h1>
-                            </div>
-                            <p className="text-gray-200 text-xs mt-2">Here's your activity summary</p>
-                        </div>
-                        <div className="mt-4 md:mt-0 flex gap-4">
-                            <button
-                                onClick={() => navigate('/home')}
-                                className="flex items-center text-xs bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all">
-                                <SupportAgentTwoToneIcon className="mr-2" />
-                                Support
-                            </button>
-                            <Link to={"/"}>
-                                <button className="flex items-center text-xs bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all">
-                                    <HomeIcon className="mr-2" />
-                                    Back to shop
-                                </button>
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  const statsData = [
+    {
+      title: "Total Orders",
+      value: totalOrder,
+      icon: <FiShoppingCart />,
+      color: "from-blue-500 to-blue-600",
+      bgColor: "bg-blue-50",
+      textColor: "text-blue-600",
+      borderColor: "border-blue-200",
+    },
+    {
+      title: "Pending Orders",
+      value: pendingOrder,
+      icon: <FiClock />,
+      color: "from-orange-500 to-orange-600",
+      bgColor: "bg-orange-50",
+      textColor: "text-orange-600",
+      borderColor: "border-orange-200",
+    },
+    {
+      title: "Cancelled Orders",
+      value: cancelledOrder,
+      icon: <FiX />,
+      color: "from-red-500 to-red-600",
+      bgColor: "bg-red-50",
+      textColor: "text-red-600",
+      borderColor: "border-red-200",
+    },
+    {
+      title: "Delivered Orders",
+      value: totalOrder - pendingOrder - cancelledOrder,
+      icon: <FiTrendingUp />,
+      color: "from-green-500 to-green-600",
+      bgColor: "bg-green-50",
+      textColor: "text-green-600",
+      borderColor: "border-green-200",
+    },
+  ]
 
-            {/* Main Content */}
-            <div className="max-w-7xl mx-auto px-3 py-8 -mt-12">
-                {/* Stats Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-3 mb-6">
-                    <div className="bg-white p-4 sm:p-6 shadow-md shadow-blue-500/20 rounded-lg border-l-2 sm:border-l-4 border-blue-500">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-gray-500 text-xs sm:text-sm">All Orders</p>
-                                <p className="text-2xl sm:text-3xl font-bold text-gray-900">{totalOrder}</p>
-                            </div>
-                            <AiOutlineShoppingCart className="text-3xl sm:text-4xl text-blue-500" />
-                        </div>
-                    </div>
+  const quickActions = [
+    {
+      title: "Shopping",
+      icon: <FiShoppingCart />,
+      color: "bg-orange-500 hover:bg-orange-600 text-white",
+      onClick: () => navigate("/"),
+    },
+    {
+      title: "HQ Support",
+      icon: <FiHeadphones />,
+      color: "bg-blue-500 hover:bg-blue-600 text-white",
+      onClick: () => navigate("/dashboard/chat"),
+    },
+    {
+      title: "Track Orders",
+      icon: <FiPackage />,
+      color: "bg-purple-500 hover:bg-purple-600 text-white",
+      onClick: () => navigate("/dashboard/my-orders"),
+    },
+    {
+      title: "Order History",
+      icon: <FiBarChart2 />, // Changed from FiBarChart3 to FiBarChart2
+      color: "bg-green-500 hover:bg-green-600 text-white",
+      onClick: () => navigate("/dashboard/my-orders"),
+    },
+  ]
 
-                    <div className="bg-white p-4 sm:p-6 shadow-md shadow-yellow-500/20 rounded-lg border-l-2 sm:border-l-4 border-yellow-500">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-gray-500 text-xs sm:text-sm">Pending Orders</p>
-                                <p className="text-2xl sm:text-3xl font-bold text-gray-900">{pendingOrder}</p>
-                            </div>
-                            <AiOutlineClockCircle className="text-3xl sm:text-4xl text-yellow-500" />
-                        </div>
-                    </div>
-
-                    <div className="bg-white p-4 sm:p-6 shadow-md shadow-red-500/20 rounded-lg border-l-2 sm:border-l-4 border-red-500">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-gray-500 text-xs sm:text-sm">Cancelled</p>
-                                <p className="text-2xl font-semibold text-gray-900">{cancelledOrder}</p>
-                            </div>
-                            <AiOutlineCloseCircle className="text-3xl sm:text-4xl text-red-500" />
-                        </div>
-                    </div>
-
-                    <div className="bg-white p-4 sm:p-6 shadow-md shadow-green-500/20 rounded-lg border-l-2 sm:border-l-4 border-green-500">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-gray-500 text-xs sm:text-sm">Deliverd</p>
-                                <p className="text-2xl sm:text-3xl font-bold text-gray-900">
-                                    {totalOrder - pendingOrder - cancelledOrder}
-                                </p>
-                            </div>
-                            <AiOutlineLineChart className="text-3xl sm:text-4xl text-green-500" />
-                        </div>
-                    </div>
-                </div>
-
-
-                <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm">
-                    <h3 className="text-base sm:text-lg font-semibold mb-3">Quick Actions</h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-                        <button
-                            className="p-3 sm:p-4 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors flex flex-col items-center text-center"
-                        // onClick={() => navigate('/products')}
-                        >
-                            <AiOutlineShoppingCart className="text-xl sm:text-2xl text-blue-600 mb-1 sm:mb-2" />
-                            <span className="text-sm sm:text-base font-medium">New Order</span>
-                        </button>
-                        <button
-                            className="p-3 sm:p-4 bg-green-50 hover:bg-green-100 rounded-md transition-colors flex flex-col items-center text-center"
-                        // onClick={() => navigate('/support')}
-                        >
-                            <AiOutlineMessage className="text-xl sm:text-2xl text-green-600 mb-1 sm:mb-2" />
-                            <span className="text-sm sm:text-base font-medium">Support</span>
-                        </button>
-                        <button
-                            className="p-3 sm:p-4 bg-purple-50 hover:bg-purple-100 rounded-md transition-colors flex flex-col items-center text-center"
-                        // onClick={() => navigate('/documents')}
-                        >
-                            <AiOutlineFileSearch className="text-xl sm:text-2xl text-purple-600 mb-1 sm:mb-2" />
-                            <span className="text-sm sm:text-base font-medium">Track your order</span>
-                        </button>
-                        <button
-                            className="p-3 sm:p-4 bg-yellow-50 hover:bg-yellow-100 rounded-md transition-colors flex flex-col items-center text-center"
-                        // onClick={() => navigate('/reports')}
-                        >
-                            <AiOutlineLineChart className="text-xl sm:text-2xl text-yellow-600 mb-1 sm:mb-2" />
-                            <span className="text-sm sm:text-base font-medium">Reports</span>
-                        </button>
-                    </div>
-                </div>
-
-                {/* Recent Orders Table */}
-                <div className="bg-white rounded-lg shadow-sm mt-5 overflow-hidden">
-                    <div className="px-4 sm:px-6 py-3 border-b border-gray-100 flex justify-between items-center">
-                        <h2 className="text-sm sm:text-base font-semibold">Recent Orders</h2>
-                        <Link
-                            to="/dashboard/my-orders"
-                            className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium flex items-center"
-                        >
-                            <span className="hidden sm:inline">View All</span>
-                            <span className="sm:hidden">All →</span>
-                        </Link>
-                    </div>
-
-                    <div className="overflow-x-auto">
-                        <table className="w-full min-w-[600px] sm:min-w-0">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-3 sm:px-6 py-2 text-left text-xs sm:text-sm font-medium text-orange-500">Order ID</th>
-                                    <th className="px-3 sm:px-6 py-2 text-right text-xs sm:text-sm font-medium text-orange-500">Amount</th>
-                                    <th className="px-3 sm:px-6 py-2 text-left text-xs sm:text-sm font-medium text-orange-500">Payment</th>
-                                    <th className="px-3 sm:px-6 py-2 text-left text-xs sm:text-sm font-medium text-orange-500">Status</th>
-                                    <th className="px-3 sm:px-6 py-2 text-right text-xs sm:text-sm font-medium text-orange-500">Actions</th>
-                                </tr>
-                            </thead>
-
-                            <tbody className="divide-y divide-gray-100">
-                                {[...recentOrders]
-                                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                                    .map((order, index) => (
-                                        <tr key={index} className="hover:bg-gray-50 transition-colors">
-                                            <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-[90px] truncate">
-                                                <div className="flex items-center gap-2">
-                                                    <span>#{order._id.slice(-8)}</span>
-                                                    {Date.now() - new Date(order.createdAt) < 86400000 && (
-                                                        <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xxs">
-                                                            New
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <div className="text-xs text-gray-400 mt-1">
-                                                    {new Date(order.createdAt).toLocaleDateString('en-GB', {
-                                                        day: 'numeric',
-                                                        month: 'short',
-                                                        year: 'numeric'
-                                                    })}
-                                                </div>
-                                            </td>
-                                            <td className="px-3 sm:px-6 py-2 text-xs sm:text-sm text-gray-500 text-right">
-                                                {order.price && (
-                                                    <>
-                                                        ₦ {Number(order.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                                                    </>
-                                                )}
-                                            </td>
-                                            <td className="px-3 sm:px-6 py-2">
-                                                <span className={`${getStatusBadge(order.payment_status)} text-xs px-2 py-0.5`}>
-                                                    {order.payment_status}
-                                                </span>
-                                            </td>
-                                            <td className="px-3 sm:px-6 py-2">
-                                                <span className={`${getStatusBadge(order.delivery_status)} text-xs px-2 py-0.5`}>
-                                                    {order.delivery_status}
-                                                </span>
-                                            </td>
-                                            <td className="px-3 sm:px-6 py-2 text-right space-x-1 sm:space-x-2">
-                                                <Link
-                                                    to={`/dashboard/order/details/${order._id}`}
-                                                    className="inline-flex items-center pr-4 text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium"
-                                                >
-                                                    <AiOutlineFileSearch className="hidden sm:inline mr-1" />
-                                                    <span>View</span>
-                                                </Link>
-                                                {order.payment_status !== 'paid' && (
-                                                    <button
-                                                        onClick={() => redirect(order)}
-                                                        className="inline-flex items-center text-white hover:text-slate-800 bg-green-500 rounded-full px-3 text-xs sm:text-sm font-medium"
-                                                    >
-                                                        <AiOutlineShoppingCart className="hidden sm:inline mr-1" />
-                                                        <span>Pay</span>
-                                                        <span className='pl-1 hidden sm:inline'>now</span>
-                                                    </button>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+  return (
+    <div className="space-y-6 lg:space-y-8">
+      {/* Welcome Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gradient-to-r from-gray-900 via-black to-gray-900 rounded-2xl p-6 lg:p-8 text-white relative overflow-hidden"
+      >
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500 rounded-full -translate-y-32 translate-x-32"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-orange-400 rounded-full translate-y-24 -translate-x-24"></div>
         </div>
-    );
-};
 
-export default Index;
+        <div className="relative z-10">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <HiOutlineSparkles className="text-orange-400 text-xl" />
+                <h1 className="text-l lg:text-3xl font-bold">Hi,  {userInfo.name}!</h1>
+              </div>
+              <p className="text-gray-300 text-xs lg:text-base">Here's your shopping activity and account overview</p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => navigate("/dashboard/chat")}
+                className="flex items-center space-x-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm px-4 py-2.5 rounded-xl transition-all duration-300 border border-white/20"
+              >
+                <FiHeadphones className="text-lg" />
+                <span className="text-sm font-medium">Support</span>
+              </button>
+              <Link to="/">
+                <button className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 px-4 py-2.5 rounded-xl transition-all duration-300 font-medium">
+                  <FiHome className="text-lg" />
+                  <span className="text-sm">Back to Shop</span>
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+        {statsData.map((stat, index) => (
+          <motion.div
+            key={stat.title}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            className={`bg-white rounded-2xl p-4 lg:p-6 border-2 ${stat.borderColor} hover:shadow-lg transition-all duration-300 group`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <p className="text-gray-600 text-xs lg:text-sm font-medium">{stat.title}</p>
+                <p className="text-2xl lg:text-3xl font-bold text-gray-900">{stat.value || 0}</p>
+              </div>
+              <div
+                className={`p-3 lg:p-4 ${stat.bgColor} rounded-2xl group-hover:scale-110 transition-transform duration-300`}
+              >
+                <span className={`text-xl lg:text-2xl ${stat.textColor}`}>{stat.icon}</span>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Quick Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="bg-white rounded-2xl p-6 lg:p-8 border border-gray-200 shadow-sm"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg lg:text-xl font-bold text-gray-900">Quick Actions</h3>
+          <div className="w-12 h-1 bg-orange-500 rounded-full"></div>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {quickActions.map((action, index) => (
+            <motion.button
+              key={action.title}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={action.onClick}
+              className={`${action.color} p-4 lg:p-6 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl group`}
+            >
+              <div className="flex flex-col items-center space-y-3">
+                <span className="text-xl lg:text-3xl group-hover:scale-110 transition-transform duration-300">
+                  {action.icon}
+                </span>
+                <span className="text-xs lg:text-base font-semibold text-center leading-tight">{action.title}</span>
+              </div>
+            </motion.button>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Recent Orders */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
+      >
+        <div className="p-6 lg:p-8 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h2 className="text-sm lg:text-xl font-bold text-gray-900">Recent Orders</h2>
+            </div>
+            <Link
+              to="/dashboard/my-orders"
+              className="flex items-center space-x-2 text-orange-600 hover:text-orange-700 font-medium transition-colors duration-300"
+            >
+              <span className="text-sm lg:text-base">View All</span>
+              <FiEye className="text-lg" />
+            </Link>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Order Details
+                </th>
+                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Amount
+                </th>
+                <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Payment
+                </th>
+                <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {[...recentOrders]
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .slice(0, 5)
+                .map((order, index) => (
+                  <motion.tr
+                    key={order._id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-semibold text-xs font-semibold text-gray-900">#{order._id.slice(-8)}</span>
+                          {Date.now() - new Date(order.createdAt) < 86400000 && (
+                            <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                              New
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          {new Date(order.createdAt).toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </p>
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-4 text-right">
+                      <span className="text-sm font-bold text-gray-900">
+                        ₦
+                        {Number(order.price)
+                          .toFixed(2)
+                          .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                      </span>
+                    </td>
+
+                    <td className="px-6 py-4 text-center">
+                      <span className={getStatusBadge(order.payment_status)}>{order.payment_status}</span>
+                    </td>
+
+                    <td className="px-6 py-4 text-center">
+                      <span className={getStatusBadge(order.delivery_status)}>{order.delivery_status}</span>
+                    </td>
+
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end space-x-2">
+                        <Link
+                          to={`/dashboard/order/details/${order._id}`}
+                          className="inline-flex items-center space-x-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-300"
+                        >
+                          <FiEye className="text-sm" />
+                          <span className="text-sm font-medium">View</span>
+                        </Link>
+
+                        {order.payment_status !== "paid" && (
+                          <button
+                            onClick={() => redirect(order)}
+                            className="inline-flex items-center space-x-1 px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors duration-300"
+                          >
+                            <FiCreditCard className="text-sm" />
+                            <span className="text-sm font-medium">Pay Now</span>
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+            </tbody>
+          </table>
+
+          {recentOrders.length === 0 && (
+            <div className="text-center py-12">
+              <FiShoppingCart className="mx-auto text-4xl text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
+              <p className="text-gray-600 mb-6">Start shopping to see your orders here</p>
+              <button
+                onClick={() => navigate("/")}
+                className="inline-flex items-center space-x-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-medium transition-colors duration-300"
+              >
+                <FiShoppingCart />
+                <span>Start Shopping</span>
+              </button>
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+export default Index
