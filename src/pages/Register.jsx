@@ -268,7 +268,7 @@ const Register = () => {
                                 <button
                                     type="submit"
                                     disabled={!Object.values(validations).every(Boolean)}
-                                    className="w-full py-4 px-6 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-[1.02] shadow-md hover:shadow-orange-200 disabled:opacity-50 disabled:transform-none"
+                                    className="w-full py-4 px-6 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-[1.02] shadow-md hover:shadow-orange-200 disabled:opacity-50 disabled:transform-none"
                                 >
                                     Create Account
                                 </button>

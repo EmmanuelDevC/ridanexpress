@@ -12,6 +12,7 @@ import api from '../api/api'
 import { useDispatch } from 'react-redux'
 import { user_reset } from '../store/reducers/authReducer'
 import { reset_count } from '../store/reducers/cardReducer'
+import path from 'path'
 
 const MobileNav = () => {
     const location = useLocation()
@@ -41,6 +42,7 @@ const MobileNav = () => {
         { path: '/dashboard', icon: <RxDashboard />, label: 'Dashboard' },
         { path: '/dashboard/my-orders', icon: <FiPackage />, label: 'Orders' },
         { path: '/dashboard/my-wishlist', icon: <BsHeart />, label: 'Wishlist' },
+        { path: '/dashboard/chat', icon: <BsChat />, label: 'Chat', badge: 'New' },
         { path: '/dashboard/profile', icon: <AccountBoxOutlinedIcon />, label: 'Profile' },
     ]
 
@@ -107,7 +109,7 @@ const Dashboard = () => {
     const navItems = [
         { path: '/dashboard', icon: <RxDashboard />, label: 'Dashboard' },
         { path: '/dashboard/my-orders', icon: <FiPackage />, label: 'Orders' },
-        { path: '/dashboard/my-chat', icon: <BsChat />, label: 'Chat', badge: 'New' },
+        { path: '/dashboard/chat', icon: <BsChat />, label: 'Chat', badge: 'New' },
         { path: '/dashboard/my-wishlist', icon: <BsHeart />, label: 'Wishlist' },
         { path: '/dashboard/profile', icon: <AccountBoxOutlinedIcon />, label: 'Profile' },
     ]
