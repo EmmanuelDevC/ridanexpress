@@ -53,7 +53,7 @@ const MobileNav = () => {
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     className="fixed bottom-4 left-4 right-4 z-50 lg:hidden"
                 >
-                    <div className="bg-white shadow-2xl rounded-2xl border border-gray-200 overflow-hidden">
+                    <div className="bg-black shadow-2xl rounded-3xl py-1 px-3 border border-gray-200 overflow-hidden">
                         <div className="flex items-center">
                             {navItems.map((item, index) => (
                                 <Link
@@ -69,7 +69,7 @@ const MobileNav = () => {
                                                 }`}
                                         >
                                             <span
-                                                className={`text-lg transition-colors duration-300 ${location.pathname === item.path ? "text-white" : "text-gray-600 group-hover:text-orange-500"
+                                                className={`text-lg text-white transition-colors duration-300 ${location.pathname === item.path ? "text-white" : "text-gray-600 group-hover:text-orange-500"
                                                     }`}
                                             >
                                                 {item.icon}
@@ -80,7 +80,7 @@ const MobileNav = () => {
                                         )}
                                     </motion.div>
                                     <span
-                                        className={`text-xs font-medium mt-1 transition-colors duration-300 ${location.pathname === item.path ? "text-orange-500" : "text-gray-500 group-hover:text-orange-500"
+                                        className={`text-xs text-white font-semibold mt-1 transition-colors duration-300 ${location.pathname === item.path ? "text-orange-500" : "text-gray-500 group-hover:text-orange-500"
                                             }`}
                                     >
                                         {item.label}
@@ -245,7 +245,7 @@ const Dashboard = () => {
                             >
 
                                 {/* Page Content */}
-                                <div className="p-6 lg:p-8 pb-24 lg:pb-8">
+                                <div className="p-3 lg:p-8 pb-24 lg:pb-8">
                                     <Outlet />
                                 </div>
                             </motion.div>

@@ -80,10 +80,10 @@ const Profile = () => {
         className: "bg-red-50 text-red-800 border border-red-200",
         onClose: isSecurityError
           ? () => {
-              localStorage.removeItem("customerToken")
-              dispatch(user_reset())
-              navigate("/login")
-            }
+            localStorage.removeItem("customerToken")
+            dispatch(user_reset())
+            navigate("/login")
+          }
           : undefined,
       })
     }
@@ -251,35 +251,27 @@ const Profile = () => {
                     {userInfo.name?.charAt(0).toUpperCase() || "U"}
                   </span>
                 </div>
-                <button className="absolute -bottom-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-50 transition-colors duration-300">
-                  <FiCamera className="text-gray-600 text-sm" />
-                </button>
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <HiOutlineSparkles className="text-orange-400 text-xl" />
-                  <h1 className="text-2xl lg:text-3xl font-bold">Account Settings</h1>
+                  <h1 className="text-xl lg:text-3xl font-bold">Account Settings</h1>
                 </div>
-                <p className="text-gray-300 text-sm lg:text-base">Manage your profile and security settings</p>
                 <div className="flex items-center space-x-2">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                    Premium Member
-                  </span>
+                  <button
+                    onClick={logout}
+                    className="flex items-center space-x-2 bg-red-500/20 hover:bg-red-500/30 backdrop-blur-sm px-4 py-2.5 rounded-xl transition-all duration-300 border border-red-500/30 text-red-300 hover:text-red-200"
+                  >
+                    <FiLogOut className="text-lg" />
+                    <span className="text-sm font-medium">Sign Out</span>
+                  </button>
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                     Verified
                   </span>
                 </div>
               </div>
             </div>
-
-            <button
-              onClick={logout}
-              className="flex items-center space-x-2 bg-red-500/20 hover:bg-red-500/30 backdrop-blur-sm px-4 py-2.5 rounded-xl transition-all duration-300 border border-red-500/30 text-red-300 hover:text-red-200"
-            >
-              <FiLogOut className="text-lg" />
-              <span className="text-sm font-medium">Sign Out</span>
-            </button>
           </div>
         </div>
       </motion.div>
@@ -292,11 +284,10 @@ const Profile = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-2 py-4 border-b-2 font-medium text-sm transition-colors duration-300 ${
-                  activeTab === tab.id
+                className={`flex items-center space-x-2 py-4 border-b-2 font-medium text-sm transition-colors duration-300 ${activeTab === tab.id
                     ? "border-orange-500 text-orange-600"
                     : "border-transparent text-gray-500 hover:text-gray-700"
-                }`}
+                  }`}
               >
                 <span className="text-lg">{tab.icon}</span>
                 <span>{tab.label}</span>
