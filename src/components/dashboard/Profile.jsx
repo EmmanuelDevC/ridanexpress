@@ -223,7 +223,7 @@ const Profile = () => {
   ]
 
   return (
-    <div className="space-y-6 lg:space-y-8">
+    <div className="space-y-3 lg:space-y-8">
       <ToastContainer
         toastClassName="relative flex p-4 min-h-10 rounded-xl justify-between overflow-hidden cursor-pointer shadow-lg"
         bodyClassName="text-sm flex"
@@ -233,7 +233,7 @@ const Profile = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-gray-900 via-black to-gray-900 rounded-2xl p-6 lg:p-8 text-white relative overflow-hidden"
+        className="bg-gradient-to-r from-gray-900 via-black to-gray-900 rounded-xl p-6 lg:p-8 text-white relative overflow-hidden"
       >
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
@@ -246,7 +246,7 @@ const Profile = () => {
             <div className="flex items-center space-x-6">
               {/* Profile Avatar */}
               <div className="relative">
-                <div className="w-20 h-20 lg:w-24 lg:h-24 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-xl">
+                <div className="w-20 h-20 lg:w-24 lg:h-24 bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg flex items-center justify-center shadow-xl">
                   <span className="text-2xl lg:text-3xl font-bold text-white">
                     {userInfo.name?.charAt(0).toUpperCase() || "U"}
                   </span>
@@ -256,7 +256,7 @@ const Profile = () => {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <HiOutlineSparkles className="text-orange-400 text-xl" />
-                  <h1 className="text-xl lg:text-3xl font-bold">Account Settings</h1>
+                  <h1 className="text-sm lg:text-3xl font-bold">Account Settings</h1>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
@@ -264,11 +264,8 @@ const Profile = () => {
                     className="flex items-center space-x-2 bg-red-500/20 hover:bg-red-500/30 backdrop-blur-sm px-4 py-2.5 rounded-xl transition-all duration-300 border border-red-500/30 text-red-300 hover:text-red-200"
                   >
                     <FiLogOut className="text-lg" />
-                    <span className="text-sm font-medium">Sign Out</span>
+                    <span className="text-sm font-medium">Logout</span>
                   </button>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    Verified
-                  </span>
                 </div>
               </div>
             </div>
@@ -277,7 +274,7 @@ const Profile = () => {
       </motion.div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
         <div className="border-b border-gray-200">
           <nav className="flex space-x-8 px-6 lg:px-8">
             {tabs.map((tab) => (
@@ -296,12 +293,12 @@ const Profile = () => {
           </nav>
         </div>
 
-        <div className="p-6 lg:p-8">
+        <div className="p-5 lg:p-8">
           {activeTab === "profile" && (
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
               <div className="space-y-2">
-                <h3 className="text-xl font-bold text-gray-900">Personal Information</h3>
-                <p className="text-gray-600">Update your account details and email address.</p>
+                <h3 className="text-sm font-bold uppercase text-gray-900">Personal Information</h3>
+                {/* <p className="text-gray-600 text-sm">Update your account details and email address.</p> */}
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -385,8 +382,7 @@ const Profile = () => {
           {activeTab === "security" && (
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
               <div className="space-y-2">
-                <h3 className="text-xl font-bold text-gray-900">Security Settings</h3>
-                <p className="text-gray-600">Update your password and security preferences.</p>
+                <h3 className="text-sm uppercase font-bold text-gray-900">Security Settings</h3>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">

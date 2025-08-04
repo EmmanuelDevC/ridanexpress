@@ -38,8 +38,8 @@ const MobileNav = () => {
     const navItems = [
         { path: "/dashboard", icon: <FiGrid />, label: "Overview" },
         { path: "/dashboard/my-orders", icon: <HiOutlineShoppingBag />, label: "Orders" },
-        { path: "/dashboard/my-wishlist", icon: <BsHeart />, label: "Wishlist" },
-        { path: "/dashboard/chat", icon: <FiMessageCircle />, label: "Support", badge: true },
+        { path: "/dashboard/my-wishlist", icon: <BsHeart  />, label: "Wishlist" },
+        { path: "/dashboard/chat", icon: <FiMessageCircle />, label: "Chat", badge: true },
         { path: "/dashboard/profile", icon: <FiUser />, label: "Account" },
     ]
 
@@ -51,9 +51,9 @@ const MobileNav = () => {
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: 100, opacity: 0 }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    className="fixed bottom-4 left-4 right-4 z-50 lg:hidden"
+                    className="fixed bottom-0 left-0 right-0 z-50 lg:hidden"
                 >
-                    <div className="bg-black shadow-2xl rounded-3xl py-1 px-3 border border-gray-200 overflow-hidden">
+                    <div className="bg-black shadow-2xl rounded-2xl py-1 px-3 border border-gray-200 overflow-hidden">
                         <div className="flex items-center">
                             {navItems.map((item, index) => (
                                 <Link
@@ -80,7 +80,7 @@ const MobileNav = () => {
                                         )}
                                     </motion.div>
                                     <span
-                                        className={`text-xs text-white font-semibold mt-1 transition-colors duration-300 ${location.pathname === item.path ? "text-orange-500" : "text-gray-500 group-hover:text-orange-500"
+                                        className={`text-xs text-white  mt-1 transition-colors duration-300 ${location.pathname === item.path ? "text-orange-500" : "text-gray-500 group-hover:text-orange-500"
                                             }`}
                                     >
                                         {item.label}
@@ -114,8 +114,8 @@ const Dashboard = () => {
     }
 
     const navItems = [
-        { path: "/dashboard", icon: <FiGrid />, label: "Dashboard Overview", color: "text-blue-500" },
-        { path: "/dashboard/my-orders", icon: <HiOutlineShoppingBag />, label: "My Orders", color: "text-green-500" },
+        { path: "/dashboard", icon: <FiGrid />, label: "Dashboard Overview", color: "text-purple-500" },
+        { path: "/dashboard/my-orders", icon: <HiOutlineShoppingBag />, label: "My Orders", color: "text-purple-500" },
         {
             path: "/dashboard/chat",
             icon: <FiMessageCircle />,
@@ -123,8 +123,8 @@ const Dashboard = () => {
             badge: "New",
             color: "text-purple-500",
         },
-        { path: "/dashboard/my-wishlist", icon: <BsHeart />, label: "My Wishlist", color: "text-red-500" },
-        { path: "/dashboard/profile", icon: <FiUser />, label: "Account Settings", color: "text-orange-500" },
+        { path: "/dashboard/my-wishlist", icon: <BsHeart />, label: "My Wishlist", color: "text-purple-500" },
+        { path: "/dashboard/profile", icon: <FiUser />, label: "Account Settings", color: "text-purple-500" },
     ]
 
     return (
@@ -133,7 +133,7 @@ const Dashboard = () => {
 
             <div className="pt-8 lg:pt-32">
                 <div className="max-w-7xl mx-auto">
-                    <div className="flex flex-col lg:flex-row gap-5 lg:gap-8">
+                    <div className="flex flex-col lg:flex-row gap-2">
                         {/* Sidebar */}
                         <div className="lg:w-80 xl:w-96">
                             <div className="sticky top-24 lg:top-36">
@@ -141,22 +141,16 @@ const Dashboard = () => {
                                 {/* Sidebar Content */}
                                 <div className={`${isMobileMenuOpen ? "block" : "hidden"} lg:block`}>
                                     {/* User Profile Card */}
-                                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
+                                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-2">
                                         <div className="flex items-center space-x-4">
                                             <div className="relative">
                                                 <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
                                                     <FiUser className="text-2xl text-white" />
                                                 </div>
-                                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-3 border-white rounded-full"></div>
                                             </div>
                                             <div className="flex-1">
                                                 <h3 className="text-lg font-bold text-gray-900">Welcome back!</h3>
                                                 <p className="text-sm text-gray-600">Manage your account</p>
-                                                <div className="flex items-center mt-2">
-                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                                                        Premium Member
-                                                    </span>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>

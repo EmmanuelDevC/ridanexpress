@@ -91,38 +91,38 @@ const Index = () => {
 
     const quickActions = [
         {
-            title: "Shopping",
+            title: "Shop",
             icon: <FiShoppingCart />,
-            color: "bg-orange-500 hover:bg-orange-600 text-white",
+            color: "text-orange-500 ",
             onClick: () => navigate("/"),
         },
         {
-            title: "HQ Support",
+            title: "Support",
             icon: <FiHeadphones />,
-            color: "bg-blue-500 hover:bg-blue-600 text-white",
+            color: "text-blue-500 ",
             onClick: () => navigate("/dashboard/chat"),
         },
         {
-            title: "Track Orders",
+            title: "Orders",
             icon: <FiPackage />,
-            color: "bg-purple-500 hover:bg-purple-600 text-white",
+            color: "text-purple-500",
             onClick: () => navigate("/dashboard/my-orders"),
         },
         {
             title: "Order History",
-            icon: <FiBarChart2 />, // Changed from FiBarChart3 to FiBarChart2
-            color: "bg-green-500 hover:bg-green-600 text-white",
+            icon: <FiBarChart2 />,
+            color: "text-green-500 ",
             onClick: () => navigate("/dashboard/my-orders"),
         },
     ]
 
     return (
-        <div className="space-y-6 lg:space-y-8">
+        <div className="space-y-2 lg:space-y-4">
             {/* Welcome Header */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-gradient-to-r from-gray-900 via-black to-gray-900 rounded-2xl p-6 lg:p-8 text-white relative overflow-hidden"
+                className="bg-gradient-to-r from-gray-900 mt-2 via-black to-gray-900 rounded-2xl p-6 lg:p-8 text-white relative overflow-hidden"
             >
                 {/* Background Pattern */}
                 <div className="absolute inset-0 opacity-10">
@@ -135,21 +135,16 @@ const Index = () => {
                         <div className="space-y-2">
                             <div className="flex items-center space-x-2">
                                 <HiOutlineSparkles className="text-orange-400 text-xl" />
-                                <h1 className="text-l lg:text-3xl font-bold">Hi,  {userInfo.name}!</h1>
+                                <h1 className="text-l lg:text-2xl font-bold">Hi,  {userInfo.name}!</h1>
                             </div>
-                            <p className="text-gray-300 text-xs lg:text-base">Here's your shopping activity and account overview</p>
+                            <div className="flex items-center space-x-2">
+                                <p className="text-gray-300 text-xs lg:text-sm">Track your every move on Ridan Express😁</p>
+                            </div>
                         </div>
 
                         <div className="flex flex-wrap gap-3">
-                            <button
-                                onClick={() => navigate("/dashboard/chat")}
-                                className="flex items-center space-x-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm px-4 py-2.5 rounded-xl transition-all duration-300 border border-white/20"
-                            >
-                                <FiHeadphones className="text-lg" />
-                                <span className="text-sm font-medium">Support</span>
-                            </button>
                             <Link to="/">
-                                <button className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 px-4 py-2.5 rounded-xl transition-all duration-300 font-medium">
+                                <button className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 px-4 py-2.5 rounded-full transition-all duration-300 font-medium">
                                     <FiHome className="text-lg" />
                                     <span className="text-sm">Back to Shop</span>
                                 </button>
@@ -160,24 +155,24 @@ const Index = () => {
             </motion.div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-3">
                 {statsData.map((stat, index) => (
                     <motion.div
                         key={stat.title}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className={`bg-white rounded-2xl p-4 lg:p-6 border-2 ${stat.borderColor} hover:shadow-lg transition-all duration-300 group`}
+                        className={`bg-white rounded-2xl p-4 lg:py-7 border-2 ${stat.borderColor} transition-all duration-300 group`}
                     >
                         <div className="flex items-center justify-between">
                             <div className="space-y-2">
                                 <p className="text-gray-600 text-xs lg:text-sm font-medium">{stat.title}</p>
-                                <p className="text-2xl lg:text-3xl font-bold text-gray-900">{stat.value || 0}</p>
+                                <p className="text-xl lg:text-3xl font-bold text-gray-900">{stat.value || 0}</p>
                             </div>
                             <div
                                 className={`p-3 lg:p-4 ${stat.bgColor} rounded-2xl group-hover:scale-110 transition-transform duration-300`}
                             >
-                                <span className={`text-xl lg:text-2xl ${stat.textColor}`}>{stat.icon}</span>
+                                <span className={`text-lg lg:text-xl ${stat.textColor}`}>{stat.icon}</span>
                             </div>
                         </div>
                     </motion.div>
@@ -189,27 +184,28 @@ const Index = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="bg-white rounded-2xl p-6 lg:p-8 border border-gray-200 shadow-sm"
+                className="bg-white rounded-2xl p-3 lg:p-8 border border-gray-200 shadow-sm"
             >
+
                 <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg lg:text-xl font-bold text-gray-900">Quick Actions</h3>
+                    <h3 className="text-base lg:text-xl font-bold text-gray-900">Quick Actions</h3>
                     <div className="w-12 h-1 bg-orange-500 rounded-full"></div>
                 </div>
 
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-4 lg:grid-cols-4 gap-1">
                     {quickActions.map((action, index) => (
                         <motion.button
                             key={action.title}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={action.onClick}
-                            className={`${action.color} p-4 lg:p-6 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl group`}
+                            className={`rounded-xl transition-all duration-300 group`}
                         >
                             <div className="flex flex-col items-center space-y-3">
-                                <span className="text-xl lg:text-3xl group-hover:scale-110 transition-transform duration-300">
+                                <span className={`${action.color} text-xl lg:text-3xl group-hover:scale-110 transition-transform duration-300 `}>
                                     {action.icon}
                                 </span>
-                                <span className="text-xs lg:text-base font-semibold text-center leading-tight">{action.title}</span>
+                                <span className="text-xs lg:text-sm font-base text-center leading-tight">{action.title}</span>
                             </div>
                         </motion.button>
                     ))}
@@ -243,7 +239,7 @@ const Index = () => {
                         <thead className="bg-gray-50 border-b border-gray-200">
                             <tr>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                    Order Details
+                                    Orders
                                 </th>
                                 <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
                                     Amount

@@ -5,6 +5,18 @@ import {
 import api from '../../api/api'
 
 
+export const get_admin_products = createAsyncThunk(
+    'product/get_admin_products',
+    async (_, { fulfillWithValue, rejectWithValue }) => {
+        try {
+            const { data } = await api.get('/home/get-admin-products')
+            return fulfillWithValue(data)
+        } catch (error) {
+            return rejectWithValue(error.response.data || error.response)
+        }
+    }
+)
+
 export const get_category = createAsyncThunk(
     'product/get_category',
     async (_, {
@@ -190,6 +202,7 @@ export const homeReducer = createSlice({
         reviews: [],
         banners: [],
         loading: false,
+        adminProducts: [],// New state for admin view
         error: null
     },
     reducers: {
@@ -199,6 +212,12 @@ export const homeReducer = createSlice({
         }
     },
     extraReducers: {
+        [get_admin_products.fulfilled]: (state, { payload }) => {
+            state.adminProducts = payload.products;
+            state.latest_product = payload.latest_product;
+            state.topRated_product = payload.topRated_product;
+            state.discount_product = payload.discount_product;
+        },
         [get_category.fulfilled]: (state, {
             payload
         }) => {

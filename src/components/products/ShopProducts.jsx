@@ -8,11 +8,24 @@ import toast from 'react-hot-toast'
 import Ratings from '../Ratings'
 import { add_to_card, messageClear, add_to_wishlist } from '../../store/reducers/cardReducer'
 
-const ShopProducts = ({ products }) => {
+const ShopProducts = ({ products, isAdmin = false }) => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const { userInfo } = useSelector(state => state.auth)
     const { successMessage, errorMessage } = useSelector(state => state.card)
+
+    // Filter products based on user role and approval status
+    const getVisibleProducts = () => {
+        if (isAdmin) {
+            // Admins see all products
+            return products;
+        } else {
+            // Customers only see approved products
+            return products.filter(p => p.status === 'approved');
+        }
+    };
+    
+    const visibleProducts = getVisibleProducts();
 
     const add_card = (id, e) => {
         e.preventDefault()
@@ -39,33 +52,32 @@ const ShopProducts = ({ products }) => {
         }
     }, [errorMessage, successMessage])
 
-    const add_wishlist = (pro, e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        dispatch(add_to_wishlist({
-            userId: userInfo.id,
-            productId: pro._id,
-            name: pro.name,
-            price: pro.price,
-            image: pro.images[0],
-            discount: pro.discount,
-            rating: pro.rating,
-            slug: pro.slug
-        }))
-    }
-
     return (
         <div className='w-full max-w-7xl mx-auto py-0 lg:py-2 pb-6 px-1'>
 
             <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1 lg:gap-2'>
-                {products.map((p, i) => (
+                {visibleProducts.map((p, i) => (
                     <div key={i} className='bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 group overflow-hidden flex flex-col'>
                         <Link to={`/product/details/${p.slug}`} className='relative flex-1'>
+                            {/* Approval status badge */}
+                            {p.status === 'pending' && userInfo?.role === 'admin' && (
+                                <div className='absolute left-1 top-1 bg-yellow-500 text-white px-2 py-1 rounded-lg text-xs font-semibold z-10'>
+                                    Pending Approval
+                                </div>
+                            )}
+                            
+                            {p.status === 'rejected' && userInfo?.role === 'admin' && (
+                                <div className='absolute left-1 top-1 bg-red-500 text-white px-2 py-1 rounded-lg text-xs font-semibold z-10'>
+                                    Rejected
+                                </div>
+                            )}
+                            
                             {p.discount && (
-                                <div className='absolute left-1 top-1 bg-green-500 text-white px-3 py-1 rounded-lg text-xs font-semibold z-10'>
+                                <div className='absolute right-1 top-1 bg-green-500 text-white px-2 py-1 rounded-lg text-xs font-semibold z-10'>
                                     {p.discount}% OFF
                                 </div>
                             )}
+                            
                             <div className='aspect-square overflow-hidden'>
                                 <img
                                     className='w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105'

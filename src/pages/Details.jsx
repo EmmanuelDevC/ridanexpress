@@ -461,9 +461,9 @@ const Details = () => {
     return (
         <div className="bg-gray-50 overflow-x-hidden">
             <Headers />
-            <div className="py-2 mb-0 bg-gray-800 lg:mb-3 mt-[4rem] lg:mt-[8rem] md:mb-0">
+            <div className="py-2 mb-0 bg-black lg:mb-3 mt-[4rem] lg:mt-[10rem] md:mb-0">
                 <div className="w-[85%] xl:w-[90%] lg:w-[95%] md:w-full mx-auto">
-                    <Breadcrumb aria-label="breadcrumb" className="px-0 md:px-7 lg:px-5 dark:bg-gray-800">
+                    <Breadcrumb aria-label="breadcrumb" className="px-0 md:px-7 lg:px-5 dark:bg-transparent">
                         <Link to="/">
                             <Breadcrumb.Item>
                                 <HiHome className="text-white mr-1 text-lg" /> <span className="text-white">Home</span>
@@ -473,7 +473,7 @@ const Details = () => {
                             onClick={() => handleCategoryClick(product?.category)}
                         ><span className="text-white">{product?.category || "Unknown Category"}</span></Breadcrumb.Item>
                         <Breadcrumb.Item>
-                            <span className="text-white">
+                            <span className="text-white font-medium">
                                 {nameLimit && productName.length > nameLimit
                                     ? `${productName.substring(0, nameLimit)}...`
                                     : productName}
@@ -483,53 +483,86 @@ const Details = () => {
                 </div>
             </div>
             
-            <section className="w-[99%] xl:w-[90%] lg:w-[95%] md:w-full mx-auto py-6">
+            <section className="w-[100%] xl:w-[90%] lg:w-[100%] md:w-full mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
                     {/* Left Column - Product Images */}
-                    <div className="bg-white rounded-xl shadow-sm p-6">
-                        <div className="relative aspect-square w-full rounded-lg overflow-hidden mb-4">
-                            <img 
-                                src={image || product?.images?.[0]} 
-                                alt={product?.name || "Product image"} 
-                                className="w-full h-full object-contain"
-                            />
-                        </div>
-                        
-                        <div className="grid grid-cols-4 gap-2">
-                            {product?.images?.map((img, index) => (
-                                <button 
-                                    key={index} 
-                                    onClick={() => setImage(img)}
-                                    className={`aspect-square rounded-md overflow-hidden border-2 transition-all ${
-                                        image === img ? 'border-gray-900' : 'border-transparent'
-                                    }`}
-                                >
+                    <div className="bg-white rounded-xl shadow-sm p-3 lg:p-0 lg:my-8">
+                        {/* Desktop Gallery - Side by side layout */}
+                        <div className="hidden lg:flex gap-4">
+                            {/* Thumbnails Column */}
+                            <div className="flex flex-col gap-3 w-[80px]">
+                                {product?.images?.map((img, index) => (
+                                    <button 
+                                        key={index} 
+                                        onClick={() => setImage(img)}
+                                        className={`aspect-square rounded-md overflow-hidden border-2 transition-all ${
+                                            image === img ? 'border-orange-500 shadow-md' : 'border-transparent hover:border-orange-300'
+                                        }`}
+                                    >
+                                        <img 
+                                            src={img} 
+                                            alt={`Thumbnail ${index + 1}`} 
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                            
+                            {/* Main Image */}
+                            <div className="flex-1">
+                                <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-gray-100">
                                     <img 
-                                        src={img} 
-                                        alt={`Thumbnail ${index + 1}`} 
-                                        className="w-full h-full object-cover"
+                                        src={image || product?.images?.[0]} 
+                                        alt={product?.name || "Product image"} 
+                                        className="w-full h-full object-contain"
                                     />
-                                </button>
-                            ))}
-                        </div>
-                        
-                        <div className="mt-6 pt-4 border-t border-gray-100">
-                            <h3 className="text-lg font-semibold text-gray-800 mb-3">Share this product</h3>
-                            <div className="flex gap-3">
-                                <button className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
-                                    <XIcon className="text-gray-600 w-5 h-5" />
-                                </button>
-                                <button className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
-                                    <FacebookIcon className="text-gray-600 w-5 h-5" />
-                                </button>
-                                <button 
-                                    onClick={openWhatsApp}
-                                    className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
-                                >
-                                    <WhatsAppIcon className="text-gray-600 w-5 h-5" />
-                                </button>
+                                </div>
                             </div>
                         </div>
+                        
+                        {/* Mobile Gallery - Stacked layout */}
+                        <div className="lg:hidden">
+                            <div className="relative aspect-square w-full rounded-lg overflow-hidden mb-4 bg-gray-100">
+                                <img 
+                                    src={image || product?.images?.[0]} 
+                                    alt={product?.name || "Product image"} 
+                                    className="w-full h-full object-contain"
+                                />
+                            </div>
+                            
+                            <div className="grid grid-cols-4 gap-2">
+                                {product?.images?.map((img, index) => (
+                                    <button 
+                                        key={index} 
+                                        onClick={() => setImage(img)}
+                                        className={`aspect-square rounded-md overflow-hidden border-2 transition-all ${
+                                            image === img ? 'border-orange-500 shadow-md' : 'border-transparent hover:border-orange-300'
+                                        }`}
+                                    >
+                                        <img 
+                                            src={img} 
+                                            alt={`Thumbnail ${index + 1}`} 
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="mt-6 p-4 bg-orange-50 hidden lg:block rounded-lg border border-orange-100">
+                                <div className="flex items-start gap-3">
+                                    <SupportAgentIcon className="text-orange-600 mt-1" />
+                                    <div>
+                                        <h4 className="font-medium text-gray-900">Ridan Support</h4>
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            Have any questions? Our We are always happy to help.
+                                        </p>
+                                        <a href="tel:07006000000" className="text-orange-600 hover:text-orange-700 text-sm font-medium mt-2 inline-block">
+                                            0700 600 0000
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        
                     </div>
                     
                     {/* Middle Column - Product Details */}
@@ -558,8 +591,8 @@ const Details = () => {
                                     ₦ {product && (product.price - (product.price * product.discount) / 100).toLocaleString()}
                                 </span>
                                 {product?.discount > 0 && (
-                                    <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-sm">
-                                        {product.discount}% off
+                                    <span className="px-2 py-1 bg-red-500 text-white rounded-full text-sm font-bold">
+                                        {product.discount}% OFF
                                     </span>
                                 )}
                                 {product?.discount > 0 && (
@@ -601,20 +634,20 @@ const Details = () => {
                                     <button
                                         onClick={buy}
                                         disabled={!product?.stock}
-                                        className="col-span-2 bg-[#C48A47] hover:bg-gray-600 text-white py-3 rounded-lg font-medium transition-all disabled:opacity-50"
+                                        className="col-span-2 bg-gray-800 hover:from-orange-700 hover:to-red-700 text-white py-3 rounded-2xl font-medium transition-all disabled:opacity-50 shadow-md"
                                     >
                                         Buy Now
                                     </button>
                                     <button
                                         onClick={add_card}
                                         disabled={!product?.stock}
-                                        className="flex items-center justify-center gap-2 border border-gray-900 text-gray-900 py-2.5 rounded-lg hover:bg-orange-50"
+                                        className="flex items-center justify-center gap-2 border border-orange-500 text-orange-600 py-2.5 rounded-lg hover:bg-orange-50 transition-colors"
                                     >
                                         <ShoppingCartCheckout /> Add to Cart
                                     </button>
                                     <button
                                         onClick={add_wishlist}
-                                        className="flex items-center justify-center gap-2 border border-gray-300 text-gray-600 py-2.5 rounded-lg hover:bg-gray-50"
+                                        className="flex items-center justify-center gap-2 border border-gray-300 text-gray-600 py-2.5 rounded-lg hover:bg-gray-50 transition-colors"
                                     >
                                         <FavoriteBorder /> Wishlist
                                     </button>
@@ -658,15 +691,15 @@ const Details = () => {
                                 </FormControl>
                             </div>
                             
-                            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                            <div className="mt-6 p-4 bg-orange-50 rounded-lg block lg:hidden border border-orange-100">
                                 <div className="flex items-start gap-3">
-                                    <SupportAgentIcon className="text-blue-600 mt-1" />
+                                    <SupportAgentIcon className="text-orange-600 mt-1" />
                                     <div>
                                         <h4 className="font-medium text-gray-900">Customer Support</h4>
                                         <p className="text-sm text-gray-600 mt-1">
                                             Have questions about this product? Our support team is here to help.
                                         </p>
-                                        <a href="tel:07006000000" className="text-blue-600 hover:text-blue-700 text-sm font-medium mt-2 inline-block">
+                                        <a href="tel:07006000000" className="text-orange-600 hover:text-orange-700 text-sm font-medium mt-2 inline-block">
                                             0700 600 0000
                                         </a>
                                     </div>
@@ -682,14 +715,14 @@ const Details = () => {
                                 <h2 className="text-xl font-semibold text-gray-900">Seller Information</h2>
                                 <Link
                                     to={`/seller/${product?.sellerId}`}
-                                    className="text-sm text-gray-900 hover:text-orange-600 font-medium"
+                                    className="text-sm text-orange-600 hover:text-orange-700 font-medium"
                                 >
                                     View Store
                                 </Link>
                             </div>
                             
                             <div className="flex items-center gap-4 mb-6">
-                                <div className="w-14 h-14 rounded-full bg-[#C48A47] flex items-center justify-center">
+                                <div className="w-14 h-14 rounded-full bg-gradient-to-r from-gray-700 to-red-600 flex items-center justify-center">
                                     <span className="text-white text-xl font-bold">
                                         {product?.shopName?.charAt(0).toUpperCase() || 'S'}
                                     </span>
@@ -706,18 +739,11 @@ const Details = () => {
                             <div className="space-y-3">
                                 <Link
                                     to={`/dashboard/chat/${product?.sellerId}`}
-                                    className="w-full flex items-center justify-center gap-2 bg-[#C48A47] text-white py-3 rounded-lg hover:bg-gray-500 transition-colors"
+                                    className="w-full flex items-center justify-center gap-2 bg-gray-900 text-white py-3 rounded-2xl hover:from-orange-700 hover:to-red-700 transition-all shadow-md"
                                 >
                                     <SupportAgentIcon fontSize="small" />
                                     Ask Question
                                 </Link>
-                                {/* <button
-                                    onClick={openWhatsApp}
-                                    className="w-full flex items-center justify-center gap-2 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors"
-                                >
-                                    <WhatsAppIcon fontSize="small" />
-                                    Chat via WhatsApp
-                                </button> */}
                             </div>
                         </div>
                         
@@ -726,7 +752,7 @@ const Details = () => {
                             <div className="space-y-4">
                                 <div className="flex gap-3">
                                     <div className="mt-1">
-                                        <LocalShippingOutlinedIcon className="text-gray-900" />
+                                        <LocalShippingOutlinedIcon className="text-orange-600" />
                                     </div>
                                     <div>
                                         <h4 className="font-medium text-gray-900">Standard Delivery</h4>
@@ -741,7 +767,7 @@ const Details = () => {
                                 
                                 <div className="flex gap-3">
                                     <div className="mt-1">
-                                        <LocalShippingOutlinedIcon className="text-gray-900" />
+                                        <LocalShippingOutlinedIcon className="text-orange-600" />
                                     </div>
                                     <div>
                                         <h4 className="font-medium text-gray-900">Express Delivery</h4>
@@ -767,8 +793,8 @@ const Details = () => {
                             <button
                                 onClick={() => setState("description")}
                                 className={`px-6 py-4 font-medium ${state === 'description'
-                                    ? 'text-gray-900 border-b-2 border-gray-900'
-                                    : 'text-gray-500 hover:text-gray-700'
+                                    ? 'text-orange-600 border-b-2 border-orange-600'
+                                    : 'text-gray-500 hover:text-orange-500'
                                     }`}
                             >
                                 Description
@@ -776,8 +802,8 @@ const Details = () => {
                             <button
                                 onClick={() => setState("reviews")}
                                 className={`px-6 py-4 font-medium ${state === 'reviews'
-                                    ? 'text-gray-900 border-b-2 border-gray-900'
-                                    : 'text-gray-500 hover:text-gray-700'
+                                    ? 'text-orange-600 border-b-2 border-orange-600'
+                                    : 'text-gray-500 hover:text-orange-500'
                                     }`}
                             >
                                 Reviews ({product?.totalReviews || 0})
@@ -804,7 +830,7 @@ const Details = () => {
                         <h2 className="text-xl font-semibold text-gray-900">Related Products</h2>
                         <Link
                             to="/products"
-                            className="text-gray-900 hover:text-orange-600 font-medium flex items-center gap-1"
+                            className="text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1"
                         >
                             View All 
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -823,7 +849,7 @@ const Details = () => {
                                     <div className="bg-white rounded-lg border border-gray-100 hover:shadow-md transition-all duration-300 overflow-hidden relative h-full flex flex-col">
                                         <div className="relative flex-1">
                                             {p.discount > 0 && (
-                                                <div className="absolute left-2 top-2 bg-gray-900 text-white px-2 py-1 rounded-full text-xs font-bold z-10">
+                                                <div className="absolute left-2 top-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold z-10">
                                                     {p.discount}% OFF
                                                 </div>
                                             )}
@@ -877,12 +903,12 @@ const Details = () => {
                             </div>
                             <button
                                 onClick={redirect_card_page}
-                                className="flex items-center gap-2 bg-[#C48A47] text-white px-5 py-2.5 rounded-lg font-medium hover:bg-gray-600 transition-colors"
+                                className="flex items-center gap-2 bg-gradient-to-r from-orange-600 to-red-600 text-white px-5 py-2.5 rounded-lg font-medium hover:from-orange-700 hover:to-red-700 transition-colors shadow-md"
                             >
                                 <AiOutlineShoppingCart className="text-lg" />
                                 <span>View Cart</span>
                                 {card_product_count > 0 && (
-                                    <span className="bg-white text-gray-900 rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                                    <span className="bg-white text-orange-600 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
                                         {card_product_count}
                                     </span>
                                 )}

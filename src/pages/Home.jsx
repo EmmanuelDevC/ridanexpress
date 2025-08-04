@@ -26,7 +26,7 @@ const Home = () => {
         <div style={{ overflowX: "hidden" }} className='w-full bg-slate-100 '>
             <Heders />
             <div className=' mt-[4.5rem] lg:mt-[9rem]'>
-                <div className='max-w-[1440px] mx-auto px-1 sm:px-5 lg:px-5 md:px-10'>
+                <div className='max-w-[1440px] mx-auto lg:mt-[11rem] px-1 sm:px-5 lg:px-5 md:px-10'>
                     <Banner />
                 </div>
                 <div className=' max-w-[1440px] mx-auto px-2 sm:px-5 lg:px-[5rem] md:px-10'>
