@@ -255,7 +255,7 @@ const Headers = () => {
         <header className={`w-full bg-white ${isScrolled ? 'shadow-lg' : 'shadow-sm'} fixed top-0 z-50 transition-all duration-300`}>
             {/* Top info bar */}
             <div className="bg-gradient-to-r from-gray-900 to-gray-600 py-2 hidden md:block">
-                <div className="container mx-auto px-4">
+                <div className="container mx-auto ">
                     <div className="flex justify-between items-center text-white text-sm">
                         <div className="flex items-center space-x-6">
                             <span className="flex items-center hover:text-primary-200 transition-colors">

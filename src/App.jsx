@@ -28,6 +28,8 @@ import CustomerReview from './pages/CustomerReview';
 import Profile from './components/dashboard/Profile';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import NewArrivals from './pages/NewArrivals';
+import BestSellers from './pages/BestSellers';
 
 
 function App() {
@@ -46,6 +48,8 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path='/' element={<Home />} />
           <Route path='/shops' element={<Shops />} />
+          <Route path='/new-arrivals' element={<NewArrivals />} />
+          <Route path='/best-sellers' element={<BestSellers />} />
           <Route path='/seller/:sellerId' element={<Seller />} />
           <Route path='/products' element={<CategoryShops />} />
           <Route path='/product/:slug/reviews' element={<CustomerReview />} />

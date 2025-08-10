@@ -12,7 +12,7 @@ import {
     FiHome,
     FiHeadphones,
     FiPackage,
-    FiBarChart2, // Changed from FiBarChart3 to FiBarChart2
+    FiBarChart2,
 } from "react-icons/fi"
 import { HiOutlineSparkles } from "react-icons/hi"
 import { useSelector, useDispatch } from "react-redux"
@@ -213,139 +213,264 @@ const Index = () => {
             </motion.div>
 
             {/* Recent Orders */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
-            >
-                <div className="p-6 lg:p-8 border-b border-gray-200">
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                            <h2 className="text-sm lg:text-xl font-bold text-gray-900">Recent Orders</h2>
+            {/* Large screen view */}
+            <div className="hidden lg:block">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
+                >
+                    <div className="p-6 lg:p-8 border-b border-gray-200">
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                                <h2 className="text-sm lg:text-xl font-bold text-gray-900">Recent Orders</h2>
+                            </div>
+                            <Link
+                                to="/dashboard/my-orders"
+                                className="flex items-center space-x-2 text-orange-600 hover:text-orange-700 font-medium transition-colors duration-300"
+                            >
+                                <span className="text-sm lg:text-base">View All</span>
+                                <FiEye className="text-lg" />
+                            </Link>
                         </div>
-                        <Link
-                            to="/dashboard/my-orders"
-                            className="flex items-center space-x-2 text-orange-600 hover:text-orange-700 font-medium transition-colors duration-300"
-                        >
-                            <span className="text-sm lg:text-base">View All</span>
-                            <FiEye className="text-lg" />
-                        </Link>
                     </div>
-                </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-gray-50 border-b border-gray-200">
-                            <tr>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                    Orders
-                                </th>
-                                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                    Amount
-                                </th>
-                                <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                    Payment
-                                </th>
-                                <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                    Actions
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                            {[...recentOrders]
-                                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                                .slice(0, 5)
-                                .map((order, index) => (
-                                    <motion.tr
-                                        key={order._id}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: index * 0.1 }}
-                                        className="hover:bg-gray-50 transition-colors duration-200"
-                                    >
-                                        <td className="px-6 py-4">
-                                            <div className="space-y-1">
-                                                <div className="flex items-center space-x-2">
-                                                    <span className="font-semibold text-xs font-semibold text-gray-900">#{order._id.slice(-8)}</span>
-                                                    {Date.now() - new Date(order.createdAt) < 86400000 && (
-                                                        <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                                                            New
-                                                        </span>
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                        Orders
+                                    </th>
+                                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                        Amount
+                                    </th>
+                                    <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                        Payment
+                                    </th>
+                                    <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                        Status
+                                    </th>
+                                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                                {[...recentOrders]
+                                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                                    .slice(0, 5)
+                                    .map((order, index) => (
+                                        <motion.tr
+                                            key={order._id}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: index * 0.1 }}
+                                            className="hover:bg-gray-50 transition-colors duration-200"
+                                        >
+                                            <td className="px-6 py-4">
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center space-x-2">
+                                                        <span className="font-semibold text-xs font-semibold text-gray-900">#{order._id.slice(-8)}</span>
+                                                        {Date.now() - new Date(order.createdAt) < 86400000 && (
+                                                            <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                                                                New
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-xs text-gray-500">
+                                                        {new Date(order.createdAt).toLocaleDateString("en-GB", {
+                                                            day: "numeric",
+                                                            month: "short",
+                                                            year: "numeric",
+                                                        })}
+                                                    </p>
+                                                </div>
+                                            </td>
+
+                                            <td className="px-6 py-4 text-right">
+                                                <span className="text-sm font-bold text-gray-900">
+                                                    ₦
+                                                    {Number(order.price)
+                                                        .toFixed(2)
+                                                        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                                </span>
+                                            </td>
+
+                                            <td className="px-6 py-4 text-center">
+                                                <span className={getStatusBadge(order.payment_status)}>{order.payment_status}</span>
+                                            </td>
+
+                                            <td className="px-6 py-4 text-center">
+                                                <span className={getStatusBadge(order.delivery_status)}>{order.delivery_status}</span>
+                                            </td>
+
+                                            <td className="px-6 py-4 text-right">
+                                                <div className="flex items-center justify-end space-x-2">
+                                                    <Link
+                                                        to={`/dashboard/order/details/${order._id}`}
+                                                        className="inline-flex items-center space-x-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-300"
+                                                    >
+                                                        <FiEye className="text-sm" />
+                                                        <span className="text-sm font-medium">View</span>
+                                                    </Link>
+
+                                                    {order.payment_status !== "paid" && (
+                                                        <button
+                                                            onClick={() => redirect(order)}
+                                                            className="inline-flex items-center space-x-1 px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors duration-300"
+                                                        >
+                                                            <FiCreditCard className="text-sm" />
+                                                            <span className="text-sm font-medium">Pay Now</span>
+                                                        </button>
                                                     )}
                                                 </div>
-                                                <p className="text-xs text-gray-500">
-                                                    {new Date(order.createdAt).toLocaleDateString("en-GB", {
-                                                        day: "numeric",
-                                                        month: "short",
-                                                        year: "numeric",
-                                                    })}
-                                                </p>
+                                            </td>
+                                        </motion.tr>
+                                    ))}
+                            </tbody>
+                        </table>
+
+                        {recentOrders.length === 0 && (
+                            <div className="text-center py-12">
+                                <FiShoppingCart className="mx-auto text-4xl text-gray-400 mb-4" />
+                                <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
+                                <p className="text-gray-600 mb-6">Start shopping to see your orders here</p>
+                                <button
+                                    onClick={() => navigate("/")}
+                                    className="inline-flex items-center space-x-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-medium transition-colors duration-300"
+                                >
+                                    <FiShoppingCart />
+                                    <span>Start Shopping</span>
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </motion.div>
+            </div>
+
+            {/* Mobile screen view */}
+            <div className="block lg:hidden">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
+                >
+                    <div className="p-4 lg:p-6 border-b border-gray-200">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h2 className="text-lg lg:text-xl font-bold text-gray-900">Recent Orders</h2>
+                                <p className="text-xs text-gray-500 mt-1">Your latest transactions</p>
+                            </div>
+                            <Link
+                                to="/dashboard/my-orders"
+                                className="flex items-center space-x-1 text-orange-600 hover:text-orange-700 font-medium transition-colors duration-300 text-sm"
+                            >
+                                <span>View All</span>
+                                <FiEye className="text-base" />
+                            </Link>
+                        </div>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="lg:hidden">
+                        {recentOrders.length === 0 ? (
+                            <div className="text-center py-4 px-2">
+                                <FiShoppingCart className="mx-auto text-3xl text-gray-400 mb-3" />
+                                <h3 className="text-base font-medium text-gray-900 mb-1">No orders yet</h3>
+                                <p className="text-gray-600 mb-4 text-sm">Start shopping to see your orders here</p>
+                                <button
+                                    onClick={() => navigate("/")}
+                                    className="inline-flex items-center space-x-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors duration-300 text-sm"
+                                >
+                                    <FiShoppingCart />
+                                    <span>Start Shopping</span>
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="space-y-2 p-1">
+                                {[...recentOrders]
+                                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                                    .slice(0, 5)
+                                    .map((order, index) => (
+                                        <motion.div
+                                            key={order._id}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: index * 0.1 }}
+                                            className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md"
+                                        >
+                                            <div className="p-4">
+                                                <div className="flex justify-between items-start mb-3">
+                                                    <div>
+                                                        <div className="flex items-center space-x-2 mb-1">
+                                                            <span className="font-semibold text-gray-900">#{order._id.slice(-8)}</span>
+                                                            {Date.now() - new Date(order.createdAt) < 86400000 && (
+                                                                <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                                                                    New
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-xs text-gray-500">
+                                                            {new Date(order.createdAt).toLocaleDateString("en-GB", {
+                                                                day: "numeric",
+                                                                month: "short",
+                                                                year: "numeric",
+                                                            })}
+                                                        </p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <span className="text-base font-bold text-gray-900 block">
+                                                            ₦{Number(order.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                                        </span>
+                                                        <span className="text-xs text-gray-500 mt-1">Total</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="mt-4 flex justify-between items-center">
+                                                    <div>
+                                                        <p className="text-xs text-gray-500 mb-1">Payment</p>
+                                                        <span className={getStatusBadge(order.payment_status)}>
+                                                            {order.payment_status}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs text-gray-500 mb-1">Delivery</p>
+                                                        <span className={getStatusBadge(order.delivery_status)}>
+                                                            {order.delivery_status}
+                                                        </span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </td>
 
-                                        <td className="px-6 py-4 text-right">
-                                            <span className="text-sm font-bold text-gray-900">
-                                                ₦
-                                                {Number(order.price)
-                                                    .toFixed(2)
-                                                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                                            </span>
-                                        </td>
-
-                                        <td className="px-6 py-4 text-center">
-                                            <span className={getStatusBadge(order.payment_status)}>{order.payment_status}</span>
-                                        </td>
-
-                                        <td className="px-6 py-4 text-center">
-                                            <span className={getStatusBadge(order.delivery_status)}>{order.delivery_status}</span>
-                                        </td>
-
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end space-x-2">
+                                            <div className="bg-gray-50 px-4 py-3 flex justify-end space-x-3">
                                                 <Link
                                                     to={`/dashboard/order/details/${order._id}`}
-                                                    className="inline-flex items-center space-x-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-300"
+                                                    className="inline-flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-300 text-sm"
                                                 >
                                                     <FiEye className="text-sm" />
-                                                    <span className="text-sm font-medium">View</span>
+                                                    <span>View Details</span>
                                                 </Link>
 
                                                 {order.payment_status !== "paid" && (
                                                     <button
                                                         onClick={() => redirect(order)}
-                                                        className="inline-flex items-center space-x-1 px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors duration-300"
+                                                        className="inline-flex items-center space-x-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors duration-300 text-sm"
                                                     >
                                                         <FiCreditCard className="text-sm" />
-                                                        <span className="text-sm font-medium">Pay Now</span>
+                                                        <span>Pay Now</span>
                                                     </button>
                                                 )}
                                             </div>
-                                        </td>
-                                    </motion.tr>
-                                ))}
-                        </tbody>
-                    </table>
-
-                    {recentOrders.length === 0 && (
-                        <div className="text-center py-12">
-                            <FiShoppingCart className="mx-auto text-4xl text-gray-400 mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
-                            <p className="text-gray-600 mb-6">Start shopping to see your orders here</p>
-                            <button
-                                onClick={() => navigate("/")}
-                                className="inline-flex items-center space-x-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-medium transition-colors duration-300"
-                            >
-                                <FiShoppingCart />
-                                <span>Start Shopping</span>
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </motion.div>
+                                        </motion.div>
+                                    ))}
+                            </div>
+                        )}
+                    </div>
+                </motion.div>
+            </div>
         </div>
     )
 }

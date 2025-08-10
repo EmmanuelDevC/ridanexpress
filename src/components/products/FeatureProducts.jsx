@@ -71,7 +71,7 @@ const FeatureProducts = ({ products, isAdmin = false }) => {
     }
 
     return (
-        <div className='w-full max-w-7xl mx-auto py-0 lg:py-2 px-1'>
+        <div className='w-full mx-auto py-0 lg:py-2 px-1'>
 
             {/* Header Section - Updated to light brown */}
             <div className="flex bg-gradient-to-r from-orange-600 to-amber-700 px-3 py-2 rounded-xl justify-between items-center mb-4 shadow-lg">

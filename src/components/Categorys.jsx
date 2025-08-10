@@ -50,9 +50,9 @@ const Categorys = () => {
 
   return (
     <div className="mb-1">
-      <div className="bg-white rounded-lg mt-3 lg:mt-0 shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
         {/* Header Section - Maintained your original structure */}
-        <div className="flex items-center bg-none lg:bg-gray-900 rounded-t-lg justify-between px-2 py-2 lg:px-4 lg:py-2">
+        <div className="flex items-center bg-none lg:bg-gray-900 rounded-t-lg justify-between px-2 py-2 lg:px-4">
           <div className="flex items-center space-x-4">
             <h2 className="text-lg lg:text-xl font-semibold lg:font-bold text-orange-500 lg:text-white">
               Trending Categories

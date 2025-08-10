@@ -4,7 +4,7 @@ import Heders from '../components/Headers'
 import Banner from '../components/Banner'
 import Categorys from '../components/Categorys'
 import FeatureProducts from '../components/products/FeatureProducts'
-// import Products from '../components/products/Products'
+import Products from '../components/products/Products'
 import Footer from '../components/Footer'
 import { get_category, get_products } from '../store/reducers/homeReducer'
 import BottomNav from '../components/BottomNav'
@@ -25,14 +25,14 @@ const Home = () => {
     return (
         <div style={{ overflowX: "hidden" }} className='w-full bg-slate-100 '>
             <Heders />
-            <div className=' mt-[4.5rem] lg:mt-[9rem]'>
-                <div className='max-w-[1440px] mx-auto lg:mt-[11rem] px-1 sm:px-5 lg:px-5 md:px-10'>
+            <div className='mt-[4.5rem] px- lg:mt-[9rem]'>
+                <div className='max-w-[1440px] mx-auto px-1'>
                     <Banner />
                 </div>
-                <div className=' max-w-[1440px] mx-auto px-2 sm:px-5 lg:px-[5rem] md:px-10'>
+                <div className=' max-w-[1440px] mx-auto px-2 sm:px-5 md:px-10'>
                     <Categorys />
                 </div>
-                <div className='px-0 mb-[1rem] md:px-[33px] lg:px-[75px]'>
+                <div className='max-w-[1440px] mx-auto'>
                     <FeatureProducts products={products} />
                 </div>
             </div>
