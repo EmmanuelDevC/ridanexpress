@@ -1,21 +1,295 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { FiPackage, FiCopy, FiCheckCircle, FiTruck, FiHome, FiUser, FiMapPin, FiMail } from 'react-icons/fi';
+import { 
+  FiPackage, FiCopy, FiCheckCircle, FiTruck, FiHome, 
+  FiUser, FiMapPin, FiMail, FiDownload, FiShare2, 
+  FiX, FiMessageSquare, FiFacebook, FiMail as FiEmailIcon
+} from 'react-icons/fi';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { format, parseISO } from 'date-fns';
 import { get_order } from '../../store/reducers/orderReducer';
 
+// Custom hook for mobile detection
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
+};
+
+// ExportButton component
+const ExportButton = ({ orderId, orderData }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [subMenuOpen, setSubMenuOpen] = useState(false);
+  const [generatingPDF, setGeneratingPDF] = useState(false);
+  const isMobile = useIsMobile();
+  const menuRef = useRef(null);
+  const buttonRef = useRef(null);
+
+  // Close menus when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target) && 
+          buttonRef.current && !buttonRef.current.contains(event.target)) {
+        setMenuOpen(false);
+        setSubMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Handle escape key
+  useEffect(() => {
+    const handleEsc = (event) => {
+      if (event.key === 'Escape') {
+        setMenuOpen(false);
+        setSubMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, []);
+
+  // Generate PDF
+  const generatePDF = useCallback(async () => {
+    setGeneratingPDF(true);
+    try {
+      // Dynamically import heavy libraries
+      const [html2canvas, jspdf] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf')
+      ]);
+
+      const element = document.getElementById('order-container');
+      if (!element) throw new Error('Order container not found');
+
+      const canvas = await html2canvas.default(element, { 
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff"
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jspdf.default('p', 'mm', 'a4');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`order-${orderId}.pdf`);
+      toast.success('PDF downloaded successfully!');
+    } catch (error) {
+      toast.error('Failed to generate PDF');
+      console.error('PDF generation error:', error);
+    } finally {
+      setGeneratingPDF(false);
+      setMenuOpen(false);
+    }
+  }, [orderId]);
+
+  // Share order - FIXED FUNCTION
+  const shareOrder = useCallback((platform) => {
+    const orderUrl = window.location.href;
+    const message = `Check out my order details: ${orderUrl}`;
+    
+    switch(platform) {
+      case 'whatsapp':
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
+        break;
+      case 'facebook':
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(orderUrl)}`, '_blank');
+        break;
+      case 'email':
+        window.location.href = `mailto:?subject=Order%20Details&body=${encodeURIComponent(message)}`;
+        break;
+      default:
+        break;
+    }
+    
+    toast.info(`Sharing via ${platform}`);
+    setMenuOpen(false);
+    setSubMenuOpen(false);
+  }, []);
+
+  // Menu variants for animations
+  const menuVariants = {
+    hidden: { 
+      opacity: 0, 
+      y: isMobile ? 50 : -20,
+      scale: 0.95 
+    },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      scale: 1,
+      transition: { 
+        duration: 0.2,
+        ease: "easeOut"
+      }
+    },
+    exit: { 
+      opacity: 0, 
+      y: isMobile ? 50 : -20,
+      scale: 0.95,
+      transition: { 
+        duration: 0.15 
+      } 
+    }
+  };
+
+  return (
+    <div className="relative">
+      <button
+        ref={buttonRef}
+        onClick={() => setMenuOpen(!menuOpen)}
+        className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+        aria-haspopup="true"
+        aria-expanded={menuOpen}
+        aria-label="Export options"
+      >
+        <FiDownload className="text-gray-700" />
+        <span className="hidden sm:inline text-sm font-medium">Download reciept</span>
+      </button>
+
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            ref={menuRef}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={menuVariants}
+            className={`absolute z-50 mt-2 w-48 bg-white rounded-xl shadow-lg overflow-hidden ${
+              isMobile 
+                ? 'fixed bottom-0 left-0 right-0 rounded-b-none w-full max-w-md mx-auto'
+                : 'right-0'
+            }`}
+            role="menu"
+            aria-orientation="vertical"
+          >
+            {isMobile && (
+              <div className="flex justify-between items-center p-4 border-b">
+                <h3 className="font-semibold text-gray-900">Export Order</h3>
+                <button 
+                  onClick={() => setMenuOpen(false)}
+                  aria-label="Close menu"
+                  className="p-1 hover:bg-gray-100 rounded-md"
+                >
+                  <FiX className="text-gray-500 text-lg" />
+                </button>
+              </div>
+            )}
+            
+            <ul>
+              <li>
+                <button
+                  onClick={generatePDF}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                  role="menuitem"
+                  disabled={generatingPDF}
+                >
+                  <FiDownload className="text-indigo-600" />
+                  <span className="flex-1">
+                    {generatingPDF ? 'Generating...' : 'Download as PDF'}
+                  </span>
+                  {generatingPDF && (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600" />
+                  )}
+                </button>
+              </li>
+              
+              <li 
+                onMouseEnter={!isMobile ? () => setSubMenuOpen(true) : undefined}
+                onClick={isMobile ? () => setSubMenuOpen(true) : undefined}
+                className="relative"
+              >
+                {/* <button
+                  className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                  role="menuitem"
+                  aria-haspopup="true"
+                  aria-expanded={subMenuOpen}
+                >
+                  <FiShare2 className="text-indigo-600" />
+                  <span className="flex-1">Share Order</span>
+                </button> */}
+                
+                <AnimatePresence>
+                  {subMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, x: isMobile ? 0 : -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0 }}
+                      className={`bg-white rounded-lg shadow-lg ${
+                        isMobile
+                          ? 'fixed bottom-0 left-0 right-0 rounded-b-none'
+                          : 'absolute top-0 right-full mr-1'
+                      }`}
+                      role="menu"
+                    >
+                      {isMobile && (
+                        <div className="flex items-center gap-3 p-4 border-b">
+                          <button 
+                            onClick={() => setSubMenuOpen(false)}
+                            aria-label="Back"
+                            className="p-1"
+                          >
+                            <FiX className="text-lg" />
+                          </button>
+                          <h3 className="font-semibold">Share Via</h3>
+                        </div>
+                      )}
+                      
+                      <ul>
+                        {['whatsapp', 'facebook', 'email'].map((platform) => (
+                          <li key={platform}>
+                            <button
+                              onClick={() => shareOrder(platform)}
+                              className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50"
+                              role="menuitem"
+                            >
+                              {platform === 'whatsapp' && <FiMessageSquare className="text-green-500" />}
+                              {platform === 'facebook' && <FiFacebook className="text-blue-600" />}
+                              {platform === 'email' && <FiEmailIcon className="text-gray-600" />}
+                              <span className="capitalize">{platform}</span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </li>
+            </ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+// Main Order Component
 const Order = () => {
   const [isCopied, setIsCopied] = useState(false);
   const { orderId } = useParams();
   const dispatch = useDispatch();
   const { myOrder } = useSelector(state => state.order);
-  console.log(myOrder);
   const { userInfo } = useSelector(state => state.auth);
-  console.log(userInfo);
 
   useEffect(() => {
     dispatch(get_order(orderId));
@@ -87,18 +361,21 @@ const Order = () => {
 
   return (
     <motion.div
+      id="order-container"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       className="min-h-screen bg-gray-50 lg:py-8 px-1 lg:px-8"
     >
       <div className="max-w-5xl mx-auto space-y-8">
-
         {/* Order Header */}
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h1 className="mb-8 text-xl lg:text-2xl font-bold text-[#c48a47] uppercase">
-            Order Info
-          </h1>
+          <div className="flex justify-between items-start mb-6">
+            <h1 className="text-xl lg:text-2xl font-bold text-[#c48a47] uppercase">
+              Order Info
+            </h1>
+            <ExportButton orderId={orderId} orderData={myOrder} />
+          </div>
 
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
             <div>
@@ -148,7 +425,6 @@ const Order = () => {
 
         {/* Details Grid */}
         <div className="grid md:grid-cols-2 gap-6">
-
           {/* Shipping Info */}
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div className="flex items-start gap-3 mb-4">
@@ -287,11 +563,6 @@ const Order = () => {
                         e.target.alt = 'Product image not available';
                       }}
                     />
-                    {/* {productData.discount > 0 && (
-                      <span className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-tr-md rounded-bl-md">
-                        -{productData.discount}%
-                      </span>
-                    )} */}
                   </div>
 
                   <div className="ml-2 sm:ml-4 flex-1 min-w-0">
@@ -320,17 +591,15 @@ const Order = () => {
                         }
                       </p>
                     )}
-                    <p className="text-xs line-through  text-gray-500">
+                    <p className="text-xs line-through text-gray-500">
                       {formatCurrency(productData.price)}
                     </p>
-
                   </div>
                 </motion.div>
               )
             })}
           </div>
         </div>
-
       </div>
     </motion.div>
   );

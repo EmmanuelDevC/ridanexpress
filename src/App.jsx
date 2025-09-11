@@ -31,7 +31,6 @@ import ResetPassword from './pages/ResetPassword';
 import NewArrivals from './pages/NewArrivals';
 import BestSellers from './pages/BestSellers';
 
-
 function App() {
   const dispatch = useDispatch()
   useEffect(() => {
@@ -59,6 +58,7 @@ function App() {
           <Route path='/shipping' element={<Shipping />} />
           <Route path='/payment' element={<Payment />} />
           <Route path='/product/details/:slug' element={<Details />} />
+          <Route path='/product/details/id/:id' element={<Details />} /> {/* Add this line */}
           <Route path="/error" element={<ErrorPage />} />
           <Route path="*" element={<NotFoundPage />} />
 

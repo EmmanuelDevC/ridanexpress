@@ -29,6 +29,49 @@ export const add_to_card = createAsyncThunk(
     }
 )
 
+// New thunk for adding products directly from chat
+export const add_to_card_from_chat = createAsyncThunk(
+    'card/add_to_card_from_chat',
+    async (product, {
+        rejectWithValue,
+        fulfillWithValue,
+        getState,
+        dispatch
+    }) => {
+        const token = getState().auth.token
+        
+        if (token) {
+            // User is authenticated - make API call
+            const config = {
+                headers: {
+                    'authorization': `Bearer ${token}`
+                }
+            }
+            try {
+                const { data } = await api.post('/home/product/add-to-card', {
+                    productId: product.id,
+                    price: product.price,
+                    quantity: 1
+                }, config)
+                return fulfillWithValue(data)
+            } catch (error) {
+                console.log(error.response)
+                return rejectWithValue(error.response.data)
+            }
+        } else {
+            // User is not authenticated - update local state only
+            return fulfillWithValue({
+                message: 'Product added to cart (local)',
+                product: {
+                    ...product,
+                    _id: `chat-${Date.now()}`,
+                    quantity: 1
+                }
+            })
+        }
+    }
+)
+
 export const get_card_products = createAsyncThunk(
     'card/get_card_products',
     async (userId, {
@@ -76,7 +119,6 @@ export const delete_card_product = createAsyncThunk(
         }
     }
 )
-
 
 export const quantity_inc = createAsyncThunk(
     'card/quantity_inc',
@@ -199,8 +241,6 @@ export const remove_wishlist = createAsyncThunk(
     }
 )
 
-
-
 export const cardReducer = createSlice({
     name: 'card',
     initialState: {
@@ -213,7 +253,10 @@ export const cardReducer = createSlice({
         errorMessage: '',
         successMessage: '',
         shipping_fee: 0,
-        outofstock_products: []
+        outofstock_products: [],
+        // New state for chat cart
+        chat_cart: [],
+        chat_cart_count: 0
     },
     reducers: {
         messageClear: (state, _) => {
@@ -223,6 +266,63 @@ export const cardReducer = createSlice({
         reset_count: (state, _) => {
             state.card_product_count = 0
             state.wishlist_count = 0
+        },
+        // New reducers for chat cart management
+        add_to_chat_cart: (state, action) => {
+            const product = action.payload;
+            const existingItem = state.chat_cart.find(item => item.id === product.id);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                state.chat_cart.push({
+                    ...product,
+                    quantity: 1,
+                    _id: `chat-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+                });
+                state.chat_cart_count += 1;
+            }
+            
+            // Update total price
+            state.price = state.chat_cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+        },
+        remove_from_chat_cart: (state, action) => {
+            const productId = action.payload;
+            state.chat_cart = state.chat_cart.filter(item => item.id !== productId);
+            state.chat_cart_count = state.chat_cart.length;
+            
+            // Update total price
+            state.price = state.chat_cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+        },
+        update_chat_cart_quantity: (state, action) => {
+            const { productId, quantity } = action.payload;
+            const item = state.chat_cart.find(item => item.id === productId);
+            
+            if (item) {
+                item.quantity = quantity;
+                
+                // Update total price
+                state.price = state.chat_cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+            }
+        },
+        clear_chat_cart: (state) => {
+            state.chat_cart = [];
+            state.chat_cart_count = 0;
+            state.price = 0;
+        },
+        // Sync chat cart with main cart when user logs in
+        sync_chat_cart: (state, action) => {
+            const { token } = action.payload;
+            
+            if (token) {
+                // User is now authenticated, move chat cart items to main cart
+                state.card_products = [...state.card_products, ...state.chat_cart];
+                state.card_product_count += state.chat_cart_count;
+                
+                // Clear chat cart
+                state.chat_cart = [];
+                state.chat_cart_count = 0;
+            }
         }
     },
     extraReducers: {
@@ -236,6 +336,26 @@ export const cardReducer = createSlice({
         }) => {
             state.successMessage = payload.message
             state.card_product_count = state.card_product_count + 1
+        },
+        [add_to_card_from_chat.rejected]: (state, { payload }) => {
+            state.errorMessage = payload?.error || 'Failed to add product to cart'
+        },
+        [add_to_card_from_chat.fulfilled]: (state, { payload }) => {
+            if (payload.product) {
+                // Local cart update for unauthenticated users
+                const existingItem = state.chat_cart.find(item => item.id === payload.product.id);
+                
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    state.chat_cart.push(payload.product);
+                    state.chat_cart_count += 1;
+                }
+                
+                // Update total price
+                state.price = state.chat_cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+            }
+            state.successMessage = payload.message
         },
         [get_card_products.fulfilled]: (state, {
             payload
@@ -291,6 +411,11 @@ export const cardReducer = createSlice({
 
 export const {
     messageClear,
-    reset_count
+    reset_count,
+    add_to_chat_cart,
+    remove_from_chat_cart,
+    update_chat_cart_quantity,
+    clear_chat_cart,
+    sync_chat_cart
 } = cardReducer.actions
 export default cardReducer.reducer

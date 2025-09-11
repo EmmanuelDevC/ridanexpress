@@ -55,21 +55,21 @@ export const get_products = createAsyncThunk(
     }
 )
 
+// Alternative approach: Modify get_product to handle both slugs and IDs
 export const get_product = createAsyncThunk(
     'product/get_product',
-    async (slug, {
-        fulfillWithValue,
-        rejectWithValue
-    }) => {
+    async (identifier, { fulfillWithValue, rejectWithValue }) => {
         try {
-            const {
-                data
-            } = await api.get(`/home/get-product/${slug}`)
+            // Check if identifier is a valid MongoDB ID (24 character hex string)
+            const isId = /^[0-9a-fA-F]{24}$/.test(identifier);
+            const endpoint = isId
+                ? `/home/get-product-by-id/${identifier}`
+                : `/home/get-product/${identifier}`;
 
+            const { data } = await api.get(endpoint)
             return fulfillWithValue(data)
         } catch (error) {
             return rejectWithValue(error.response.data || error.response)
-            // console.log(error.response)
         }
     }
 )

@@ -25,14 +25,14 @@ const Home = () => {
     return (
         <div style={{ overflowX: "hidden" }} className='w-full bg-slate-100 '>
             <Heders />
-            <div className='mt-[4.5rem] px- lg:mt-[9rem]'>
-                <div className='max-w-[1440px] mx-auto px-1'>
+            <div className='mt-[4.5rem] px- lg:mt-[10.5rem]'>
+                <div className='max-w-[1440px] mx-auto px-2 sm:px-5 md:px-10'>
                     <Banner />
                 </div>
                 <div className=' max-w-[1440px] mx-auto px-2 sm:px-5 md:px-10'>
                     <Categorys />
                 </div>
-                <div className='max-w-[1440px] mx-auto'>
+                <div className='max-w-[1440px] mx-auto lg:px-10'>
                     <FeatureProducts products={products} />
                 </div>
             </div>

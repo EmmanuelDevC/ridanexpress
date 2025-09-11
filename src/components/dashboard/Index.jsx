@@ -122,7 +122,7 @@ const Index = () => {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-gradient-to-r from-gray-900 mt-2 via-black to-gray-900 rounded-2xl p-6 lg:p-8 text-white relative overflow-hidden"
+                className="bg-gradient-to-r from-gray-900 via-black to-gray-900 rounded-2xl p-6 lg:p-8 text-white relative overflow-hidden"
             >
                 {/* Background Pattern */}
                 <div className="absolute inset-0 opacity-10">

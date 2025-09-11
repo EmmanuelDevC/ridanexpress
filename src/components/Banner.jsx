@@ -42,11 +42,11 @@ const Banner = () => {
     const nextSlide = () => setCurrentSlide(prev => (prev === carouselImages.length - 1 ? 0 : prev + 1));
 
     return (
-        <div className="container mx-auto sm:px-4">
+        <div className="">
             <div className="flex flex-col lg:flex-row mb-3 gap-2 lg:gap-3">
                 {/* Main Carousel - Enhanced Design */}
                 <div className="relative w-full lg:w-[65%]">
-                    <div className="relative h-[180px] xs:h-[220px] sm:h-[300px] md:h-[420px] overflow-hidden rounded-2xl lg:rounded-3xl shadow-xl">
+                    <div className="relative h-[180px] xs:h-[220px] sm:h-[300px] md:h-[420px] overflow-hidden rounded-2xl lg:rounded-3xl shadow-sm">
                         {carouselImages.map((image, index) => (
                             <div
                                 key={index}

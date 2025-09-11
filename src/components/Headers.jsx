@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -10,8 +10,6 @@ import {
     FaLinkedinIn,
     FaFacebookF,
     FaUser,
-    FaShoppingCart,
-    FaRegEnvelope,
     FaBell,
     FaHeart
 } from 'react-icons/fa';
@@ -24,7 +22,6 @@ import {
     ExpandMore as ExpandMoreIcon,
     ShoppingCartOutlined as ShoppingCartIcon,
     SupportAgent as SupportAgentIcon,
-    HelpOutline as HelpIcon,
     Close as CloseIcon,
     LocationOnOutlined as LocationIcon,
     StorefrontOutlined as StorefrontIcon,
@@ -58,87 +55,158 @@ const Headers = () => {
     const searchContainerRef = useRef(null);
     const categoriesRef = useRef(null);
     const userDropdownRef = useRef(null);
+    const debounceTimer = useRef(null);
+    const abortControllerRef = useRef(null);
+    const suggestionCache = useRef({}); // simple in-memory cache
+    const lastQueryRef = useRef('');
 
-    // Debounce function
-    const debounce = useCallback((func, delay) => {
-        let timer;
-        return (...args) => {
-            clearTimeout(timer);
-            timer = setTimeout(() => func(...args), delay);
-        };
-    }, []);
-
-    // Fetch search suggestions
+    // Fetch suggestions with cancellation (AbortController)
     const fetchSuggestions = useCallback(async (query) => {
-        if (!query.trim()) {
-            setSearchSuggestions([]);
+        // Avoid useless calls for short input
+        if (!query || query.trim().length < 2) {
+            if (searchSuggestions.length > 0) setSearchSuggestions([]);
+            lastQueryRef.current = '';
             return;
         }
 
+        // Use cache if available
+        if (suggestionCache.current[query]) {
+            setSearchSuggestions(suggestionCache.current[query]);
+            lastQueryRef.current = query;
+            return;
+        }
+
+        // If same query already fetched, skip
+        if (lastQueryRef.current === query) return;
+
+        // Cancel previous request if any
+        if (abortControllerRef.current) {
+            try { abortControllerRef.current.abort(); } catch (e) {}
+        }
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+
         setIsFetchingSuggestions(true);
         try {
-            const { data } = await axios.get(`/api/home/search-suggestions`, {
-                params: { query }
+            const { data } = await axios.get('/api/home/search-suggestions', {
+                params: { query },
+                signal: controller.signal
             });
-            setSearchSuggestions(data?.success ? data.suggestions?.slice(0, 5) : []);
+
+            const suggestions = data?.success ? (data.suggestions || []).slice(0, 5) : [];
+            setSearchSuggestions(suggestions);
+            suggestionCache.current[query] = suggestions;
+            lastQueryRef.current = query;
         } catch (error) {
-            console.error('Error fetching suggestions:', error);
-            setSearchSuggestions([]);
+            // axios throws a CanceledError on abort; ignore that
+            const canceled = error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED';
+            if (!canceled) {
+                console.error('Error fetching suggestions:', error);
+                setSearchSuggestions([]);
+                lastQueryRef.current = '';
+            }
         } finally {
             setIsFetchingSuggestions(false);
         }
-    }, []);
+    }, [searchSuggestions.length]);
 
-    const debouncedFetchSuggestions = useMemo(() =>
-        debounce(fetchSuggestions, 300),
-        [debounce, fetchSuggestions]);
-
-    // Search handlers
+    // Debounced input handler
     const handleSearchChange = useCallback((value) => {
         setSearchValue(value);
-        debouncedFetchSuggestions(value);
-    }, [debouncedFetchSuggestions]);
 
+        // If user quickly clears or types <2 chars, clear suggestions early
+        if (!value || value.trim().length < 2) {
+            // cancel any running request
+            if (abortControllerRef.current) {
+                try { abortControllerRef.current.abort(); } catch (e) {}
+            }
+            setSearchSuggestions([]);
+            lastQueryRef.current = '';
+        }
+
+        if (debounceTimer.current) clearTimeout(debounceTimer.current);
+        debounceTimer.current = setTimeout(() => {
+            fetchSuggestions(value);
+        }, 350);
+    }, [fetchSuggestions]);
+
+    // Perform search (navigate)
     const search = useCallback(() => {
         if (searchValue.trim()) {
-            navigate(`/products/search?category=${category}&&value=${searchValue}`);
+            navigate(`/products/search?category=${encodeURIComponent(category || '')}&&value=${encodeURIComponent(searchValue)}`);
             setSearchValue('');
             setSearchSuggestions([]);
             setShowMobileSearch(false);
+            lastQueryRef.current = '';
         }
     }, [searchValue, category, navigate]);
 
-    // Suggestion selection
+    // Select suggestion
     const selectSuggestion = useCallback((suggestion) => {
+        // Prevent default focus loss behavior by setting value and navigating
         setSearchValue(suggestion);
         setSearchSuggestions([]);
-        search();
+        lastQueryRef.current = suggestion;
+
+        // Cancel any outstanding request
+        if (abortControllerRef.current) {
+            try { abortControllerRef.current.abort(); } catch (e) {}
+        }
+
+        // Navigate (use timeout so state updates propagate)
+        setTimeout(() => search(), 0);
     }, [search]);
 
-    // Handle clicks outside components
+    // Redirect to cart or login
+    const redirect_card_page = useCallback(() => {
+        userInfo ? navigate(`/card`) : navigate(`/login`);
+    }, [userInfo, navigate]);
+
+    // Click outside handlers
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
                 setIsSearchFocused(false);
             }
-
             if (categoriesRef.current && !categoriesRef.current.contains(event.target)) {
                 setShowCategories(false);
             }
-
             if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
                 setShowUserDropdown(false);
             }
         };
-
         document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    // Load user card/wishlist
+    useEffect(() => {
+        if (userInfo) {
+            dispatch(get_card_products(userInfo.id));
+            dispatch(get_wishlist_products(userInfo.id));
+        }
+    }, [userInfo, dispatch]);
+
+    // Scroll shadow
+    useEffect(() => {
+        const handleScroll = () => setIsScrolled(window.scrollY > 10);
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Cleanup on unmount: clear timers and abort pending requests
+    useEffect(() => {
         return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
+            if (debounceTimer.current) clearTimeout(debounceTimer.current);
+            if (abortControllerRef.current) {
+                try { abortControllerRef.current.abort(); } catch (e) {}
+            }
         };
     }, []);
 
-    // Memoized search components
-    const DesktopSearch = useMemo(() => () => (
+    // ----------------- JSX parts -----------------
+    // Desktop search (inline JSX — not returning a function component)
+    const DesktopSearch = (
         <div ref={searchContainerRef} className="hidden md:flex flex-1 max-w-2xl relative">
             <div className="relative w-full">
                 <input
@@ -151,6 +219,7 @@ const Headers = () => {
                     onFocus={() => setIsSearchFocused(true)}
                 />
                 <button
+                    type="button"
                     onClick={search}
                     className="absolute right-0 top-0 h-full px-5 bg-orange-500 text-white rounded-full font-medium hover:bg-primary-600 transition-all duration-200 flex items-center"
                 >
@@ -166,7 +235,7 @@ const Headers = () => {
                             searchSuggestions.map((suggestion, index) => (
                                 <div
                                     key={index}
-                                    onMouseDown={(e) => e.preventDefault()}
+                                    onMouseDown={(e) => e.preventDefault()} // prevents input blur before click
                                     onClick={() => selectSuggestion(suggestion)}
                                     className="p-3 text-gray-800 hover:bg-gray-50 cursor-pointer border-b last:border-0 transition-colors flex items-center"
                                 >
@@ -179,19 +248,21 @@ const Headers = () => {
                 )}
             </div>
         </div>
-    ), [searchValue, isSearchFocused, searchSuggestions, isFetchingSuggestions, handleSearchChange, search, selectSuggestion]);
+    );
 
-    const MobileSearchModal = useMemo(() => () => (
+    // Mobile Search Modal JSX
+    const MobileSearchModal = (
         <div className={`fixed inset-0 bg-white z-50 p-4 transform transition-all duration-300 ${showMobileSearch ? 'translate-y-0' : '-translate-y-full'}`}>
             <div className="flex items-center justify-between mb-4">
                 <button
+                    type="button"
                     onClick={() => setShowMobileSearch(false)}
                     className="p-2 rounded-full text-gray-600 hover:bg-gray-100"
                 >
                     <AiOutlineClose size={24} />
                 </button>
                 <h2 className="text-2xl font-bold text-primary-600">Search</h2>
-                <div className="w-10"></div>
+                <div className="w-10" />
             </div>
 
             <div className="relative mb-4">
@@ -205,6 +276,7 @@ const Headers = () => {
                     autoFocus
                 />
                 <button
+                    type="button"
                     onClick={search}
                     className="absolute right-0 top-0 h-full px-4 text-gray-500 hover:text-primary-600 transition-colors"
                 >
@@ -232,25 +304,9 @@ const Headers = () => {
                 )
             )}
         </div>
-    ), [showMobileSearch, searchValue, isFetchingSuggestions, searchSuggestions, handleSearchChange, search, selectSuggestion]);
+    );
 
-    const redirect_card_page = useCallback(() => {
-        userInfo ? navigate(`/card`) : navigate(`/login`);
-    }, [userInfo, navigate]);
-
-    useEffect(() => {
-        if (userInfo) {
-            dispatch(get_card_products(userInfo.id));
-            dispatch(get_wishlist_products(userInfo.id));
-        }
-    }, [userInfo, dispatch]);
-
-    useEffect(() => {
-        const handleScroll = () => setIsScrolled(window.scrollY > 10);
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
+    // ----------------- return main JSX -----------------
     return (
         <header className={`w-full bg-white ${isScrolled ? 'shadow-lg' : 'shadow-sm'} fixed top-0 z-50 transition-all duration-300`}>
             {/* Top info bar */}
@@ -269,7 +325,7 @@ const Headers = () => {
                             </span>
                         </div>
                         <div className="flex items-center space-x-4">
-                            <button className="flex items-center hover:text-primary-200 transition-colors">
+                            <button type="button" className="flex items-center hover:text-primary-200 transition-colors">
                                 <SupportAgentIcon className="mr-2 text-primary-300" fontSize="small" />
                                 <span>24/7 Support</span>
                             </button>
@@ -289,6 +345,7 @@ const Headers = () => {
                     <div className="flex items-center justify-between py-2">
                         <div className="flex items-center">
                             <button
+                                type="button"
                                 className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors mr-2"
                                 onClick={() => setShowSidebar(!showSidebar)}
                                 aria-label="Toggle menu"
@@ -310,10 +367,11 @@ const Headers = () => {
                             </Link>
                         </div>
 
-                        <DesktopSearch />
+                        {DesktopSearch}
 
                         <div className="flex items-center space-x-4">
                             <button
+                                type="button"
                                 onClick={() => setShowMobileSearch(true)}
                                 className="md:hidden text-xl p-2 rounded-full text-gray-900 hover:bg-gray-100"
                             >
@@ -323,6 +381,7 @@ const Headers = () => {
                             {userInfo ? (
                                 <div ref={userDropdownRef} className="hidden md:flex items-center group relative">
                                     <button
+                                        type="button"
                                         className="flex items-center space-x-2 px-3 py-2 rounded-full hover:bg-gray-50 transition-colors"
                                         onClick={() => setShowUserDropdown(!showUserDropdown)}
                                     >
@@ -380,6 +439,7 @@ const Headers = () => {
                             </Link>
 
                             <button
+                                type="button"
                                 onClick={redirect_card_page}
                                 className="relative p-2 rounded-full hover:bg-gray-50 transition-colors"
                                 aria-label="Shopping cart"
@@ -392,7 +452,7 @@ const Headers = () => {
                                 )}
                             </button>
 
-                            <button className="hidden md:flex items-center p-2 rounded-full hover:bg-gray-50 transition-colors relative">
+                            <button type="button" className="hidden md:flex items-center p-2 rounded-full hover:bg-gray-50 transition-colors relative">
                                 <FaBell className="text-gray-700" size={20} />
                                 <span className="absolute -top-1 -right-1 bg-primary-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
                                     3
@@ -410,6 +470,7 @@ const Headers = () => {
                         <div className="flex space-x-8">
                             <div ref={categoriesRef} className="relative">
                                 <button
+                                    type="button"
                                     className="flex items-center font-medium text-gray-700 hover:text-primary-600 transition-colors py-2"
                                     onClick={() => setShowCategories(!showCategories)}
                                 >
@@ -477,7 +538,7 @@ const Headers = () => {
                 </div>
             </div>
 
-            {showMobileSearch && <MobileSearchModal />}
+            {showMobileSearch && MobileSearchModal}
 
             {showSidebar && (
                 <div className="md:hidden">
@@ -493,6 +554,7 @@ const Headers = () => {
                                     <img src={ridanLogo} className="h-9" alt="Ridan Logo" />
                                 </Link>
                                 <button
+                                    type="button"
                                     onClick={() => setShowSidebar(false)}
                                     className="p-2 rounded-full text-gray-500 hover:bg-gray-100"
                                 >
@@ -508,7 +570,7 @@ const Headers = () => {
                                         onClick={() => setShowSidebar(false)}
                                     >
                                         <div className="flex items-center space-x-3">
-                                            <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center bg-black justify-center text-white">
+                                            <div className="w-12 h-12 rounded-xl bg-primary-100 flex items-center bg-gray-800 justify-center text-white">
                                                 <FaUser size={18} />
                                             </div>
                                             <div>

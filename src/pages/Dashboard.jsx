@@ -6,7 +6,7 @@ import Headers from "../components/Headers"
 import Footer from "../components/Footer"
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom"
 import { BsHeart } from "react-icons/bs"
-import { FiLogOut, FiBell, FiShoppingCart, FiUser, FiMessageCircle, FiGrid } from "react-icons/fi"
+import { FiLogOut, FiUser, FiMessageCircle, FiGrid } from "react-icons/fi"
 import { HiOutlineShoppingBag } from "react-icons/hi"
 import api from "../api/api"
 import { useDispatch } from "react-redux"
@@ -15,6 +15,12 @@ import { reset_count } from "../store/reducers/cardReducer"
 
 const MobileNav = () => {
     const location = useLocation()
+    
+    // Don't show mobile nav in chat section
+    if (location.pathname.includes('/dashboard/chat')) {
+        return null
+    }
+
     const [visible, setVisible] = useState(true)
     const lastScrollPos = useRef(0)
 
@@ -38,7 +44,7 @@ const MobileNav = () => {
     const navItems = [
         { path: "/dashboard", icon: <FiGrid />, label: "Overview" },
         { path: "/dashboard/my-orders", icon: <HiOutlineShoppingBag />, label: "Orders" },
-        { path: "/dashboard/my-wishlist", icon: <BsHeart  />, label: "Wishlist" },
+        { path: "/dashboard/my-wishlist", icon: <BsHeart />, label: "Wishlist" },
         { path: "/dashboard/chat", icon: <FiMessageCircle />, label: "Chat", badge: true },
         { path: "/dashboard/profile", icon: <FiUser />, label: "Account" },
     ]
@@ -129,9 +135,11 @@ const Dashboard = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <Headers />
+            <div className="hidden md:hidden lg:block">
+                <Headers />
+            </div>
 
-            <div className="pt-8 lg:pt-32">
+            <div className="lg:pt-[10rem]">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex flex-col lg:flex-row gap-2">
                         {/* Sidebar */}
@@ -198,31 +206,18 @@ const Dashboard = () => {
                                                         </Link>
                                                     </motion.div>
                                                 ))}
+                                                <div className="space-y-2">
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.02 }}
+                                                        whileTap={{ scale: 0.98 }}
+                                                        onClick={logout}
+                                                        className="w-full flex items-center space-x-3 p-3 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-300 group"
+                                                    >
+                                                        <FiLogOut className="text-lg group-hover:translate-x-1 transition-transform duration-300" />
+                                                        <span className="text-sm font-medium">Sign Out</span>
+                                                    </motion.button>
+                                                </div>
                                             </nav>
-                                        </div>
-
-                                        {/* Quick Actions */}
-                                        <div className="border-t border-gray-200 p-4 bg-gray-50">
-                                            <h5 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                                                Quick Actions
-                                            </h5>
-                                            <div className="space-y-2">
-                                                <button className="w-full flex items-center space-x-3 p-3 rounded-lg text-gray-600 hover:bg-white hover:text-gray-900 transition-all duration-300 group">
-                                                    <FiBell className="text-lg group-hover:text-orange-500" />
-                                                    <span className="text-sm font-medium">Notifications</span>
-                                                    <div className="ml-auto w-2 h-2 bg-red-500 rounded-full"></div>
-                                                </button>
-
-                                                <motion.button
-                                                    whileHover={{ scale: 1.02 }}
-                                                    whileTap={{ scale: 0.98 }}
-                                                    onClick={logout}
-                                                    className="w-full flex items-center space-x-3 p-3 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-300 group"
-                                                >
-                                                    <FiLogOut className="text-lg group-hover:translate-x-1 transition-transform duration-300" />
-                                                    <span className="text-sm font-medium">Sign Out</span>
-                                                </motion.button>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -239,7 +234,7 @@ const Dashboard = () => {
                             >
 
                                 {/* Page Content */}
-                                <div className="p-3 lg:p-8 pb-24 lg:pb-8">
+                                <div className="px-2 lg:p-4">
                                     <Outlet />
                                 </div>
                             </motion.div>
@@ -248,8 +243,8 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            {/* Mobile Navigation */}
-            <MobileNav />
+            {/* Mobile Navigation - Conditionally rendered */}
+            {!location.pathname.includes('/dashboard/chat') && <MobileNav />}
 
             {/* Mobile Overlay */}
             <AnimatePresence>

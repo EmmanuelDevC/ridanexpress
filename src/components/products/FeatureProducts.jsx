@@ -1,6 +1,4 @@
 import React, { useEffect } from 'react'
-import { AiFillHeart } from 'react-icons/ai'
-import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'

@@ -27,7 +27,7 @@ export const add_friend = createAsyncThunk(
 
 export const send_message = createAsyncThunk(
     'chat/send_message',
-    async (info, { fulfillWithValue, rejectWithValue,getState }) => {
+    async (info, { fulfillWithValue, rejectWithValue, getState }) => {
         const token = getState().auth.token
         const config = {
             headers: {
@@ -35,16 +35,21 @@ export const send_message = createAsyncThunk(
             }
         }
         try {
-            const {
-                data
-            } = await api.post('/chat/customer/send-message-to-seller', info,config)
-            console.log(data)
+            // Save to DB
+            const { data } = await api.post('/chat/customer/send-message-to-seller', info, config)
+
+            // Emit via socket so seller gets it instantly
+            if (window.socket) {
+                window.socket.emit('send_customer_message', data.message)
+            }
+
             return fulfillWithValue(data)
         } catch (error) {
             return rejectWithValue(error.response.data)
         }
     }
 )
+
 
 export const chatReducer = createSlice({
     name: 'chat',
@@ -80,7 +85,7 @@ export const chatReducer = createSlice({
                 index--
             }
             state.my_friends = tempFriends
-            state.fd_messages = [...state.fd_messages, payload.message]
+            // state.fd_messages = [...state.fd_messages, payload.message]
             state.successMessage = ' message send success'
         }
     }

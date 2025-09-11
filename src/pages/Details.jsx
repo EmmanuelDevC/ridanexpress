@@ -42,7 +42,7 @@ const Details = () => {
     const { card_product_count } = useSelector(state => state.card);
     const { price, } = useSelector((state) => state.card);
     const navigate = useNavigate();
-    const { slug } = useParams();
+    const { slug, id } = useParams();
     const dispatch = useDispatch();
     const { product, relatedProducts, moreProducts, loading: productLoading } = useSelector(
         (state) => state.home
@@ -103,7 +103,7 @@ const Details = () => {
                 if (response.data && response.data.states) {
                     setStates(response.data.states);
                 } else {
-                    setStates(['']); 
+                    setStates(['']);
                 }
             } catch (error) {
                 console.error("Error fetching states:", error);
@@ -234,9 +234,11 @@ const Details = () => {
     };
 
     useEffect(() => {
-        dispatch(get_product(slug));
-    }, [dispatch, slug]);
-    
+        if (slug || id) {
+            dispatch(get_product(slug || id));
+        }
+    }, [dispatch, slug, id]);
+
     useEffect(() => {
         if (product) {
             setImage(product.images?.[0] || "");
@@ -329,7 +331,7 @@ const Details = () => {
 
     const openWhatsApp = () => {
         if (!product) return;
-        
+
         const phoneNumber = `+234${product.whatsapp}`;
         const productName = product.name;
         const productPrice = product.price;
@@ -368,7 +370,7 @@ const Details = () => {
                             <SkeletonLoader className="h-4 w-1/3" />
                         </div>
                     </div>
-                    
+
                     <div className="w-full mx-auto px-4 lg:px-8 py-8">
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             {/* Image Gallery Skeleton */}
@@ -376,13 +378,13 @@ const Details = () => {
                                 <SkeletonLoader className="w-full h-[300px] lg:h-[400px]" />
                                 <div className="mt-4">
                                     <div className="flex space-x-2">
-                                        {[1,2,3,4].map((_, i) => (
+                                        {[1, 2, 3, 4].map((_, i) => (
                                             <SkeletonLoader key={i} className="w-16 h-16" />
                                         ))}
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {/* Product Info Skeleton */}
                             <div className="flex flex-col gap-6 bg-white p-6 rounded-xl">
                                 <SkeletonLoader className="h-8 w-3/4" />
@@ -394,13 +396,13 @@ const Details = () => {
                                 <SkeletonLoader className="h-32 w-full" />
                                 <SkeletonLoader className="h-12 w-full" />
                             </div>
-                            
+
                             {/* Seller Info Skeleton */}
                             <div className="space-y-6">
                                 <div className="bg-white p-4 rounded-md">
                                     <SkeletonLoader className="h-6 w-1/2 mb-4" />
                                     <div className="space-y-3">
-                                        {[1,2].map((_, i) => (
+                                        {[1, 2].map((_, i) => (
                                             <div key={i} className="flex gap-2">
                                                 <SkeletonLoader className="w-12 h-12 rounded-full" />
                                                 <div className="flex-1 space-y-2">
@@ -411,7 +413,7 @@ const Details = () => {
                                         ))}
                                     </div>
                                 </div>
-                                
+
                                 <div className="bg-white rounded-lg p-6">
                                     <SkeletonLoader className="h-6 w-1/3 mb-4" />
                                     <div className="flex items-start gap-4">
@@ -425,7 +427,7 @@ const Details = () => {
                                 </div>
                             </div>
                         </div>
-                        
+
                         {/* Tabs Skeleton */}
                         <div className="bg-white rounded-xl mt-6 p-6">
                             <div className="flex gap-4 mb-4">
@@ -434,7 +436,7 @@ const Details = () => {
                             </div>
                             <SkeletonLoader className="h-48 w-full" />
                         </div>
-                        
+
                         {/* Related Products Skeleton */}
                         <div className="bg-white p-3 mt-6">
                             <div className="flex justify-between mb-4">
@@ -442,7 +444,7 @@ const Details = () => {
                                 <SkeletonLoader className="h-6 w-16" />
                             </div>
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                                {[1,2,3,4,5].map((_, i) => (
+                                {[1, 2, 3, 4, 5].map((_, i) => (
                                     <div key={i} className="space-y-2">
                                         <SkeletonLoader className="h-48 w-full" />
                                         <SkeletonLoader className="h-4 w-3/4" />
@@ -482,7 +484,7 @@ const Details = () => {
                     </Breadcrumb>
                 </div>
             </div>
-            
+
             <section className="w-[100%] xl:w-[90%] lg:w-[100%] md:w-full mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
                     {/* Left Column - Product Images */}
@@ -492,56 +494,54 @@ const Details = () => {
                             {/* Thumbnails Column */}
                             <div className="flex flex-col gap-3 w-[80px]">
                                 {product?.images?.map((img, index) => (
-                                    <button 
-                                        key={index} 
+                                    <button
+                                        key={index}
                                         onClick={() => setImage(img)}
-                                        className={`aspect-square rounded-md overflow-hidden border-2 transition-all ${
-                                            image === img ? 'border-orange-500 shadow-md' : 'border-transparent hover:border-orange-300'
-                                        }`}
+                                        className={`aspect-square rounded-md overflow-hidden border-2 transition-all ${image === img ? 'border-orange-500 shadow-md' : 'border-transparent hover:border-orange-300'
+                                            }`}
                                     >
-                                        <img 
-                                            src={img} 
-                                            alt={`Thumbnail ${index + 1}`} 
+                                        <img
+                                            src={img}
+                                            alt={`Thumbnail ${index + 1}`}
                                             className="w-full h-full object-cover"
                                         />
                                     </button>
                                 ))}
                             </div>
-                            
+
                             {/* Main Image */}
                             <div className="flex-1">
                                 <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-gray-100">
-                                    <img 
-                                        src={image || product?.images?.[0]} 
-                                        alt={product?.name || "Product image"} 
+                                    <img
+                                        src={image || product?.images?.[0]}
+                                        alt={product?.name || "Product image"}
                                         className="w-full h-full object-contain"
                                     />
                                 </div>
                             </div>
                         </div>
-                        
+
                         {/* Mobile Gallery - Stacked layout */}
                         <div className="lg:hidden">
                             <div className="relative aspect-square w-full rounded-lg overflow-hidden mb-4 bg-gray-100">
-                                <img 
-                                    src={image || product?.images?.[0]} 
-                                    alt={product?.name || "Product image"} 
+                                <img
+                                    src={image || product?.images?.[0]}
+                                    alt={product?.name || "Product image"}
                                     className="w-full h-full object-contain"
                                 />
                             </div>
-                            
+
                             <div className="grid grid-cols-4 gap-2">
                                 {product?.images?.map((img, index) => (
-                                    <button 
-                                        key={index} 
+                                    <button
+                                        key={index}
                                         onClick={() => setImage(img)}
-                                        className={`aspect-square rounded-md overflow-hidden border-2 transition-all ${
-                                            image === img ? 'border-orange-500 shadow-md' : 'border-transparent hover:border-orange-300'
-                                        }`}
+                                        className={`aspect-square rounded-md overflow-hidden border-2 transition-all ${image === img ? 'border-orange-500 shadow-md' : 'border-transparent hover:border-orange-300'
+                                            }`}
                                     >
-                                        <img 
-                                            src={img} 
-                                            alt={`Thumbnail ${index + 1}`} 
+                                        <img
+                                            src={img}
+                                            alt={`Thumbnail ${index + 1}`}
                                             className="w-full h-full object-cover"
                                         />
                                     </button>
@@ -549,22 +549,22 @@ const Details = () => {
                             </div>
                         </div>
                         <div className="mt-6 p-4 bg-orange-50 hidden lg:block rounded-lg border border-orange-100">
-                                <div className="flex items-start gap-3">
-                                    <SupportAgentIcon className="text-orange-600 mt-1" />
-                                    <div>
-                                        <h4 className="font-medium text-gray-900">Ridan Support</h4>
-                                        <p className="text-sm text-gray-600 mt-1">
-                                            Have any questions? Our We are always happy to help.
-                                        </p>
-                                        <a href="tel:07006000000" className="text-orange-600 hover:text-orange-700 text-sm font-medium mt-2 inline-block">
-                                            0700 600 0000
-                                        </a>
-                                    </div>
+                            <div className="flex items-start gap-3">
+                                <SupportAgentIcon className="text-orange-600 mt-1" />
+                                <div>
+                                    <h4 className="font-medium text-gray-900">Ridan Support</h4>
+                                    <p className="text-sm text-gray-600 mt-1">
+                                        Have any questions? Our We are always happy to help.
+                                    </p>
+                                    <a href="tel:07006000000" className="text-orange-600 hover:text-orange-700 text-sm font-medium mt-2 inline-block">
+                                        0700 600 0000
+                                    </a>
                                 </div>
                             </div>
-                        
+                        </div>
+
                     </div>
-                    
+
                     {/* Middle Column - Product Details */}
                     <div className="bg-white rounded-xl shadow-sm p-6">
                         <div className="mb-6">
@@ -578,14 +578,14 @@ const Details = () => {
                                         <span className="text-sm text-gray-500">({product?.totalReviews} reviews)</span>
                                     </div>
                                 </div>
-                                <button 
+                                <button
                                     onClick={add_wishlist}
                                     className="text-gray-400 hover:text-red-500 transition-colors"
                                 >
                                     <FavoriteBorder />
                                 </button>
                             </div>
-                            
+
                             <div className="flex items-center gap-3 mb-6">
                                 <span className="text-2xl font-bold text-gray-900">
                                     ₦ {product && (product.price - (product.price * product.discount) / 100).toLocaleString()}
@@ -601,13 +601,13 @@ const Details = () => {
                                     </span>
                                 )}
                             </div>
-                            
+
                             <div className="mb-6">
                                 <p className="text-gray-700">
                                     {product?.shortDescription || "No description available"}
                                 </p>
                             </div>
-                            
+
                             <div className="mb-6">
                                 <div className="flex items-center gap-4 mb-4">
                                     <div className="flex items-center border border-gray-200 rounded-full">
@@ -629,7 +629,7 @@ const Details = () => {
                                         {product?.stock > 0 ? `${product.stock} available` : 'Out of stock'}
                                     </span>
                                 </div>
-                                
+
                                 <div className="grid grid-cols-2 gap-3">
                                     <button
                                         onClick={buy}
@@ -654,7 +654,7 @@ const Details = () => {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div className="border-t border-gray-100 pt-6">
                             <h3 className="text-lg font-semibold text-gray-900 mb-4">Delivery Options</h3>
                             <div className="space-y-4">
@@ -690,7 +690,7 @@ const Details = () => {
                                     </Select>
                                 </FormControl>
                             </div>
-                            
+
                             <div className="mt-6 p-4 bg-orange-50 rounded-lg block lg:hidden border border-orange-100">
                                 <div className="flex items-start gap-3">
                                     <SupportAgentIcon className="text-orange-600 mt-1" />
@@ -707,7 +707,7 @@ const Details = () => {
                             </div>
                         </div>
                     </div>
-                    
+
                     {/* Right Column - Seller Info */}
                     <div className="space-y-6">
                         <div className="bg-white rounded-xl shadow-sm p-6">
@@ -720,7 +720,7 @@ const Details = () => {
                                     View Store
                                 </Link>
                             </div>
-                            
+
                             <div className="flex items-center gap-4 mb-6">
                                 <div className="w-14 h-14 rounded-full bg-gradient-to-r from-gray-700 to-red-600 flex items-center justify-center">
                                     <span className="text-white text-xl font-bold">
@@ -735,7 +735,7 @@ const Details = () => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="space-y-3">
                                 <Link
                                     to={`/dashboard/chat/${product?.sellerId}`}
@@ -746,7 +746,7 @@ const Details = () => {
                                 </Link>
                             </div>
                         </div>
-                        
+
                         <div className="bg-white rounded-xl shadow-sm p-6">
                             <h2 className="text-lg font-semibold text-gray-900 mb-4">Delivery Information</h2>
                             <div className="space-y-4">
@@ -764,7 +764,7 @@ const Details = () => {
                                         </p>
                                     </div>
                                 </div>
-                                
+
                                 <div className="flex gap-3">
                                     <div className="mt-1">
                                         <LocalShippingOutlinedIcon className="text-orange-600" />
@@ -784,7 +784,7 @@ const Details = () => {
                     </div>
                 </div>
             </section>
-            
+
             {/* Product Details Tabs */}
             <section className="w-[99%] xl:w-[90%] lg:w-[95%] md:w-full mx-auto py-2">
                 <div className="bg-white rounded-xl shadow-sm">
@@ -810,7 +810,7 @@ const Details = () => {
                             </button>
                         </div>
                     </div>
-                    
+
                     <div className="p-6">
                         {state === "description" ? (
                             <div className="prose max-w-none text-gray-700">
@@ -822,7 +822,7 @@ const Details = () => {
                     </div>
                 </div>
             </section>
-            
+
             {/* Related Products */}
             <section className="w-[99%] xl:w-[90%] lg:w-[95%] md:w-full mx-auto py-6">
                 <div className="bg-white rounded-xl shadow-sm p-6">
@@ -832,13 +832,13 @@ const Details = () => {
                             to="/products"
                             className="text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1"
                         >
-                            View All 
+                            View All
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                             </svg>
                         </Link>
                     </div>
-                    
+
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                         {relatedProducts.map((p, i) => (
                             <div key={i} className="group">
@@ -862,17 +862,17 @@ const Details = () => {
                                                 />
                                             </div>
                                         </div>
-                                        
+
                                         <div className="p-3 flex flex-col gap-1">
                                             <h3 className="text-sm font-medium text-gray-800 line-clamp-2">
                                                 {p.name}
                                             </h3>
-                                            
+
                                             <div className="flex items-center gap-1 mt-1">
                                                 <Ratings ratings={p.rating} iconSize="12px" />
                                                 <span className="text-xs text-gray-500">({p.totalReviews})</span>
                                             </div>
-                                            
+
                                             <div className="mt-2">
                                                 <span className="text-sm font-semibold text-gray-900">
                                                     ₦{(p.price - (p.price * p.discount) / 100).toLocaleString()}
@@ -891,7 +891,7 @@ const Details = () => {
                     </div>
                 </div>
             </section>
-            
+
             {/* Mobile Sticky Cart */}
             <div className="block lg:hidden">
                 <div className={`fixed bottom-0 left-0 right-0 z-50 transition-transform duration-300 ${visible ? 'translate-y-0' : 'translate-y-full'}`}>
