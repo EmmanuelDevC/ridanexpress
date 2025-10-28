@@ -1,15 +1,16 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { 
-  FiPackage, FiCopy, FiCheckCircle, FiTruck, FiHome, 
-  FiUser, FiMapPin, FiMail, FiDownload, FiShare2, 
+import {
+  FiPackage, FiCopy, FiCheckCircle, FiTruck, FiHome,
+  FiUser, FiMapPin, FiMail, FiDownload, FiShare2,
   FiX, FiMessageSquare, FiFacebook, FiMail as FiEmailIcon
 } from 'react-icons/fi';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format, parseISO } from 'date-fns';
+import TrackDelivery from '../TrackDelivery'; // Adjust path as needed
 import { get_order } from '../../store/reducers/orderReducer';
 
 // Custom hook for mobile detection
@@ -20,7 +21,7 @@ const useIsMobile = () => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
@@ -41,8 +42,8 @@ const ExportButton = ({ orderId, orderData }) => {
   // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target) && 
-          buttonRef.current && !buttonRef.current.contains(event.target)) {
+      if (menuRef.current && !menuRef.current.contains(event.target) &&
+        buttonRef.current && !buttonRef.current.contains(event.target)) {
         setMenuOpen(false);
         setSubMenuOpen(false);
       }
@@ -78,13 +79,13 @@ const ExportButton = ({ orderId, orderData }) => {
       const element = document.getElementById('order-container');
       if (!element) throw new Error('Order container not found');
 
-      const canvas = await html2canvas.default(element, { 
+      const canvas = await html2canvas.default(element, {
         scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: "#ffffff"
       });
-      
+
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jspdf.default('p', 'mm', 'a4');
       const imgProps = pdf.getImageProperties(imgData);
@@ -107,8 +108,8 @@ const ExportButton = ({ orderId, orderData }) => {
   const shareOrder = useCallback((platform) => {
     const orderUrl = window.location.href;
     const message = `Check out my order details: ${orderUrl}`;
-    
-    switch(platform) {
+
+    switch (platform) {
       case 'whatsapp':
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
         break;
@@ -121,7 +122,7 @@ const ExportButton = ({ orderId, orderData }) => {
       default:
         break;
     }
-    
+
     toast.info(`Sharing via ${platform}`);
     setMenuOpen(false);
     setSubMenuOpen(false);
@@ -129,27 +130,27 @@ const ExportButton = ({ orderId, orderData }) => {
 
   // Menu variants for animations
   const menuVariants = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       y: isMobile ? 50 : -20,
-      scale: 0.95 
+      scale: 0.95
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       scale: 1,
-      transition: { 
+      transition: {
         duration: 0.2,
         ease: "easeOut"
       }
     },
-    exit: { 
-      opacity: 0, 
+    exit: {
+      opacity: 0,
       y: isMobile ? 50 : -20,
       scale: 0.95,
-      transition: { 
-        duration: 0.15 
-      } 
+      transition: {
+        duration: 0.15
+      }
     }
   };
 
@@ -166,6 +167,9 @@ const ExportButton = ({ orderId, orderData }) => {
         <FiDownload className="text-gray-700" />
         <span className="hidden sm:inline text-sm font-medium">Download reciept</span>
       </button>
+      <div className="bg-white rounded-xl shadow-sm p-6 mt-6">
+        <TrackDelivery orderId={orderId} />
+      </div>
 
       <AnimatePresence>
         {menuOpen && (
@@ -175,18 +179,17 @@ const ExportButton = ({ orderId, orderData }) => {
             animate="visible"
             exit="exit"
             variants={menuVariants}
-            className={`absolute z-50 mt-2 w-48 bg-white rounded-xl shadow-lg overflow-hidden ${
-              isMobile 
+            className={`absolute z-50 mt-2 w-48 bg-white rounded-xl shadow-lg overflow-hidden ${isMobile
                 ? 'fixed bottom-0 left-0 right-0 rounded-b-none w-full max-w-md mx-auto'
                 : 'right-0'
-            }`}
+              }`}
             role="menu"
             aria-orientation="vertical"
           >
             {isMobile && (
               <div className="flex justify-between items-center p-4 border-b">
                 <h3 className="font-semibold text-gray-900">Export Order</h3>
-                <button 
+                <button
                   onClick={() => setMenuOpen(false)}
                   aria-label="Close menu"
                   className="p-1 hover:bg-gray-100 rounded-md"
@@ -195,7 +198,7 @@ const ExportButton = ({ orderId, orderData }) => {
                 </button>
               </div>
             )}
-            
+
             <ul>
               <li>
                 <button
@@ -213,8 +216,8 @@ const ExportButton = ({ orderId, orderData }) => {
                   )}
                 </button>
               </li>
-              
-              <li 
+
+              <li
                 onMouseEnter={!isMobile ? () => setSubMenuOpen(true) : undefined}
                 onClick={isMobile ? () => setSubMenuOpen(true) : undefined}
                 className="relative"
@@ -228,23 +231,22 @@ const ExportButton = ({ orderId, orderData }) => {
                   <FiShare2 className="text-indigo-600" />
                   <span className="flex-1">Share Order</span>
                 </button> */}
-                
+
                 <AnimatePresence>
                   {subMenuOpen && (
                     <motion.div
                       initial={{ opacity: 0, x: isMobile ? 0 : -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0 }}
-                      className={`bg-white rounded-lg shadow-lg ${
-                        isMobile
+                      className={`bg-white rounded-lg shadow-lg ${isMobile
                           ? 'fixed bottom-0 left-0 right-0 rounded-b-none'
                           : 'absolute top-0 right-full mr-1'
-                      }`}
+                        }`}
                       role="menu"
                     >
                       {isMobile && (
                         <div className="flex items-center gap-3 p-4 border-b">
-                          <button 
+                          <button
                             onClick={() => setSubMenuOpen(false)}
                             aria-label="Back"
                             className="p-1"
@@ -254,7 +256,7 @@ const ExportButton = ({ orderId, orderData }) => {
                           <h3 className="font-semibold">Share Via</h3>
                         </div>
                       )}
-                      
+
                       <ul>
                         {['whatsapp', 'facebook', 'email'].map((platform) => (
                           <li key={platform}>

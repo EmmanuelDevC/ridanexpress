@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { RiDeleteBin6Line } from 'react-icons/ri';
-import { FiMinus, FiPlus } from 'react-icons/fi';
+import { FiMinus, FiPlus, FiTruck } from 'react-icons/fi';
 import { IoArrowBack } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -14,6 +14,7 @@ import {
     quantity_dec
 } from '../store/reducers/cardReducer';
 import Footer from '../components/Footer';
+import ShippingCalculator from '../components/ShippingCalculator';
 
 // Payment method images
 import visa from '../assets/visa-pic.png';
@@ -36,6 +37,10 @@ const Card = () => {
     } = useSelector((state) => state.card);
 
     const [deletingId, setDeletingId] = useState(null);
+    const [showShippingCalculator, setShowShippingCalculator] = useState(false);
+    const [calculatedShippingFee, setCalculatedShippingFee] = useState(0);
+    const [shippingCalculated, setShippingCalculated] = useState(false);
+    const [calculatingShipping, setCalculatingShipping] = useState(false);
 
     const totalDiscount = card_products.reduce((acc, shop) => {
         return acc + shop.products.reduce((shopAcc, product) => {
@@ -46,18 +51,42 @@ const Card = () => {
         }, 0);
     }, 0);
 
+    // Calculate total weight for shipping
+    const totalWeight = card_products.reduce((total, shop) => {
+        return total + shop.products.reduce((shopTotal, product) => {
+            const weight = product.productInfo.weight || 0.5;
+            return shopTotal + (weight * product.quantity);
+        }, 0);
+    }, 0);
+
     const handleDelete = (id) => {
         setDeletingId(id);
         dispatch(delete_card_product(id));
     };
 
+    const handleShippingCalculated = (data) => {
+        setCalculatedShippingFee(parseFloat(data.totalFee) || 0);
+        setShippingCalculated(true);
+        setCalculatingShipping(false);
+        
+        toast.success(`Shipping calculated: ₦${data.totalFee}`);
+    };
+
+    const handleShippingCalculationStart = () => {
+        setCalculatingShipping(true);
+    };
+
     const redirect = () => {
+        const finalShippingFee = shippingCalculated ? calculatedShippingFee : shipping_fee;
+        const finalTotal = price + finalShippingFee;
+
         navigate('/shipping', {
             state: {
                 products: card_products,
                 price,
-                shipping_fee,
+                shipping_fee: finalShippingFee,
                 items: buy_product_item,
+                total: finalTotal
             },
         });
     };
@@ -92,6 +121,9 @@ const Card = () => {
             dispatch(quantity_dec(card_id));
         }
     };
+
+    const finalShippingFee = shippingCalculated ? calculatedShippingFee : shipping_fee;
+    const finalTotal = price + finalShippingFee;
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -153,6 +185,9 @@ const Card = () => {
                                                             </h4>
                                                             <p className="text-sm text-gray-500 mb-2">
                                                                 Brand: {pt?.productInfo?.brand}
+                                                            </p>
+                                                            <p className="text-xs text-gray-400 mb-1">
+                                                                Weight: {(pt?.productInfo?.weight || 0.5) * pt.quantity} kg
                                                             </p>
                                                             <button
                                                                 onClick={() => handleDelete(pt._id)}
@@ -288,16 +323,62 @@ const Card = () => {
                                             </span>
                                         </div>
 
-                                        <div className="flex justify-between items-center border-t border-gray-200 pt-3">
-                                            <span className="text-gray-600">Shipping Fee</span>
-                                            <span className="font-medium text-gray-900">₦{shipping_fee?.toLocaleString()}</span>
+                                        {/* Shipping Calculator */}
+                                        <div className="border-t border-gray-200 pt-4">
+                                            <button
+                                                onClick={() => setShowShippingCalculator(!showShippingCalculator)}
+                                                className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors mb-3"
+                                            >
+                                                <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                                    <FiTruck className="text-indigo-600" />
+                                                    Calculate Shipping
+                                                </span>
+                                                <svg 
+                                                    className={`w-4 h-4 transition-transform ${showShippingCalculator ? 'rotate-180' : ''}`}
+                                                    fill="none" 
+                                                    stroke="currentColor" 
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </button>
+
+                                            {showShippingCalculator && (
+                                                <div className="mb-3 p-3 bg-white border border-gray-200 rounded-lg">
+                                                    <ShippingCalculator
+                                                        sellers={card_products}
+                                                        onShippingCalculated={handleShippingCalculated}
+                                                        onCalculationStart={handleShippingCalculationStart}
+                                                        variant="simple"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-gray-600">Shipping Fee</span>
+                                                <span className="font-medium text-gray-900">
+                                                    {shippingCalculated ? (
+                                                        <span className="text-green-600">₦{calculatedShippingFee?.toLocaleString()}</span>
+                                                    ) : calculatingShipping ? (
+                                                        <span className="text-gray-400">Calculating...</span>
+                                                    ) : (
+                                                        `₦${shipping_fee?.toLocaleString()}`
+                                                    )}
+                                                </span>
+                                            </div>
+
+                                            {shippingCalculated && (
+                                                <div className="text-xs text-green-600 bg-green-50 p-2 rounded">
+                                                    ✓ Shipping cost calculated with Kwik delivery
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="pt-4 border-t border-gray-200">
                                             <div className="flex justify-between items-center mb-2">
                                                 <span className="font-bold text-gray-800 text-lg">Total</span>
                                                 <span className="font-bold text-lg text-gray-900">
-                                                    ₦{(price + shipping_fee)?.toLocaleString()}
+                                                    ₦{finalTotal?.toLocaleString()}
                                                 </span>
                                             </div>
                                             <p className="text-xs text-gray-500">Inclusive of all taxes</p>
@@ -305,10 +386,40 @@ const Card = () => {
 
                                         <button
                                             onClick={redirect}
-                                            className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg mt-6"
+                                            className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            disabled={calculatingShipping}
                                         >
-                                            Proceed to Checkout
+                                            {calculatingShipping ? (
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    Calculating Shipping...
+                                                </div>
+                                            ) : (
+                                                'Proceed to Checkout'
+                                            )}
                                         </button>
+                                    </div>
+
+                                    {/* Package Summary */}
+                                    <div className="mt-6 pt-6 border-t border-gray-200">
+                                        <h3 className="text-sm font-medium text-gray-900 mb-3">Package Summary</h3>
+                                        <div className="space-y-2 text-sm text-gray-600">
+                                            <div className="flex justify-between">
+                                                <span>Total Items:</span>
+                                                <span className="font-medium">{buy_product_item}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Total Weight:</span>
+                                                <span className="font-medium">{totalWeight.toFixed(1)} kg</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Sellers:</span>
+                                                <span className="font-medium">{card_products.length}</span>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div className="mt-6 pt-6 border-t border-gray-200">
@@ -389,6 +500,9 @@ const Card = () => {
                                                     </div>
                                                     <p className="text-xs text-gray-500 mb-1">
                                                         Brand: {pt?.productInfo?.brand}
+                                                    </p>
+                                                    <p className="text-xs text-gray-400 mb-1">
+                                                        Weight: {(pt?.productInfo?.weight || 0.5) * pt.quantity} kg
                                                     </p>
 
                                                     <div className="flex items-center justify-between mt-1">
@@ -472,26 +586,82 @@ const Card = () => {
                                         ))}
                                     </div>
                                 )}
+
+                                {/* Mobile Shipping Calculator */}
+                                <div className="bg-white p-4 rounded-lg shadow-sm mt-4">
+                                    <button
+                                        onClick={() => setShowShippingCalculator(!showShippingCalculator)}
+                                        className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                                    >
+                                        <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                            <FiTruck className="text-indigo-600" />
+                                            Calculate Shipping
+                                        </span>
+                                        <svg 
+                                            className={`w-4 h-4 transition-transform ${showShippingCalculator ? 'rotate-180' : ''}`}
+                                            fill="none" 
+                                            stroke="currentColor" 
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+
+                                    {showShippingCalculator && (
+                                        <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                                            <ShippingCalculator
+                                                sellers={card_products}
+                                                onShippingCalculated={handleShippingCalculated}
+                                                onCalculationStart={handleShippingCalculationStart}
+                                                variant="simple"
+                                            />
+                                        </div>
+                                    )}
+
+                                    {shippingCalculated && (
+                                        <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-center">
+                                            <p className="text-xs text-green-700">
+                                                ✓ Shipping calculated: ₦{calculatedShippingFee?.toLocaleString()}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Order Summary Section - Mobile */}
                             <div className="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-lg border-t border-gray-200">
                                 <div className="space-y-3">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm text-gray-600">Total</span>
-                                        <span className="text-base font-bold text-gray-900">
-                                            ₦{(price + shipping_fee)?.toLocaleString()}
+                                    <div className="flex justify-between items-center text-sm">
+                                        <span className="text-gray-600">Subtotal ({buy_product_item} items)</span>
+                                        <span className="font-medium">₦{price?.toLocaleString()}</span>
+                                    </div>
+                                    
+                                    <div className="flex justify-between items-center text-sm">
+                                        <span className="text-gray-600">Shipping Fee</span>
+                                        <span className="font-medium text-gray-900">
+                                            {shippingCalculated ? (
+                                                <span className="text-green-600">₦{calculatedShippingFee?.toLocaleString()}</span>
+                                            ) : calculatingShipping ? (
+                                                <span className="text-gray-400">Calculating...</span>
+                                            ) : (
+                                                `₦${shipping_fee?.toLocaleString()}`
+                                            )}
                                         </span>
                                     </div>
-                                    <div className="flex justify-between items-center"> 
-                                        <span className="text-sm text-gray-600">Shipping Fee</span>
-                                        <span className="text-sm font-medium text-gray-900">₦{shipping_fee?.toLocaleString()}</span>
+
+                                    <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                                        <span className="font-bold text-gray-900">Total</span>
+                                        <span className="font-bold text-gray-900 text-lg">
+                                            ₦{finalTotal?.toLocaleString()}
+                                        </span>
                                     </div>
+
                                     <button
                                         onClick={redirect}
-                                        className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-full shadow"
+                                        disabled={calculatingShipping}
+                                        className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-full shadow disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        Proceed to Checkout
+                                        {calculatingShipping ? 'Calculating...' : 'Proceed to Checkout'}
                                     </button>
                                 </div>
                             </div>

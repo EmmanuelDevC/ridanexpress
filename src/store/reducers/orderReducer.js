@@ -48,6 +48,44 @@ export const place_order = createAsyncThunk(
     }
 )
 
+export const get_seller_addresses = createAsyncThunk(
+    'order/get_seller_addresses',
+    async (sellerIds, { rejectWithValue, fulfillWithValue, getState }) => {
+        const token = getState().auth.token;
+        const config = {
+            headers: {
+                'authorization': `Bearer ${token}`
+            }
+        };
+        try {
+            const { data } = await api.post('/home/order/seller-addresses', { sellerIds }, config);
+            return fulfillWithValue(data);
+        } catch (error) {
+            console.log(error.response);
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
+
+export const calculate_shipping = createAsyncThunk(
+    'order/calculate_shipping',
+    async (shippingData, { rejectWithValue, fulfillWithValue, getState }) => {
+        const token = getState().auth.token;
+        const config = {
+            headers: {
+                'authorization': `Bearer ${token}`
+            }
+        };
+
+        try {
+            const { data } = await api.post('/shipping/calculate', shippingData, config);
+            return fulfillWithValue(data);
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
+
 export const order_confirm = createAsyncThunk(
     'order/order_confirm',
     async ({ orderId, transaction_id }, { getState }) => {
@@ -113,7 +151,7 @@ export const get_order = createAsyncThunk(
                 data
             } = await api.get(`/home/customer/get-order/${orderId}`, config)
             return fulfillWithValue(data)
-            
+
         } catch (error) {
             console.log(error.response)
         }
@@ -151,6 +189,14 @@ export const orderReducer = createSlice({
         },
         [order_confirm.rejected]: (state, action) => {
             state.errorMessage = action.error.message
+        },
+        [calculate_shipping.fulfilled]: (state, { payload }) => {
+            state.shippingFee = payload.totalFee;
+            state.shippingBreakdown = payload.breakdown;
+            state.successMessage = 'Shipping calculated successfully';
+        },
+        [calculate_shipping.rejected]: (state, { payload }) => {
+            state.errorMessage = payload?.error || 'Failed to calculate shipping';
         }
     }
 })
