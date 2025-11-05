@@ -119,7 +119,7 @@ const Categorys = () => {
                 </div>
               ))
             ) : (
-              [...Array(6)].map((_, i) => (
+              [...Array(15)].map((_, i) => (
                 <div
                   key={i}
                   className="snap-start min-w-[105px] md:min-w-[180px] lg:min-w-[200px]

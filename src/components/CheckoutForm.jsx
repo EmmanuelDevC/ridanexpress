@@ -29,6 +29,7 @@ const CheckoutForm = ({ orderId, price, items }) => {
 
     const handleFlutterwavePayment = useFlutterwave(config)
 
+    
     const handlePayment = async () => {
         handleFlutterwavePayment({
             callback: async (response) => {
