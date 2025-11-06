@@ -128,7 +128,7 @@ const Card = () => {
                         <div className="flex items-center justify-between">
                             <h1 className="text-2xl font-bold text-gray-900">Your Shopping Cart</h1>
                             <div className="flex items-center text-sm text-gray-500">
-                                <Link to="/" className="text-blue-600 hover:text-blue-700">Home</Link>
+                                <Link to="/" className="text-orange-600 hover:text-orange-700">Home</Link>
                                 <span className="mx-2">/</span>
                                 <span>Shopping Cart</span>
                             </div>
@@ -149,7 +149,7 @@ const Card = () => {
                                     {card_products.map((p, i) => (
                                         <div key={i} className="bg-white p-4 rounded-lg border border-gray-200">
                                             <div className="flex items-center gap-3 mb-4">
-                                                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                                <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
                                                 <h3 className="text-base font-semibold text-gray-800">{p.shopName}</h3>
                                             </div>
 
@@ -242,7 +242,7 @@ const Card = () => {
                                                             </p>
                                                         )}
                                                         {pt.quantity >= (pt?.productInfo?.stock || 0) && (
-                                                            <p className="text-xs text-blue-600 mt-1">
+                                                            <p className="text-xs text-orange-600 mt-1">
                                                                 Max quantity reached
                                                             </p>
                                                         )}
@@ -358,7 +358,7 @@ const Card = () => {
 
                                         <button
                                             onClick={redirect}
-                                            className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded transition-colors mt-4"
+                                            className="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-full transition-colors mt-4"
                                         >
                                             Proceed to Checkout
                                         </button>
@@ -399,8 +399,8 @@ const Card = () => {
                     ) : (
                         <div className="max-w-md mx-auto bg-white p-8 rounded-lg border border-gray-200 text-center">
                             <div className="mb-6 flex justify-center">
-                                <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center">
-                                    <svg className="h-10 w-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center">
+                                    <svg className="h-10 w-10 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                                     </svg>
                                 </div>
@@ -409,7 +409,7 @@ const Card = () => {
                             <p className="text-gray-600 mb-6">Looks like you haven't added anything to your cart yet</p>
                             <Link
                                 to="/"
-                                className="inline-block px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded transition-colors"
+                                className="inline-block px-8 py-3 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded transition-colors"
                             >
                                 Continue Shopping
                             </Link>
@@ -426,7 +426,7 @@ const Card = () => {
                                 {card_products.map((p, i) => (
                                     <div key={i} className="bg-white p-4 rounded-lg border border-gray-200 mb-2">
                                         <div className="flex items-center gap-2 mb-3">
-                                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
                                             <h3 className="text-sm font-semibold text-gray-800">{p.shopName}</h3>
                                         </div>
 
@@ -500,7 +500,7 @@ const Card = () => {
                                                                 </p>
                                                             )}
                                                             {pt.quantity >= (pt?.productInfo?.stock || 0) && (
-                                                                <p className="text-xs text-blue-600 mt-1">
+                                                                <p className="text-xs text-orange-600 mt-1">
                                                                     Max quantity
                                                                 </p>
                                                             )}
@@ -572,14 +572,14 @@ const Card = () => {
 
                                     <div className="flex justify-between items-center pt-2 border-t border-gray-200">
                                         <span className="font-bold text-gray-900">Total</span>
-                                        <span className="font-bold text-gray-900">
+                                        <span className="font-bold text-green-600">
                                             ₦{finalTotal?.toLocaleString()}
                                         </span>
                                     </div>
 
                                     <button
                                         onClick={redirect}
-                                        className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded shadow"
+                                        className="w-full py-3 bg-orange-600 hover:bg-orange-700 mt-5 text-md text-white font-medium rounded-full shadow"
                                     >
                                         Proceed to Checkout
                                     </button>
@@ -589,8 +589,8 @@ const Card = () => {
                     ) : (
                         <div className="max-w-md mx-auto bg-white p-6 rounded-lg border border-gray-200 text-center mt-8">
                             <div className="mb-4 flex justify-center">
-                                <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center">
-                                    <svg className="h-8 w-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center">
+                                    <svg className="h-8 w-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                                     </svg>
                                 </div>
@@ -599,7 +599,7 @@ const Card = () => {
                             <p className="text-gray-600 mb-4 text-sm">Browse our catalog and find something special!</p>
                             <Link
                                 to="/"
-                                className="inline-block px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded shadow text-sm"
+                                className="inline-block px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded shadow text-sm"
                             >
                                 Start Shopping
                             </Link>

@@ -85,6 +85,7 @@ const Shipping = () => {
     setSnackbar({ open: true, message, severity });
   };
 
+  // Enhanced function to load customer data with auto-verification
   const loadCustomerData = () => {
     try {
       const storedData = localStorage.getItem('customerShippingInfo');
@@ -97,7 +98,11 @@ const Shipping = () => {
           post: data.post || '',
           province: data.province || '',
           city: data.city || "",
-          area: data.area || ""
+          area: data.area || "",
+          // Include coordinates and verification status if available
+          coordinates: data.coordinates || null,
+          verified: data.verified || false,
+          source: data.source || null
         };
       }
     } catch (error) {
@@ -110,11 +115,284 @@ const Shipping = () => {
       post: '',
       province: '',
       city: "",
-      area: ""
+      area: "",
+      coordinates: null,
+      verified: false,
+      source: null
     };
   };
 
   const [state, setState] = useState(loadCustomerData());
+
+  // Calculate shipping fee with enhanced logic
+  const calculateShippingFee = async (coordinates, address) => {
+    if (!coordinates || !address || sellerAddresses.length === 0) {
+      console.log('Missing data for shipping calculation:', { coordinates, address, sellerAddresses });
+      return null;
+    }
+
+    setCalculatingShipping(true);
+    
+    try {
+      const shippingData = sellerAddresses.map(seller => {
+        const sellerProducts = products.find(p => p.sellerId === seller.sellerId)?.products || [];
+        const packageDetails = calculateSellerPackageDetails(sellerProducts);
+
+        return {
+          sellerId: seller.sellerId,
+          pickup: {
+            address: seller.address,
+            latitude: seller.coordinates?.latitude,
+            longitude: seller.coordinates?.longitude,
+            name: seller.name,
+            phone: seller.phone,
+            email: seller.email
+          },
+          delivery: {
+            address: address,
+            latitude: coordinates.latitude,
+            longitude: coordinates.longitude,
+            name: state.name || 'Customer',
+            phone: state.phone,
+            email: ''
+          },
+          options: {
+            weight: packageDetails.weight,
+            dimensions: packageDetails.dimensions,
+            itemCount: packageDetails.itemCount,
+            vehicleId: determineVehicleId(packageDetails.weight, packageDetails.dimensions),
+            isInsured: true,
+            isCOD: false,
+            loadersCount: packageDetails.weight > 10 ? 1 : 0,
+            parcel_amount: sellerProducts.reduce((total, product) => total + (product.price || 0), 0),
+            useRealTimeRouting: true,
+            packageType: packageDetails.weight > 5 ? 'parcel' : 'document'
+          }
+        };
+      });
+
+      console.log('Calculating shipping with data:', shippingData);
+      
+      const response = await api.post('/shipping/calculate', { sellers: shippingData });
+
+      if (response.data && response.data.totalFee) {
+        const calculatedFee = parseFloat(response.data.totalFee);
+        console.log('Shipping calculation successful:', calculatedFee);
+        return calculatedFee;
+      } else {
+        throw new Error('Invalid response from shipping API');
+      }
+
+    } catch (error) {
+      console.error('Shipping calculation failed:', error);
+      
+      // Enhanced fallback calculation with better accuracy
+      const fallbackFee = await calculateEnhancedFallbackShipping(coordinates);
+      console.log('Using enhanced fallback shipping fee:', fallbackFee);
+      return fallbackFee;
+    } finally {
+      setCalculatingShipping(false);
+    }
+  };
+
+  // Enhanced fallback shipping calculation
+  const calculateEnhancedFallbackShipping = async (coordinates) => {
+    if (!coordinates || sellerAddresses.length === 0) {
+      return 1500; // Minimum default
+    }
+
+    try {
+      let totalFee = 0;
+      let validSellerCount = 0;
+
+      for (const seller of sellerAddresses) {
+        if (seller.coordinates) {
+          const distance = calculateDistance(
+            seller.coordinates.latitude,
+            seller.coordinates.longitude,
+            coordinates.latitude,
+            coordinates.longitude
+          );
+
+          const sellerProducts = products.find(p => p.sellerId === seller.sellerId)?.products || [];
+          const packageDetails = calculateSellerPackageDetails(sellerProducts);
+
+          // More realistic pricing model
+          let sellerFee = 750; // Base fee
+          sellerFee += Math.max(distance * 100, 300); // Distance-based fee
+          sellerFee += (packageDetails.weight - 1) * 150; // Weight-based fee
+          
+          // Volume surcharge
+          const volume = packageDetails.dimensions.length * packageDetails.dimensions.width * packageDetails.dimensions.height;
+          if (volume > 100000) {
+            sellerFee += 300;
+          }
+          
+          // Item count surcharge
+          if (packageDetails.itemCount > 3) {
+            sellerFee += (packageDetails.itemCount - 3) * 50;
+          }
+
+          totalFee += Math.max(sellerFee, 750);
+          validSellerCount++;
+        }
+      }
+
+      // If no valid sellers, use default
+      if (validSellerCount === 0) {
+        return 1500;
+      }
+
+      // Cap the maximum fee
+      const finalFee = Math.min(totalFee, 15000);
+      console.log('Enhanced fallback calculation result:', finalFee);
+      return finalFee;
+
+    } catch (error) {
+      console.error('Enhanced fallback calculation failed:', error);
+      return 1500;
+    }
+  };
+
+  // Auto-verify stored address on component mount and calculate shipping
+  useEffect(() => {
+    const autoVerifyAndCalculateShipping = async () => {
+      const storedData = loadCustomerData();
+      
+      // Check if we have a verified address stored
+      if (storedData.verified && storedData.address && storedData.coordinates) {
+        console.log('Auto-verifying stored address and calculating shipping:', storedData.address);
+        
+        setLocationStatus({
+          loading: true,
+          success: false,
+          error: null,
+          source: storedData.source || 'localStorage',
+          coordinates: storedData.coordinates,
+          accuracy: storedData.accuracy || null,
+          timestamp: storedData.timestamp || Date.now()
+        });
+
+        setState(prev => ({
+          ...prev,
+          address: storedData.address,
+          name: storedData.name || prev.name,
+          phone: storedData.phone || prev.phone,
+          post: storedData.post || prev.post,
+          province: storedData.province || prev.province,
+          city: storedData.city || prev.city,
+          area: storedData.area || prev.area
+        }));
+
+        // Wait for seller addresses to be loaded
+        if (sellerAddresses.length === 0) {
+          console.log('Waiting for seller addresses to load...');
+          // We'll rely on the seller addresses useEffect to trigger calculation
+          return;
+        }
+
+        // Calculate shipping fee immediately
+        try {
+          setCalculatingShipping(true);
+          const calculatedFee = await calculateShippingFee(storedData.coordinates, storedData.address);
+          
+          if (calculatedFee !== null) {
+            setShippingFee(calculatedFee);
+            setShippingCalculated(true);
+            setLocationStatus(prev => ({ ...prev, loading: false, success: true }));
+            showNotification(`Address verified and shipping calculated: ₦${calculatedFee.toLocaleString()}`, 'success');
+          } else {
+            throw new Error('Shipping calculation failed');
+          }
+        } catch (error) {
+          console.error('Auto shipping calculation failed:', error);
+          setLocationStatus(prev => ({ ...prev, loading: false, success: true }));
+          showNotification('Address verified but shipping calculation failed. Please try again.', 'warning');
+        }
+        
+      } else if (storedData.address && !storedData.verified) {
+        // If we have an address but it's not verified, try to verify it
+        console.log('Attempting to verify stored address:', storedData.address);
+        await verifyStoredAddress(storedData.address);
+      }
+    };
+
+    autoVerifyAndCalculateShipping();
+  }, [sellerAddresses]); // Depend on sellerAddresses to recalculate when they are loaded
+
+  // Function to verify stored address and calculate shipping
+  const verifyStoredAddress = async (address) => {
+    if (!address.trim()) return;
+
+    setLocationStatus(prev => ({ ...prev, loading: true }));
+    setIsVerifying(true);
+
+    try {
+      // Use Mapbox to geocode the stored address
+      const results = await searchAddressWithMapbox(address);
+      
+      if (results && results.length > 0) {
+        const bestMatch = results[0];
+        const [longitude, latitude] = bestMatch.center;
+        
+        const coordinates = { latitude, longitude };
+        const verifiedAddress = bestMatch.place_name;
+
+        setLocationStatus({
+          loading: false,
+          success: true,
+          error: null,
+          source: 'stored_address_verification',
+          coordinates: coordinates,
+          accuracy: null,
+          timestamp: Date.now()
+        });
+
+        // Update the stored data with verification info
+        const updatedData = {
+          ...state,
+          address: verifiedAddress,
+          coordinates: coordinates,
+          verified: true,
+          source: 'stored_address_verification'
+        };
+        
+        setState(updatedData);
+        
+        // Save verified address back to localStorage
+        localStorage.setItem('customerShippingInfo', JSON.stringify(updatedData));
+        
+        // Calculate shipping fee for the verified address
+        if (sellerAddresses.length > 0) {
+          setCalculatingShipping(true);
+          const calculatedFee = await calculateShippingFee(coordinates, verifiedAddress);
+          
+          if (calculatedFee !== null) {
+            setShippingFee(calculatedFee);
+            setShippingCalculated(true);
+            showNotification(`Stored address verified and shipping calculated: ₦${calculatedFee.toLocaleString()}`, 'success');
+          }
+        }
+        
+        setAutoCalculationAttempted(false);
+      } else {
+        throw new Error('Could not verify stored address');
+      }
+    } catch (error) {
+      console.error('Error verifying stored address:', error);
+      setLocationStatus({
+        loading: false,
+        success: false,
+        error: 'Could not auto-verify stored address. Please select or enter your address again.',
+        source: null,
+        coordinates: null,
+        accuracy: null
+      });
+      showNotification('Could not auto-verify stored address. Please verify manually.', 'warning');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
 
   const openLocationModal = () => {
     setShowLocationModal(true);
@@ -122,10 +400,19 @@ const Shipping = () => {
     setSearchResults([]);
   };
 
+  // Enhanced save function to include verification data and trigger shipping calculation
   useEffect(() => {
     const saveCustomerData = () => {
       try {
-        localStorage.setItem('customerShippingInfo', JSON.stringify(state));
+        const dataToSave = {
+          ...state,
+          coordinates: locationStatus.coordinates,
+          verified: locationStatus.success,
+          source: locationStatus.source,
+          accuracy: locationStatus.accuracy,
+          timestamp: locationStatus.timestamp
+        };
+        localStorage.setItem('customerShippingInfo', JSON.stringify(dataToSave));
       } catch (error) {
         console.error('Error saving customer data to localStorage:', error);
       }
@@ -133,7 +420,39 @@ const Shipping = () => {
 
     const timeoutId = setTimeout(saveCustomerData, 500);
     return () => clearTimeout(timeoutId);
-  }, [state]);
+  }, [state, locationStatus]);
+
+  // Auto-calculate shipping when address is verified through other means
+  useEffect(() => {
+    const calculateShippingForVerifiedAddress = async () => {
+      if (locationStatus.success &&
+        locationStatus.coordinates &&
+        state.address &&
+        sellerAddresses.length > 0 &&
+        !autoCalculationAttempted &&
+        !shippingCalculated) {
+
+        console.log('Auto-calculating shipping for verified address');
+        setAutoCalculationAttempted(true);
+        setCalculatingShipping(true);
+
+        try {
+          const calculatedFee = await calculateShippingFee(locationStatus.coordinates, state.address);
+          
+          if (calculatedFee !== null) {
+            setShippingFee(calculatedFee);
+            setShippingCalculated(true);
+            showNotification(`Shipping calculated: ₦${calculatedFee.toLocaleString()}`, 'success');
+          }
+        } catch (error) {
+          console.error('Automatic shipping calculation failed:', error);
+          showNotification('Failed to calculate shipping costs automatically', 'error');
+        }
+      }
+    };
+
+    calculateShippingForVerifiedAddress();
+  }, [locationStatus, state.address, sellerAddresses, autoCalculationAttempted, shippingCalculated]);
 
   const isMapboxConfigured = () => {
     const token = MAPBOX_CONFIG.token;
@@ -363,6 +682,16 @@ const Shipping = () => {
 
       showNotification(accuracyMessage, 'success');
 
+      // Trigger shipping calculation
+      if (sellerAddresses.length > 0) {
+        setCalculatingShipping(true);
+        const calculatedFee = await calculateShippingFee(result.coordinates, result.address);
+        if (calculatedFee !== null) {
+          setShippingFee(calculatedFee);
+          setShippingCalculated(true);
+        }
+      }
+
     } catch (error) {
       console.error('Current location error:', error);
 
@@ -441,7 +770,7 @@ const Shipping = () => {
     }
   };
 
-  const handleSelectAddress = (feature) => {
+  const handleSelectAddress = async (feature) => {
     const [longitude, latitude] = feature.center;
     const address = feature.place_name;
 
@@ -450,12 +779,14 @@ const Shipping = () => {
       address: address
     }));
 
+    const coordinates = { latitude, longitude };
+    
     setLocationStatus({
       loading: false,
       success: true,
       error: null,
       source: 'mapbox_search',
-      coordinates: { latitude, longitude }
+      coordinates: coordinates
     });
 
     setSearchQuery('');
@@ -464,9 +795,19 @@ const Shipping = () => {
     setAutoCalculationAttempted(false);
 
     showNotification('Address selected successfully!', 'success');
+
+    // Calculate shipping for selected address
+    if (sellerAddresses.length > 0) {
+      setCalculatingShipping(true);
+      const calculatedFee = await calculateShippingFee(coordinates, address);
+      if (calculatedFee !== null) {
+        setShippingFee(calculatedFee);
+        setShippingCalculated(true);
+      }
+    }
   };
 
-  const handleSelectSuggestion = (feature) => {
+  const handleSelectSuggestion = async (feature) => {
     const [longitude, latitude] = feature.center;
     const address = feature.place_name;
 
@@ -475,12 +816,14 @@ const Shipping = () => {
       address: address
     }));
 
+    const coordinates = { latitude, longitude };
+    
     setLocationStatus({
       loading: false,
       success: true,
       error: null,
       source: 'mapbox_autocomplete',
-      coordinates: { latitude, longitude }
+      coordinates: coordinates
     });
 
     setShowSuggestions(false);
@@ -488,6 +831,16 @@ const Shipping = () => {
     setAutoCalculationAttempted(false);
 
     showNotification('Address selected from suggestions!', 'success');
+
+    // Calculate shipping for selected address
+    if (sellerAddresses.length > 0) {
+      setCalculatingShipping(true);
+      const calculatedFee = await calculateShippingFee(coordinates, address);
+      if (calculatedFee !== null) {
+        setShippingFee(calculatedFee);
+        setShippingCalculated(true);
+      }
+    }
   };
 
   const getAddressSuggestions = async (query) => {
@@ -611,115 +964,6 @@ const Shipping = () => {
     return R * c;
   };
 
-  const calculateEnhancedFallbackShipping = () => {
-    if (!locationStatus.coordinates || sellerAddresses.length === 0) {
-      return 1500;
-    }
-
-    let totalFee = 0;
-    sellerAddresses.forEach(seller => {
-      if (seller.coordinates) {
-        const distance = calculateDistance(
-          seller.coordinates.latitude,
-          seller.coordinates.longitude,
-          locationStatus.coordinates.latitude,
-          locationStatus.coordinates.longitude
-        );
-
-        const sellerProducts = products.find(p => p.sellerId === seller.sellerId)?.products || [];
-        const packageDetails = calculateSellerPackageDetails(sellerProducts);
-
-        let sellerFee = 750;
-        sellerFee += Math.max(distance * 75, 250);
-        sellerFee += (packageDetails.weight - 1) * 120;
-
-        const volume = packageDetails.dimensions.length * packageDetails.dimensions.width * packageDetails.dimensions.height;
-        if (volume > 100000) {
-          sellerFee += 200;
-        }
-
-        totalFee += Math.max(sellerFee, 750);
-      }
-    });
-
-    return Math.min(totalFee, 10000);
-  };
-
-  useEffect(() => {
-    const calculateAutomaticShipping = async () => {
-      if (locationStatus.success &&
-        locationStatus.coordinates &&
-        state.address &&
-        sellerAddresses.length > 0 &&
-        !autoCalculationAttempted) {
-
-        setCalculatingShipping(true);
-        setAutoCalculationAttempted(true);
-
-        try {
-          const shippingData = sellerAddresses.map(seller => {
-            const sellerProducts = products.find(p => p.sellerId === seller.sellerId)?.products || [];
-            const packageDetails = calculateSellerPackageDetails(sellerProducts);
-
-            return {
-              sellerId: seller.sellerId,
-              pickup: {
-                address: seller.address,
-                latitude: seller.coordinates?.latitude,
-                longitude: seller.coordinates?.longitude,
-                name: seller.name,
-                phone: seller.phone,
-                email: seller.email
-              },
-              delivery: {
-                address: state.address,
-                latitude: locationStatus.coordinates.latitude,
-                longitude: locationStatus.coordinates.longitude,
-                name: state.name || 'Customer',
-                phone: state.phone,
-                email: ''
-              },
-              options: {
-                weight: packageDetails.weight,
-                dimensions: packageDetails.dimensions,
-                itemCount: packageDetails.itemCount,
-                vehicleId: determineVehicleId(packageDetails.weight, packageDetails.dimensions),
-                isInsured: true,
-                isCOD: false,
-                loadersCount: packageDetails.weight > 10 ? 1 : 0,
-                parcel_amount: sellerProducts.reduce((total, product) => total + (product.price || 0), 0),
-                useRealTimeRouting: true,
-                packageType: packageDetails.weight > 5 ? 'parcel' : 'document'
-              }
-            };
-          });
-
-          const response = await api.post('/shipping/calculate', { sellers: shippingData });
-
-          if (response.data && response.data.totalFee) {
-            const calculatedFee = parseFloat(response.data.totalFee);
-            setShippingFee(calculatedFee);
-            setShippingCalculated(true);
-            showNotification(`Shipping calculated: ₦${calculatedFee.toLocaleString()}`, 'success');
-          } else {
-            throw new Error('Invalid response from shipping API');
-          }
-
-        } catch (error) {
-          console.error('Shipping calculation failed:', error);
-          const fallbackFee = calculateEnhancedFallbackShipping();
-          setShippingFee(fallbackFee);
-          setShippingCalculated(true);
-          showNotification(`Using estimated shipping: ₦${fallbackFee.toLocaleString()}`, 'info');
-        } finally {
-          setCalculatingShipping(false);
-        }
-      }
-    };
-
-    calculateAutomaticShipping();
-  }, [locationStatus, state.address, sellerAddresses, autoCalculationAttempted, products]);
-
   const validatePhoneNumber = (phone) => {
     const phoneRegex = /^(\+234|0)[789][01]\d{8}$/;
     return phoneRegex.test(phone.replace(/\s/g, ''));
@@ -756,10 +1000,14 @@ const Shipping = () => {
       if (!shippingCalculated) {
         setCalculatingShipping(true);
         try {
-          const fallbackFee = calculateEnhancedFallbackShipping();
-          setShippingFee(fallbackFee);
-          setShippingCalculated(true);
-          showNotification(`Shipping calculated: ₦${fallbackFee.toLocaleString()}`, 'success');
+          const calculatedFee = await calculateShippingFee(locationStatus.coordinates, address);
+          if (calculatedFee !== null) {
+            setShippingFee(calculatedFee);
+            setShippingCalculated(true);
+            showNotification(`Shipping calculated: ₦${calculatedFee.toLocaleString()}`, 'success');
+          } else {
+            throw new Error('Shipping calculation failed');
+          }
         } catch (error) {
           console.error('Manual shipping calculation failed:', error);
           showNotification('Failed to calculate shipping costs', 'error');
@@ -821,6 +1069,7 @@ const Shipping = () => {
 
           if (addressResponse.data?.sellerAddresses) {
             setSellerAddresses(addressResponse.data.sellerAddresses);
+            console.log('Seller addresses loaded:', addressResponse.data.sellerAddresses);
           }
           if (phoneResponse.data?.sellerPhones) {
             setSellerPhones(phoneResponse.data.sellerPhones);
@@ -919,7 +1168,7 @@ const Shipping = () => {
             </div>
             <div className="w-8 h-0.5 bg-gray-300 mx-2"></div>
             <div className={`flex items-center ${res ? 'text-orange-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${res ? 'bg-orange-600 border-orange-600 text-white' : 'border-gray-300'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${res ? 'border-orange-600 border-orange-600 text-orange-500' : 'border-gray-300'}`}>
                 2
               </div>
               <span className="ml-2 text-sm font-medium">Payment</span>
@@ -1075,14 +1324,22 @@ const Shipping = () => {
                       {locationStatus.loading && (
                         <div className="flex items-center gap-2 p-2 bg-orange-50 rounded text-orange-700 text-sm mt-1">
                           <CircularProgress size={14} className="text-orange-600" />
-                          Getting your location...
+                          {isVerifying ? 'Verifying stored address...' : 'Getting your location...'}
                         </div>
                       )}
 
                       {locationStatus.success && (
                         <div className="flex items-center gap-2 p-2 bg-green-50 rounded text-green-700 text-sm mt-1">
                           <MdCheckCircle className="text-green-500 text-sm" />
-                          Address verified successfully
+                          {locationStatus.source === 'localStorage' 
+                            ? 'Address automatically verified from saved information!' 
+                            : 'Address verified successfully'}
+                          {calculatingShipping && (
+                            <span className="text-green-600 ml-2">
+                              <CircularProgress size={12} className="mr-1" />
+                              Calculating shipping...
+                            </span>
+                          )}
                         </div>
                       )}
 
@@ -1174,10 +1431,24 @@ const Shipping = () => {
                             <p className="text-gray-600 text-xs">
                               {state.city}, {state.area}, {state.province} {state.post}
                             </p>
+                            {locationStatus.source === 'localStorage' && (
+                              <p className="text-green-600 text-xs mt-1">
+                                ✓ Automatically verified from saved address
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
                     </div>
+
+                    {shippingCalculated && (
+                      <div className="bg-blue-50 p-3 rounded border border-blue-200">
+                        <div className="flex items-center justify-between">
+                          <span className="text-blue-800 font-medium">Shipping Fee:</span>
+                          <span className="text-blue-800 font-bold">₦{shippingFee.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -1301,6 +1572,15 @@ const Shipping = () => {
                     <p className="text-gray-600">Track your package</p>
                   </div>
                 </div>
+                {locationStatus.source === 'localStorage' && (
+                  <div className="flex items-center gap-3">
+                    <MdCheckCircle className="text-blue-600 w-4 h-4" />
+                    <div>
+                      <p className="font-medium">Auto-verified Address</p>
+                      <p className="text-gray-600">From saved information</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
