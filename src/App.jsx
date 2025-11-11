@@ -30,12 +30,17 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import NewArrivals from './pages/NewArrivals';
 import BestSellers from './pages/BestSellers';
+import useNetworkStatus from './hooks/useNetworkStatus';
+import NetworkStatusModal from './components/NetworkStatusModal';
 
 function App() {
+  const { isOnline, showOfflineModal, setShowOfflineModal, isStableOffline } = useNetworkStatus();
   const dispatch = useDispatch()
+
   useEffect(() => {
     dispatch(get_category())
-  }, [])
+  }, [dispatch])
+
   return (
     <div className='max-w-screen min-h-screen'>
       <BrowserRouter>
@@ -58,7 +63,7 @@ function App() {
           <Route path='/shipping' element={<Shipping />} />
           <Route path='/payment' element={<Payment />} />
           <Route path='/product/details/:slug' element={<Details />} />
-          <Route path='/product/details/id/:id' element={<Details />} /> 
+          <Route path='/product/details/id/:id' element={<Details />} />
           <Route path="/error" element={<ErrorPage />} />
           <Route path="*" element={<NotFoundPage />} />
 
@@ -74,6 +79,14 @@ function App() {
             </Route>
           </Route>
         </Routes>
+
+        {/* Network Status Modal - Rendered outside Routes but inside Router */}
+        <NetworkStatusModal
+          isOpen={showOfflineModal}
+          onClose={() => setShowOfflineModal(false)}
+          isOnline={isOnline}
+          isStableOffline={isStableOffline}
+        />
       </BrowserRouter>
     </div>
   );
