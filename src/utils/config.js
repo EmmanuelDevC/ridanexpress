@@ -1,22 +1,7 @@
-const stripe_sky = 'pk_test_51Nk8Y4F0B89ncn3xWB6ZN3GsbVIVL7Jqfa3jxtIOpPkKHcleHZw4EMPJKd4cRwm34ZARBeYmAWwu3VxyYL1gb6OT00UKNSvfvb'
+const stripe_sky = import.meta.env.VITE_STRIPE_PUBLIC_KEY || ''
 
-
-const production = 'production'
-const dev = 'development'
-
-const mode = production
-
-let app_url, api_url
-
-if (mode === production) {
-    // app_url = "https://ridanexpress.vercel.app"
-    app_url = "http://localhost:3000"
-    // api_url = "https://ridanexpress-api-lqo6.onrender.com"
-    api_url = "http://localhost:5000"
-} else {
-    app_url = 'http://localhost:3000'
-    api_url = 'http://localhost:5000'
-}
+const app_url = import.meta.env.VITE_APP_URL || 'http://localhost:3000'
+const api_url = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 export {
     app_url,
