@@ -46,7 +46,6 @@ const Shipping = () => {
   const dispatch = useDispatch();
   const { userInfo } = useSelector(state => state.auth);
   const { state: { products, price, items } } = useLocation();
-
   const [res, setRes] = useState(false);
   const [sellerAddresses, setSellerAddresses] = useState([]);
   const [sellerPhones, setSellerPhones] = useState([]);

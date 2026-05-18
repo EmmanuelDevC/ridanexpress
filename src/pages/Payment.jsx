@@ -9,7 +9,9 @@ import {
     MdCheckCircle,
     MdInfoOutline,
     MdPayment,
-    MdLocalShipping
+    MdLocalShipping,
+    MdAttachMoney,
+    MdSchedule
 } from 'react-icons/md'
 
 const Payment = () => {
@@ -32,6 +34,23 @@ const Payment = () => {
             setTotalAmount(Number(price))
         }
     }, [price, shipping_fee, price_includes_shipping])
+
+    // Calculate breakdown for COD
+    const getPaymentBreakdown = () => {
+        const subtotal = Number(price);
+        const shipping = price_includes_shipping ? 0 : Number(shipping_fee);
+        const codFee = Math.round(subtotal * 0.02); // 2% COD fee example
+        const amountDue = subtotal + shipping + codFee;
+        
+        return {
+            subtotal,
+            shipping,
+            codFee,
+            amountDue
+        };
+    }
+
+    const breakdown = getPaymentBreakdown();
 
     return (
         <div className="min-h-screen bg-white">
@@ -79,11 +98,11 @@ const Payment = () => {
                                     Payment Method
                                 </h2>
                                 <p className="text-sm text-gray-500 mt-1">
-                                    Your payment will be securely processed through Flutterwave.
+                                    Choose your preferred payment method
                                 </p>
                             </div>
 
-                            <div className="p-4">
+                            <div className="p-4 space-y-4">
                                 {/* Flutterwave Option */}
                                 <div
                                     onClick={() => setPaymentMethod('flutterwave')}
@@ -99,7 +118,7 @@ const Payment = () => {
                                             className="h-8 w-8 object-contain"
                                         />
                                         <div>
-                                            <h3 className="font-medium text-gray-900 text-sm">Flutterwave</h3>
+                                            <h3 className="font-medium text-gray-900 text-sm">Pay Now</h3>
                                             <p className="text-xs text-gray-500">
                                                 Credit/Debit Cards, Mobile Money, Bank Transfer
                                             </p>
@@ -110,10 +129,116 @@ const Payment = () => {
                                     </div>
                                 </div>
 
-                                {/* Payment Component */}
+                                {/* COD Option */}
+                                <div
+                                    onClick={() => setPaymentMethod('cod')}
+                                    className={`p-4 rounded-lg cursor-pointer transition-colors border ${paymentMethod === 'cod'
+                                            ? 'border-green-500 bg-green-50'
+                                            : 'border-gray-200 hover:border-green-300'
+                                        }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 flex items-center justify-center bg-green-100 rounded-full">
+                                            <MdAttachMoney className="text-green-600 w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-medium text-gray-900 text-sm">Cash on Delivery (COD)</h3>
+                                            <p className="text-xs text-gray-500">
+                                                Pay when you receive your order
+                                            </p>
+                                        </div>
+                                        {paymentMethod === 'cod' && (
+                                            <MdCheckCircle className="text-green-600 ml-auto text-lg" />
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Payment Components */}
                                 {paymentMethod === 'flutterwave' && (
                                     <div className="mt-4">
                                         <FlutterwavePayment orderId={orderId} price={totalAmount} />
+                                    </div>
+                                )}
+
+                                {paymentMethod === 'cod' && (
+                                    <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <MdLocalShipping className="text-green-600 w-6 h-6" />
+                                            <div>
+                                                <h3 className="font-semibold text-green-800">Cash on Delivery Selected</h3>
+                                                <p className="text-sm text-green-700">
+                                                    You will pay when your order arrives
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* COD Payment Breakdown */}
+                                        <div className="bg-white rounded-lg border border-green-200 p-4">
+                                            <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                                                <MdAttachMoney className="text-green-600" />
+                                                Payment Breakdown
+                                            </h4>
+                                            <div className="space-y-2 text-sm">
+                                                <div className="flex justify-between">
+                                                    <span className="text-gray-600">Items Subtotal ({items} items)</span>
+                                                    <span>₦{breakdown.subtotal?.toLocaleString()}</span>
+                                                </div>
+                                                {breakdown.shipping > 0 && (
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-600">Shipping Fee</span>
+                                                        <span>₦{breakdown.shipping?.toLocaleString()}</span>
+                                                    </div>
+                                                )}
+                                                <div className="flex justify-between">
+                                                    <span className="text-gray-600">COD Service Fee</span>
+                                                    <span className="text-orange-600">₦{breakdown.codFee?.toLocaleString()}</span>
+                                                </div>
+                                                <div className="border-t pt-2 mt-2">
+                                                    <div className="flex justify-between font-semibold text-base">
+                                                        <span className="text-gray-900">Amount Due on Delivery</span>
+                                                        <span className="text-green-600">₦{breakdown.amountDue?.toLocaleString()}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* COD Instructions */}
+                                        <div className="mt-4 space-y-3">
+                                            <div className="flex items-start gap-3">
+                                                <MdSchedule className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                                                <div>
+                                                    <p className="font-medium text-gray-900 text-sm">Delivery Process</p>
+                                                    <p className="text-xs text-gray-600">
+                                                        Our delivery agent will contact you before arrival. Please keep exact change ready.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-start gap-3">
+                                                <MdCheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                                                <div>
+                                                    <p className="font-medium text-gray-900 text-sm">Order Confirmation</p>
+                                                    <p className="text-xs text-gray-600">
+                                                        Your order will be confirmed immediately. Delivery timeframe: 2-5 business days.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* COD Action Button */}
+                                        <div className="mt-6">
+                                            <button
+                                                onClick={() => {
+                                                    // Handle COD order confirmation
+                                                    alert('COD order confirmed! You will receive a confirmation email shortly.');
+                                                }}
+                                                className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200"
+                                            >
+                                                Confirm COD Order
+                                            </button>
+                                            <p className="text-xs text-center text-gray-500 mt-2">
+                                                By confirming, you agree to pay the amount due when your order arrives
+                                            </p>
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -131,6 +256,24 @@ const Payment = () => {
                                 </div>
                             </div>
                         </div>
+
+                        {/* COD Specific Info */}
+                        {paymentMethod === 'cod' && (
+                            <div className="bg-green-50 rounded-lg p-3 text-sm text-gray-700 border border-green-200 mt-4">
+                                <div className="flex items-start gap-2">
+                                    <MdInfoOutline className="w-4 h-4 flex-shrink-0 text-green-600 mt-0.5" />
+                                    <div>
+                                        <p className="font-medium text-green-800">Cash on Delivery Terms</p>
+                                        <ul className="text-green-700 text-xs list-disc list-inside mt-1 space-y-1">
+                                            <li>Please inspect your items before making payment</li>
+                                            <li>Exact change is preferred for smooth transaction</li>
+                                            <li>Delivery may be delayed if payment is not ready</li>
+                                            <li>COD available for orders up to ₦500,000</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Order Summary */}
@@ -148,13 +291,27 @@ const Payment = () => {
                                         <span className="text-gray-600">Items ({items} items) + Fees</span>
                                         <span className="font-medium">₦{price?.toLocaleString()}</span>
                                     </div>
+                                    {!price_includes_shipping && shipping_fee > 0 && (
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-600">Shipping Fee</span>
+                                            <span className="font-medium">₦{shipping_fee?.toLocaleString()}</span>
+                                        </div>
+                                    )}
+                                    {paymentMethod === 'cod' && (
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-600">COD Service Fee</span>
+                                            <span className="font-medium text-orange-600">₦{breakdown.codFee?.toLocaleString()}</span>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="border-t pt-2">
                                     <div className="flex justify-between items-center font-semibold">
-                                        <span className="text-gray-900">Total Amount</span>
-                                        <span className="text-gray-800 text-lg">
-                                            ₦{totalAmount?.toLocaleString()}
+                                        <span className="text-gray-900">
+                                            {paymentMethod === 'cod' ? 'Amount Due on Delivery' : 'Total Amount'}
+                                        </span>
+                                        <span className={`text-lg ${paymentMethod === 'cod' ? 'text-green-600' : 'text-gray-800'}`}>
+                                            ₦{paymentMethod === 'cod' ? breakdown.amountDue?.toLocaleString() : totalAmount?.toLocaleString()}
                                         </span>
                                     </div>
                                 </div>
@@ -171,8 +328,18 @@ const Payment = () => {
                                             <span className="font-medium text-gray-900">{items}</span>
                                         </div>
                                         <div className="flex justify-between">
+                                            <span>Payment Method:</span>
+                                            <span className="font-medium capitalize">
+                                                {paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between">
                                             <span>Payment Status:</span>
-                                            <span className="font-medium text-yellow-600">Pending</span>
+                                            <span className={`font-medium ${
+                                                paymentMethod === 'cod' ? 'text-blue-600' : 'text-yellow-600'
+                                            }`}>
+                                                {paymentMethod === 'cod' ? 'Pending Delivery' : 'Pending'}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -184,7 +351,12 @@ const Payment = () => {
                                     </div>
                                     <div className="flex items-start gap-2 text-xs text-gray-500">
                                         <MdCheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0 text-green-500" />
-                                        <span>Instant order confirmation upon payment</span>
+                                        <span>
+                                            {paymentMethod === 'cod' 
+                                                ? 'Order confirmation within 30 minutes' 
+                                                : 'Instant order confirmation upon payment'
+                                            }
+                                        </span>
                                     </div>
                                 </div>
 
